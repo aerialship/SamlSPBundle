@@ -1,0 +1,25 @@
+{
+    "name": "aerialship/saml-sp-bundle",
+    "license": "MIT",
+    "type": "project",
+    "description": "Symfony2 SAML2 authentication bundle",
+    "autoload": {
+        "psr-0": { "": "src/" }
+    },
+    "require": {
+        "php": ">=5.4.1",
+        "aerialship/lightsaml": "dev-master",
+        "symfony/symfony": "~2.2"
+    },
+    "scripts": {
+        "post-install-cmd": [
+        ],
+        "post-update-cmd": [
+        ]
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "prefer-stable": true,
+    "minimum-stability": "dev"
+}
