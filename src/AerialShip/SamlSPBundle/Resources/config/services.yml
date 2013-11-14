@@ -1,0 +1,36 @@
+
+parameters:
+    security.authentication.provider.aerialship_saml_sp.class: AerialShip\SamlSPBundle\Security\Authentication\Provider\SamlSpProvider
+    security.authentication.listener.aerialship_saml_sp.class: AerialShip\SamlSPBundle\Security\Listener\SamlSpListener
+    aerialship_saml_sp.relying_party.authenticate.class: AerialShip\SamlSPBundle\Bridge\Authenticate
+    aerialship_saml_sp.relying_party.collection.class: AerialShip\SamlSPBundle\RelyingParty\RelyingPartyCollection
+
+services:
+
+    security.authentication.provider.aerialship_saml_sp:
+        class: %security.authentication.provider.aerialship_saml_sp.class%
+        public: false
+        abstract: true
+        arguments: [~]
+
+
+    security.authentication.listener.aerialship_saml_sp:
+        class: %security.authentication.listener.aerialship_saml_sp.class%
+        parent: security.authentication.listener.abstract
+        public: false
+        abstract: true
+
+
+    aerialship_saml_sp.relying_party.authenticate:
+        class: %aerialship_saml_sp.relying_party.authenticate.class%
+        arguments: []
+        public: false
+
+    aerialship_saml_sp.relying_party.default:
+        class: %aerialship_saml_sp.relying_party.collection.class%
+        calls:
+            - [append, [@aerialship_saml_sp.relying_party.authenticate]]
+        public: false
+
+
+
