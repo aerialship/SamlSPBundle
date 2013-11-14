@@ -25,7 +25,7 @@ class SamlSpFactory extends AbstractFactory
     public function addConfiguration(NodeDefinition $node) {
         parent::addConfiguration($node);
         $node->children()
-            ->scalarNode('relying_party')->defaultValue('bwc_saml_sp.relying_party.default')->cannotBeEmpty()->end()
+            ->scalarNode('relying_party')->defaultValue('aerialship_saml_sp.relying_party.default')->cannotBeEmpty()->end()
             ->scalarNode('login_path')->defaultValue('/login_saml')->cannotBeEmpty()->end()
             ->scalarNode('check_path')->defaultValue('/login_check_saml')->cannotBeEmpty()->end()
             ->scalarNode('logout_path')->defaultValue('/logout_saml')->cannotBeEmpty()->end()

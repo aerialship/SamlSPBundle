@@ -15,7 +15,7 @@ class AerialShipSamlSPExtension extends Extension
         $configs = $this->processConfiguration(new Configuration(), $configs);
 
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
-        $loader->load('services.xml');
+        $loader->load('services.yml');
 
     }
 } 

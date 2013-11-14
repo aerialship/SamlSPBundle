@@ -3,6 +3,7 @@ parameters:
     security.authentication.provider.aerialship_saml_sp.class: AerialShip\SamlSPBundle\Security\Authentication\Provider\SamlSpProvider
     security.authentication.listener.aerialship_saml_sp.class: AerialShip\SamlSPBundle\Security\Listener\SamlSpListener
     aerialship_saml_sp.relying_party.authenticate.class: AerialShip\SamlSPBundle\Bridge\Authenticate
+    aerialship_saml_sp.relying_party.assertion_consumer.class: AerialShip\SamlSPBundle\Bridge\AssertionConsumer
     aerialship_saml_sp.relying_party.collection.class: AerialShip\SamlSPBundle\RelyingParty\RelyingPartyCollection
 
 services:
@@ -26,10 +27,16 @@ services:
         arguments: []
         public: false
 
+    aerialship_saml_sp.relying_party.assertion_consumer:
+        class: %aerialship_saml_sp.relying_party.assertion_consumer.class%
+        arguments: []
+        public: false
+
     aerialship_saml_sp.relying_party.default:
         class: %aerialship_saml_sp.relying_party.collection.class%
         calls:
             - [append, [@aerialship_saml_sp.relying_party.authenticate]]
+            - [append, [@aerialship_saml_sp.relying_party.assertion_consumer]]
         public: false
 
 
