@@ -25,7 +25,7 @@ class SamlSpFactory extends AbstractFactory
     public function addConfiguration(NodeDefinition $node) {
         parent::addConfiguration($node);
         $node->children()
-            ->scalarNode('relying_party')->defaultValue('aerialship_saml_sp.relying_party.default')->cannotBeEmpty()->end()
+            ->scalarNode('relying_party')->defaultValue('aerial_ship_saml_sp.relying_party.default')->cannotBeEmpty()->end()
             ->scalarNode('login_path')->defaultValue('/login_saml')->cannotBeEmpty()->end()
             ->scalarNode('check_path')->defaultValue('/login_check_saml')->cannotBeEmpty()->end()
             ->scalarNode('logout_path')->defaultValue('/logout_saml')->cannotBeEmpty()->end()
@@ -61,9 +61,9 @@ class SamlSpFactory extends AbstractFactory
      * @return string never null, the id of the authentication provider
      */
     protected function createAuthProvider(ContainerBuilder $container, $id, $config, $userProviderId) {
-        $providerId = 'security.authentication.provider.aerialship_saml_sp.'.$id;
+        $providerId = 'security.authentication.provider.aerial_ship_saml_sp.'.$id;
         $provider = $container
-                ->setDefinition($providerId, new DefinitionDecorator('security.authentication.provider.aerialship_saml_sp'))
+                ->setDefinition($providerId, new DefinitionDecorator('security.authentication.provider.aerial_ship_saml_sp'))
                 ->replaceArgument(0, $id);
 
         // with user provider
@@ -94,7 +94,7 @@ class SamlSpFactory extends AbstractFactory
      * @return string
      */
     protected function getListenerId() {
-        return 'security.authentication.listener.aerialship_saml_sp';
+        return 'security.authentication.listener.aerial_ship_saml_sp';
     }
 
     public function getPosition() {
@@ -102,7 +102,7 @@ class SamlSpFactory extends AbstractFactory
     }
 
     public function getKey() {
-        return 'aerialship_saml_sp';
+        return 'aerial_ship_saml_sp';
     }
 
 } 

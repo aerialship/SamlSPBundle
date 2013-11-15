@@ -8,6 +8,7 @@ use AerialShip\LightSaml\Meta\AuthnRequestBuilder;
 use AerialShip\LightSaml\Meta\SpMeta;
 use AerialShip\LightSaml\Model\Metadata\EntityDescriptor;
 use AerialShip\LightSaml\NameIDPolicy;
+use AerialShip\SamlSPBundle\Config\EntityDescriptorProviderInterface;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,6 +16,14 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Authenticate implements RelyingPartyInterface
 {
+    protected $spProvider;
+    protected $idpProvider;
+
+    function __construct(EntityDescriptorProviderInterface $spProvider, EntityDescriptorProviderInterface $idpProvider) {
+        $this->spProvider = $spProvider;
+        $this->idpProvider = $idpProvider;
+    }
+
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return bool
@@ -27,22 +36,23 @@ class Authenticate implements RelyingPartyInterface
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @throws \InvalidArgumentException if cannot manage the Request
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|SamlSpResponse
+     * @return \Symfony\Component\HttpFoundation\Response|SamlSpResponse
      */
     function manage(Request $request) {
         if (false == $this->supports($request)) {
             throw new \InvalidArgumentException('Unsupported request');
         }
 
-        $spED = new EntityDescriptor();
-        $doc = new \DOMDocument();
-        $doc->load('d:\www\home\aerial\test\src\AerialShip\SamlTestBundle\Resources\sp.xml');
-        $spED->loadFromXml($doc->firstChild);
+        $spED = $this->spProvider->getEntityDescriptor($request);
+//        $spED = new EntityDescriptor();
+//        $doc = new \DOMDocument();
+//        $doc->load('d:\www\home\aerial\test\src\AerialShip\SamlTestBundle\Resources\sp.xml');
+//        $spED->loadFromXml($doc->firstChild);
 
-        $idpED = new EntityDescriptor();
-        $doc = new \DOMDocument();
-        $doc->load('d:\www\home\aerial\test\vendor\aerialship\lightsaml\resources\sample\EntityDescriptor\idp2-ed.xml');
-        $idpED->loadFromXml($doc->firstChild);
+        $idpED = $this->idpProvider->getEntityDescriptor($request);
+//        $doc = new \DOMDocument();
+//        $doc->load('d:\www\home\aerial\test\vendor\aerialship\lightsaml\resources\sample\EntityDescriptor\idp2-ed.xml');
+//        $idpED->loadFromXml($doc->firstChild);
 
         $spMeta = new SpMeta();
         $spMeta->setNameIdFormat(NameIDPolicy::TRANSIENT);

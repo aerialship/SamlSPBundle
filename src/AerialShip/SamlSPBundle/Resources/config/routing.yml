@@ -1,13 +1,13 @@
 
-aerialship_saml_sp.security.login:
+aerial_ship_saml_sp.security.login:
     pattern: /login_saml
     defaults: { _controller: "AerialShipSamlSPBundle:Security:login" }
 
-aerialship_saml_sp.security.check:
+aerial_ship_saml_sp.security.check:
     pattern: /login_check_saml
     defaults: { _controller: "AerialShipSamlSPBundle:Security:check" }
 
-aerialship_saml_sp.security.logout:
+aerial_ship_saml_sp.security.logout:
     pattern: /logout_saml
     defaults: { _controller: "AerialShipSamlSPBundle:Security:logout" }
 

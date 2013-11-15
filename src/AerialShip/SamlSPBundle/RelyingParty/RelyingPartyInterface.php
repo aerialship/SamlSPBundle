@@ -16,7 +16,7 @@ interface RelyingPartyInterface
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @throws \InvalidArgumentException if cannot manage the Request
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|SamlSpResponse
+     * @return \Symfony\Component\HttpFoundation\Response|SamlSpResponse
      */
     function manage(Request $request);
 }

@@ -57,8 +57,10 @@ class SamlSpListener extends AbstractAuthenticationListener
     /**
      * Performs authentication.
      * @param Request $request A Request instance
+     * @throws \Exception
+     * @throws \Symfony\Component\Security\Core\Exception\AuthenticationException
+     * @throws \RuntimeException
      * @return TokenInterface|Response|null The authenticated token, null if full authentication is not possible, or a Response
-     * @throws AuthenticationException if the authentication fails
      */
     protected function attemptAuthentication(Request $request) {
         $myRequest = $request->duplicate();
@@ -74,7 +76,7 @@ class SamlSpListener extends AbstractAuthenticationListener
 
         $result = $this->getRelyingParty()->manage($myRequest);
 
-        if ($result instanceof RedirectResponse) {
+        if ($result instanceof Response) {
             return $result;
         }
 
@@ -90,7 +92,7 @@ class SamlSpListener extends AbstractAuthenticationListener
         }
 
         throw new \RuntimeException(sprintf(
-            'The relying party %s::manage() must either return a RedirectResponse or instance of SamlSpResponse.',
+            'The relying party %s::manage() must either return a Response or instance of SamlSpResponse.',
             get_class($this->getRelyingParty())
         ));
     }
