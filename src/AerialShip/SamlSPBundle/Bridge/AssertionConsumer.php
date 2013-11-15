@@ -3,10 +3,10 @@
 namespace AerialShip\SamlSPBundle\Bridge;
 
 use AerialShip\LightSaml\Binding\BindingDetector;
-use AerialShip\LightSaml\Bindings;
 use AerialShip\LightSaml\Model\Protocol\Response;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use Symfony\Component\HttpFoundation\Request;
+
 
 class AssertionConsumer implements RelyingPartyInterface
 {

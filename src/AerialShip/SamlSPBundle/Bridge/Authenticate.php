@@ -9,6 +9,7 @@ use AerialShip\LightSaml\Meta\SpMeta;
 use AerialShip\LightSaml\Model\Metadata\EntityDescriptor;
 use AerialShip\LightSaml\NameIDPolicy;
 use AerialShip\SamlSPBundle\Config\EntityDescriptorProviderInterface;
+use AerialShip\SamlSPBundle\Config\SpMetaProviderInterface;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -16,13 +17,27 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Authenticate implements RelyingPartyInterface
 {
+    /** @var  EntityDescriptorProviderInterface */
     protected $spProvider;
+
+    /** @var  EntityDescriptorProviderInterface */
     protected $idpProvider;
 
-    function __construct(EntityDescriptorProviderInterface $spProvider, EntityDescriptorProviderInterface $idpProvider) {
+    /** @var  SpMetaProviderInterface */
+    protected $spMetaProvider;
+
+
+
+    function __construct(EntityDescriptorProviderInterface $spProvider,
+        EntityDescriptorProviderInterface $idpProvider,
+        SpMetaProviderInterface $spMetaProvider
+    ) {
         $this->spProvider = $spProvider;
         $this->idpProvider = $idpProvider;
+        $this->spMetaProvider = $spMetaProvider;
     }
+
+
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
@@ -44,19 +59,8 @@ class Authenticate implements RelyingPartyInterface
         }
 
         $spED = $this->spProvider->getEntityDescriptor($request);
-//        $spED = new EntityDescriptor();
-//        $doc = new \DOMDocument();
-//        $doc->load('d:\www\home\aerial\test\src\AerialShip\SamlTestBundle\Resources\sp.xml');
-//        $spED->loadFromXml($doc->firstChild);
-
         $idpED = $this->idpProvider->getEntityDescriptor($request);
-//        $doc = new \DOMDocument();
-//        $doc->load('d:\www\home\aerial\test\vendor\aerialship\lightsaml\resources\sample\EntityDescriptor\idp2-ed.xml');
-//        $idpED->loadFromXml($doc->firstChild);
-
-        $spMeta = new SpMeta();
-        $spMeta->setNameIdFormat(NameIDPolicy::TRANSIENT);
-        $spMeta->setAuthnRequestBinding(Bindings::SAML2_HTTP_REDIRECT);
+        $spMeta = $this->spMetaProvider->getSpMeta($request);
 
         $builder = new AuthnRequestBuilder($spED, $idpED, $spMeta);
         $req = $builder->build();

@@ -7,6 +7,7 @@ parameters:
     aerial_ship_saml_sp.relying_party.collection.class: AerialShip\SamlSPBundle\RelyingParty\RelyingPartyCollection
     aerial_ship_saml_sp.entity_descriptor_provider.sp.class: AerialShip\SamlSPBundle\Config\EntityDescriptorFileProvider
     aerial_ship_saml_sp.entity_descriptor_provider.idp.class: AerialShip\SamlSPBundle\Config\EntityDescriptorFileProvider
+    aerial_ship_saml_sp.sp_meta_provider.class: AerialShip\SamlSPBundle\Config\SpMetaConfigProvider
 
 services:
 

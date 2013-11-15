@@ -34,7 +34,7 @@ class SamlSpFactory extends AbstractFactory
     }
 
 
-    protected function createListener($container, $id, $config, $userProvider) {
+    protected function createListener(ContainerBuilder $container, $id, $config, $userProvider) {
         $this->addOption('login_path', $config['login_path']);
         $this->addOption('check_path', $config['check_path']);
         $this->addOption('logout_path', $config['logout_path']);
