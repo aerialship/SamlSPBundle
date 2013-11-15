@@ -2,10 +2,14 @@
 
 namespace AerialShip\SamlSPBundle\Security\Authentication\Provider;
 
+use AerialShip\LightSaml\Model\Assertion\NameID;
 use AerialShip\SamlSPBundle\Security\Token\SamlSpToken;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\Exception\AuthenticationServiceException;
+use Symfony\Component\Security\Core\Exception\UsernameNotFoundException;
+use Symfony\Component\Security\Core\User\User;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
@@ -47,16 +51,35 @@ class SamlSpProvider implements AuthenticationProviderInterface
         if (false == $this->supports($token)) {
             return null;
         }
-
+        /** @var $token SamlSpToken */
         if ($token->getUser() instanceof UserInterface) {
             return $this->createAuthenticatedToken(
+                $token->getNameID(),
                 $token->getAttributes(),
                 $token->getUser()->getRoles(),
                 $token->getUser()
             );
         }
 
-        throw new AuthenticationException('not implemented');
+        try {
+            $user = $this->userProvider ?
+                    $this->getProviderUser($token->getNameID()->getValue(), $token->getAttributes()) :
+                    $this->getDefaultUser($token->getNameID()->getValue(), $token->getAttributes())
+            ;
+
+            return $this->createAuthenticatedToken(
+                $token->getNameID(),
+                $token->getAttributes(),
+                $user instanceof UserInterface ? $user->getRoles() : array(),
+                $user
+            );
+
+
+        } catch (AuthenticationException $ex) {
+            throw $ex;
+        } catch (\Exception $ex) {
+            throw new AuthenticationServiceException($ex->getMessage(), (int) $ex->getCode(), $ex);
+        }
     }
 
 
@@ -70,22 +93,59 @@ class SamlSpProvider implements AuthenticationProviderInterface
     }
 
 
-
     /**
+     * @param NameID $nameID
      * @param array $attributes
      * @param array $roles
      * @param mixed $user
      * @return SamlSpToken
      */
-    protected function createAuthenticatedToken(array $attributes, array $roles, $user) {
+    protected function createAuthenticatedToken(NameID $nameID, array $attributes, array $roles, $user) {
         if ($user instanceof UserInterface) {
             $this->userChecker->checkPostAuth($user);
         }
         $newToken = new SamlSpToken($this->providerKey, $roles);
         $newToken->setUser($user);
         $newToken->setAttributes($attributes);
+        $newToken->setNameID($nameID);
         $newToken->setAuthenticated(true);
         return $newToken;
+    }
+
+    /**
+     * @param string $nameID
+     * @param array $attributes
+     * @return UserInterface
+     * @throws \Exception
+     * @throws \Symfony\Component\Security\Core\Exception\UsernameNotFoundException
+     * @throws \RuntimeException
+     */
+    private function getProviderUser($nameID, array $attributes) {
+        try {
+            $user = $this->userProvider->loadUserByUsername($nameID);
+        } catch (UsernameNotFoundException $ex) {
+            throw $ex;
+//            if (false == $this->createIfNotExists) {
+//                throw $e;
+//            }
+//            $user = $this->userProvider->createUserFromIdentity($identity, $attributes);
+        }
+
+        if (false == $user instanceof UserInterface) {
+            throw new \RuntimeException('User provider did not return an implementation of user interface.');
+        }
+
+        return $user;
+    }
+
+    /**
+     * @param string $nameID
+     * @param array $attributes
+     * @return UserInterface
+     */
+    private function getDefaultUser($nameID, array $attributes) {
+        $result = new User($nameID, '', array('ROLE_USER'));
+        return $result;
     }
 
 }

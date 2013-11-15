@@ -19,22 +19,24 @@ class AerialShipSamlSPExtension extends Extension
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
 
-        $this->loadEntityDescriptorProvider('sp', $config, $container);
-        $this->loadEntityDescriptorProvider('idp', $config, $container);
-
-        if (isset($config['sp_meta']['id'])) {
-            $container->setAlias('aerial_ship_saml_sp.sp_meta_provider', $config['sp_meta']['id']);
-        } else if (isset($config['sp_meta']['config'])) {
-            $container->setDefinition(
-                'aerial_ship_saml_sp.sp_meta_provider',
-                new Definition(
-                    $container->getParameter('aerial_ship_saml_sp.sp_meta_provider.class'),
-                    array($config['sp_meta']['config'])
-                )
-            );
-        } else {
-            throw new \RuntimeException('aerial_ship_saml_sp.sp_meta has to have either id or config');
-        }
+//        return;
+//
+//        $this->loadEntityDescriptorProvider('sp', $config, $container);
+//        $this->loadEntityDescriptorProvider('idp', $config, $container);
+//
+//        if (isset($config['sp_meta']['id'])) {
+//            $container->setAlias('aerial_ship_saml_sp.sp_meta_provider', $config['sp_meta']['id']);
+//        } else if (isset($config['sp_meta']['config'])) {
+//            $container->setDefinition(
+//                'aerial_ship_saml_sp.sp_meta_provider',
+//                new Definition(
+//                    $container->getParameter('aerial_ship_saml_sp.sp_meta_provider.class'),
+//                    array($config['sp_meta']['config'])
+//                )
+//            );
+//        } else {
+//            throw new \RuntimeException('aerial_ship_saml_sp.sp_meta has to have either id or config');
+//        }
     }
 
 

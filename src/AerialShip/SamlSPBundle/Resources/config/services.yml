@@ -8,8 +8,13 @@ parameters:
     aerial_ship_saml_sp.entity_descriptor_provider.sp.class: AerialShip\SamlSPBundle\Config\EntityDescriptorFileProvider
     aerial_ship_saml_sp.entity_descriptor_provider.idp.class: AerialShip\SamlSPBundle\Config\EntityDescriptorFileProvider
     aerial_ship_saml_sp.sp_meta_provider.class: AerialShip\SamlSPBundle\Config\SpMetaConfigProvider
+    aerial_ship_saml_sp.bridge.binding_request_builder.class: AerialShip\SamlSPBundle\Bridge\BindingRequestBuilder
 
 services:
+
+    aerial_ship_saml_sp.bridge.binding_request_builder:
+        class: %aerial_ship_saml_sp.bridge.binding_request_builder.class%
+
 
     security.authentication.provider.aerial_ship_saml_sp:
         class: %security.authentication.provider.aerial_ship_saml_sp.class%
@@ -24,25 +29,45 @@ services:
         public: false
         abstract: true
 
+    aerial_ship_saml_sp.entity_descriptor_provider.sp:
+        class: %aerial_ship_saml_sp.entity_descriptor_provider.sp.class%
+        arguments: [@kernel]
+        public: false
+        abstract: true
+
+    aerial_ship_saml_sp.entity_descriptor_provider.idp:
+        class: %aerial_ship_saml_sp.entity_descriptor_provider.idp.class%
+        arguments: [@kernel]
+        public: false
+        abstract: true
+
+    aerial_ship_saml_sp.sp_meta_provider:
+        class: %aerial_ship_saml_sp.sp_meta_provider.class%
+        arguments: [~]
+        public: false
+        abstract: true
 
     aerial_ship_saml_sp.relying_party.authenticate:
         class: %aerial_ship_saml_sp.relying_party.authenticate.class%
         arguments:
             - @aerial_ship_saml_sp.entity_descriptor_provider.sp
             - @aerial_ship_saml_sp.entity_descriptor_provider.idp
+            - @aerial_ship_saml_sp.sp_meta_provider
         public: false
+        abstract: true
 
     aerial_ship_saml_sp.relying_party.assertion_consumer:
         class: %aerial_ship_saml_sp.relying_party.assertion_consumer.class%
-        arguments: []
+        arguments:
+            - @aerial_ship_saml_sp.bridge.binding_request_builder
+            - @aerial_ship_saml_sp.entity_descriptor_provider.idp
         public: false
+        abstract: true
 
-    aerial_ship_saml_sp.relying_party.default:
+    aerial_ship_saml_sp.relying_party.composite:
         class: %aerial_ship_saml_sp.relying_party.collection.class%
-        calls:
-            - [append, [@aerial_ship_saml_sp.relying_party.authenticate]]
-            - [append, [@aerial_ship_saml_sp.relying_party.assertion_consumer]]
         public: false
+        abstract: true
 
 
 

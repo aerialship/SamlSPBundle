@@ -3,52 +3,60 @@
 namespace AerialShip\SamlSPBundle\Bridge;
 
 
+use AerialShip\LightSaml\Model\Assertion\Attribute;
+use AerialShip\LightSaml\Model\Assertion\NameID;
+
 class SamlSpResponse implements \Serializable
 {
-    /** @var string */
-    protected $identity;
+    /** @var NameID */
+    protected $nameID;
 
-    /** @var array */
+    /** @var Attribute[] */
     protected $attributes;
 
-    /** @var string */
-    protected $logoutURL;
-
 
     /**
-     * @param string $identity
-     * @param array $attributes
-     * @param $logoutURL
+     * @param NameID $nameID
+     * @param Attribute[] $attributes
      */
-    public function __construct($identity, array $attributes = array(), $logoutURL)
+    public function __construct(NameID $nameID, array $attributes = array())
     {
-        $this->identity = $identity;
+        $this->nameID = $nameID;
         $this->attributes = $attributes;
-        $this->logoutURL = $logoutURL;
     }
 
     /**
-     * @return string
+     * @return \AerialShip\LightSaml\Model\Assertion\Attribute[]
      */
-    public function getIdentity()
-    {
-        return $this->identity;
-    }
-
-    /**
-     * @return array
-     */
-    public function getAttributes()
-    {
+    public function getAttributes() {
         return $this->attributes;
     }
+
+    /**
+     * @param \AerialShip\LightSaml\Model\Assertion\NameID $nameID
+     */
+    public function setNameID($nameID) {
+        $this->nameID = $nameID;
+    }
+
+    /**
+     * @return \AerialShip\LightSaml\Model\Assertion\NameID
+     */
+    public function getNameID() {
+        return $this->nameID;
+    }
+
+
+
+
+
 
     /**
      * {@inheritdoc}
      */
     public function serialize()
     {
-        return serialize(array($this->identity, $this->attributes));
+        return serialize(array($this->nameID, $this->attributes));
     }
 
     /**
@@ -56,6 +64,6 @@ class SamlSpResponse implements \Serializable
      */
     public function unserialize($serialized)
     {
-        list($this->identity, $this->attributes) = unserialize($serialized);
+        list($this->nameID, $this->attributes) = unserialize($serialized);
     }
 }

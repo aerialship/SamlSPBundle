@@ -28,7 +28,7 @@ class Authenticate implements RelyingPartyInterface
 
 
 
-    function __construct(EntityDescriptorProviderInterface $spProvider,
+    public function __construct(EntityDescriptorProviderInterface $spProvider,
         EntityDescriptorProviderInterface $idpProvider,
         SpMetaProviderInterface $spMetaProvider
     ) {
@@ -43,7 +43,8 @@ class Authenticate implements RelyingPartyInterface
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return bool
      */
-    function supports(Request $request) {
+    public function supports(Request $request)
+    {
         $result = $request->attributes->get('login_path') == $request->getPathInfo();
         return $result;
     }
@@ -53,23 +54,26 @@ class Authenticate implements RelyingPartyInterface
      * @throws \InvalidArgumentException if cannot manage the Request
      * @return \Symfony\Component\HttpFoundation\Response|SamlSpResponse
      */
-    function manage(Request $request) {
+    public function manage(Request $request)
+    {
         if (false == $this->supports($request)) {
             throw new \InvalidArgumentException('Unsupported request');
         }
+
+
 
         $spED = $this->spProvider->getEntityDescriptor($request);
         $idpED = $this->idpProvider->getEntityDescriptor($request);
         $spMeta = $this->spMetaProvider->getSpMeta($request);
 
         $builder = new AuthnRequestBuilder($spED, $idpED, $spMeta);
-        $req = $builder->build();
+        $message = $builder->build();
 
         $binding = new HttpRedirect();
         /** @var \AerialShip\LightSaml\Binding\RedirectResponse $resp */
-        $resp = $binding->send($req);
+        $bindingResponse = $binding->send($message);
 
-        $result = new RedirectResponse($resp->getUrl());
+        $result = new RedirectResponse($bindingResponse->getUrl());
         return $result;
     }
 

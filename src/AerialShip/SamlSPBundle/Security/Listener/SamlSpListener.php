@@ -82,7 +82,8 @@ class SamlSpListener extends AbstractAuthenticationListener
 
         if ($result instanceof SamlSpResponse) {
             $token = new SamlSpToken($this->providerKey);
-            $token->setAttributes($result->getAttributes());
+            $token->setSamlAttributes($result->getAttributes());
+            $token->setNameID($result->getNameID());
             try {
                 return $this->authenticationManager->authenticate($token);
             } catch (AuthenticationException $e) {
