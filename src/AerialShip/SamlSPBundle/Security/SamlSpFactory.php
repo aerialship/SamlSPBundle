@@ -5,9 +5,9 @@ namespace AerialShip\SamlSPBundle\Security;
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AbstractFactory;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Reference;
+
 
 class SamlSpFactory extends AbstractFactory
 {
@@ -15,11 +15,13 @@ class SamlSpFactory extends AbstractFactory
     function __construct() {
         $this->defaultSuccessHandlerOptions['login_path'] = '/login_saml';
         $this->defaultFailureHandlerOptions['login_path'] = '/login_saml';
+        $this->defaultFailureHandlerOptions['failure_path'] = '/failure_saml';
 
         // these are available in listener->options[]
         $this->addOption('login_path', '/login_saml');
         $this->addOption('check_path', '/login_check_saml');
         $this->addOption('logout_path', '/logout_saml');
+        $this->addOption('failure_path', '/failure_saml');
         $this->addOption('target_path_parameter', $this->defaultSuccessHandlerOptions['target_path_parameter']);
     }
 
@@ -30,6 +32,7 @@ class SamlSpFactory extends AbstractFactory
             ->scalarNode('login_path')->defaultValue('/login_saml')->cannotBeEmpty()->end()
             ->scalarNode('check_path')->defaultValue('/login_check_saml')->cannotBeEmpty()->end()
             ->scalarNode('logout_path')->defaultValue('/logout_saml')->cannotBeEmpty()->end()
+            ->scalerNode('failure_path')->defaultValue('/failure_saml')->cannotBeEmpty()->end()
             ->scalarNode('provider')->defaultValue('aerial_ship_saml_sp.user_provider.default')->cannotBeEmpty()->end()
             ->arrayNode('entity_descriptor')->cannotBeEmpty()
                 ->children()
@@ -94,13 +97,15 @@ class SamlSpFactory extends AbstractFactory
 
     protected function createRelyingPartyComposite(ContainerBuilder $container, $id) {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.composite');
+        $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.error_recovery.'.$id)));
         $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.authenticate.'.$id)));
         $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.assertion_consumer.'.$id)));
         $container->setDefinition('aerial_ship_saml_sp.relying_party.composite.'.$id, $service);
     }
 
     protected function createRelyingPartyErrorRecovery(ContainerBuilder $container, $id) {
-        throw new \Exception('Not implemented');
+        $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.error_recovery');
+        $container->setDefinition('aerial_ship_saml_sp.relying_party.error_recovery.'.$id, $service);
     }
 
     protected function createRelyingPartyAuthenticate(ContainerBuilder $container, $id) {

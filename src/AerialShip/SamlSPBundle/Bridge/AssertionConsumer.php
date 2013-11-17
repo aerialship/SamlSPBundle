@@ -12,7 +12,6 @@ use AerialShip\SamlSPBundle\Config\EntityDescriptorProviderInterface;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\Exception\AuthenticationServiceException;
 
 
 class AssertionConsumer implements RelyingPartyInterface
@@ -46,11 +45,16 @@ class AssertionConsumer implements RelyingPartyInterface
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
+     * @throws \Symfony\Component\Security\Core\Exception\AuthenticationException
      * @throws \InvalidArgumentException if cannot manage the Request
      * @return \Symfony\Component\HttpFoundation\RedirectResponse|SamlSpResponse
      */
     public function manage(Request $request)
     {
+        if (!$this->supports($request)) {
+            throw new \InvalidArgumentException();
+        }
+
         $bindingRequest = $this->bindingRequestBuilder->getBindingRequest($request);
 
         $detector = new BindingDetector();
@@ -61,9 +65,9 @@ class AssertionConsumer implements RelyingPartyInterface
 
         if (!$response->getStatus()->isSuccess()) {
             $status = $response->getStatus()->getStatusCode()->getValue();
-            $status .= ' '.$response->getStatus()->getMessage();
+            $status .= "\n".$response->getStatus()->getMessage();
             if ($response->getStatus()->getStatusCode()->getChild()) {
-                $status .= ' '.$response->getStatus()->getStatusCode()->getChild()->getValue();
+                $status .= "\n".$response->getStatus()->getStatusCode()->getChild()->getValue();
             }
             throw new AuthenticationException('Unsuccessful SAML response: '.$status);
         }

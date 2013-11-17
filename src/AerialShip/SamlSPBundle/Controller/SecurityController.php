@@ -3,6 +3,8 @@
 namespace AerialShip\SamlSPBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
+use Symfony\Component\Security\Core\SecurityContextInterface;
 
 class SecurityController extends Controller
 {
@@ -18,5 +20,15 @@ class SecurityController extends Controller
         throw new \RuntimeException('You must activate the logout in your security firewall configuration.');
     }
 
+    function failureAction() {
+        /** @var $error AuthenticationException */
+        $error = $this->getRequest()->getSession()->get(SecurityContextInterface::AUTHENTICATION_ERROR);
+        $this->getRequest()->getSession()->remove(SecurityContextInterface::AUTHENTICATION_ERROR);
+        print "<pre>\n";
+        print $error->getMessage();
+        print "<hr/>\n";
+        print $error->getTraceAsString();
+        exit;
+    }
 
 }

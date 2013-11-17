@@ -3,11 +3,7 @@
 namespace AerialShip\SamlSPBundle\Bridge;
 
 use AerialShip\LightSaml\Binding\HttpRedirect;
-use AerialShip\LightSaml\Bindings;
 use AerialShip\LightSaml\Meta\AuthnRequestBuilder;
-use AerialShip\LightSaml\Meta\SpMeta;
-use AerialShip\LightSaml\Model\Metadata\EntityDescriptor;
-use AerialShip\LightSaml\NameIDPolicy;
 use AerialShip\SamlSPBundle\Config\EntityDescriptorProviderInterface;
 use AerialShip\SamlSPBundle\Config\SpMetaProviderInterface;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;

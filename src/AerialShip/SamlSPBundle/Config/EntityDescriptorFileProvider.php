@@ -27,6 +27,7 @@ class EntityDescriptorFileProvider implements EntityDescriptorProviderInterface
 
     /**
      * @param string $filename
+     * @throws \InvalidArgumentException
      */
     public function setFilename($filename) {
         if ($filename && $filename[0] == '@') {

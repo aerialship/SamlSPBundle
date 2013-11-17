@@ -16,13 +16,13 @@ class SamlSpResponse implements \Serializable
 
 
     /**
-     * @param NameID $nameID
+     * @param NameID|null $nameID
      * @param Attribute[] $attributes
      */
-    public function __construct(NameID $nameID, array $attributes = array())
+    public function __construct(NameID $nameID = null, array $attributes = null)
     {
         $this->nameID = $nameID;
-        $this->attributes = $attributes;
+        $this->attributes = $attributes === null ? array() : $attributes;
     }
 
     /**

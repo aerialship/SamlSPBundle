@@ -2,6 +2,7 @@
 parameters:
     security.authentication.provider.aerial_ship_saml_sp.class: AerialShip\SamlSPBundle\Security\Authentication\Provider\SamlSpProvider
     security.authentication.listener.aerial_ship_saml_sp.class: AerialShip\SamlSPBundle\Security\Listener\SamlSpListener
+    aerial_ship_saml_sp.relying_party.error_recovery.class: AerialShip\SamlSPBundle\RelyingParty\ErrorRecovery
     aerial_ship_saml_sp.relying_party.authenticate.class: AerialShip\SamlSPBundle\Bridge\Authenticate
     aerial_ship_saml_sp.relying_party.assertion_consumer.class: AerialShip\SamlSPBundle\Bridge\AssertionConsumer
     aerial_ship_saml_sp.relying_party.collection.class: AerialShip\SamlSPBundle\RelyingParty\RelyingPartyCollection
@@ -44,6 +45,11 @@ services:
     aerial_ship_saml_sp.sp_meta_provider:
         class: %aerial_ship_saml_sp.sp_meta_provider.class%
         arguments: [~]
+        public: false
+        abstract: true
+
+    aerial_ship_saml_sp.relying_party.error_recovery:
+        class: %aerial_ship_saml_sp.relying_party.error_recovery.class%
         public: false
         abstract: true
 

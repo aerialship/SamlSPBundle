@@ -5,12 +5,12 @@ namespace AerialShip\SamlSPBundle\Security\Listener;
 use AerialShip\SamlSPBundle\Bridge\SamlSpResponse;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use AerialShip\SamlSPBundle\Security\Token\SamlSpToken;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
+
 
 class SamlSpListener extends AbstractAuthenticationListener
 {
@@ -83,7 +83,9 @@ class SamlSpListener extends AbstractAuthenticationListener
         if ($result instanceof SamlSpResponse) {
             $token = new SamlSpToken($this->providerKey);
             $token->setSamlAttributes($result->getAttributes());
-            $token->setNameID($result->getNameID());
+            if ($result->getNameID()) {
+                $token->setNameID($result->getNameID());
+            }
             try {
                 return $this->authenticationManager->authenticate($token);
             } catch (AuthenticationException $e) {

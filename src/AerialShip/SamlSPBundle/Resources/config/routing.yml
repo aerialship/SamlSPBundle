@@ -11,3 +11,6 @@ aerial_ship_saml_sp.security.logout:
     pattern: /logout_saml
     defaults: { _controller: "AerialShipSamlSPBundle:Security:logout" }
 
+aerial_ship_saml_sp.security.failure:
+    pattern: /failure_saml
+    defaults: { _controller: "AerialShipSamlSPBundle:Security:failure" }

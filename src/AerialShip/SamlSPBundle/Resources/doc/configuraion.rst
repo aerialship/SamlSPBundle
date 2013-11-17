@@ -12,6 +12,7 @@ security:
                 login_path: /login_saml
                 check_path: /login_check_saml
                 logout_path: /logout_saml
+                failure_path: /failure_saml
                 provider: in_memory
                 entity_descriptor:
                     sp:
@@ -22,7 +23,7 @@ security:
                     config:
                         name_id_format: persistent
                         binding:
-                            authn_request: redirect
+                            authn_request: post
             logout:
                 path: /logout
                 target: /

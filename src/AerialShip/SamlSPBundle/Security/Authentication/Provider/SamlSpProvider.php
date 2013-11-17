@@ -63,8 +63,8 @@ class SamlSpProvider implements AuthenticationProviderInterface
 
         try {
             $user = $this->userProvider ?
-                    $this->getProviderUser($token->getNameID()->getValue(), $token->getAttributes()) :
-                    $this->getDefaultUser($token->getNameID()->getValue(), $token->getAttributes())
+                    $this->getProviderUser($token) :
+                    $this->getDefaultUser($token)
             ;
 
             return $this->createAuthenticatedToken(
@@ -113,16 +113,18 @@ class SamlSpProvider implements AuthenticationProviderInterface
     }
 
     /**
-     * @param string $nameID
-     * @param array $attributes
+     * @param SamlSpToken $token
      * @return UserInterface
      * @throws \Exception
      * @throws \Symfony\Component\Security\Core\Exception\UsernameNotFoundException
      * @throws \RuntimeException
      */
-    private function getProviderUser($nameID, array $attributes) {
+    private function getProviderUser(SamlSpToken $token) {
+        if (!$token || !$token->getNameID() || !$token->getNameID()->getValue()) {
+            throw new UsernameNotFoundException('Token contains no nameID');
+        }
         try {
-            $user = $this->userProvider->loadUserByUsername($nameID);
+            $user = $this->userProvider->loadUserByUsername($token->getNameID()->getValue());
         } catch (UsernameNotFoundException $ex) {
             throw $ex;
 //            if (false == $this->createIfNotExists) {
@@ -139,11 +141,11 @@ class SamlSpProvider implements AuthenticationProviderInterface
     }
 
     /**
-     * @param string $nameID
-     * @param array $attributes
+     * @param \AerialShip\SamlSPBundle\Security\Token\SamlSpToken $token
      * @return UserInterface
      */
-    private function getDefaultUser($nameID, array $attributes) {
+    private function getDefaultUser(SamlSpToken $token) {
+        $nameID = $token && $token->getNameID() && $token->getNameID()->getValue() ? $token->getNameID()->getValue() : 'anon.';
         $result = new User($nameID, '', array('ROLE_USER'));
         return $result;
     }
