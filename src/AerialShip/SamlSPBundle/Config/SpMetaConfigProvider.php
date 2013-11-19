@@ -36,10 +36,9 @@ class SpMetaConfigProvider implements SpMetaProviderInterface
     }
 
     /**
-     * @param Request $request
      * @return SpMeta
      */
-    public function getSpMeta(Request $request) {
+    public function getSpMeta() {
         return $this->spMeta;
     }
 

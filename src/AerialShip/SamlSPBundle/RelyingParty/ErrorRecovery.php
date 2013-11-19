@@ -3,7 +3,7 @@
 namespace AerialShip\SamlSPBundle\RelyingParty;
 
 
-use AerialShip\SamlSPBundle\Bridge\SamlSpResponse;
+use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
 use AerialShip\SamlSPBundle\Security\Token\SamlSpToken;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -33,7 +33,7 @@ class ErrorRecovery implements RelyingPartyInterface
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @throws \InvalidArgumentException if cannot manage the Request
-     * @return \Symfony\Component\HttpFoundation\Response|SamlSpResponse
+     * @return \Symfony\Component\HttpFoundation\Response|SamlSpInfo
      */
     function manage(Request $request) {
         /** @var $error AuthenticationException */
@@ -41,7 +41,7 @@ class ErrorRecovery implements RelyingPartyInterface
         $request->getSession()->remove(SecurityContextInterface::AUTHENTICATION_ERROR);
         /** @var $token SamlSpToken */
         $token = $error->getToken();
-        return new SamlSpResponse(
+        return new SamlSpInfo(
             $token->getNameID(),
             $token->getAttributes()
         );

@@ -9,7 +9,9 @@
     "require": {
         "php": ">=5.4.1",
         "aerialship/lightsaml": "dev-master",
-        "symfony/symfony": "~2.2"
+        "symfony/symfony": "~2.2",
+        "doctrine/orm": ">=2.2.3,<2.4-dev",
+        "doctrine/doctrine-bundle": "1.2.*"
     },
     "scripts": {
         "post-install-cmd": [

@@ -59,6 +59,7 @@ services:
             - @aerial_ship_saml_sp.entity_descriptor_provider.sp
             - @aerial_ship_saml_sp.entity_descriptor_provider.idp
             - @aerial_ship_saml_sp.sp_meta_provider
+            - ~
         public: false
         abstract: true
 

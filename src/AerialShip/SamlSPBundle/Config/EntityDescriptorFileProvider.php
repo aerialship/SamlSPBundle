@@ -50,10 +50,9 @@ class EntityDescriptorFileProvider implements EntityDescriptorProviderInterface
 
 
     /**
-     * @param Request $request
      * @return EntityDescriptor
      */
-    public function getEntityDescriptor(Request $request) {
+    public function getEntityDescriptor() {
         if ($this->entityDescriptor === null) {
             $this->load();
         }

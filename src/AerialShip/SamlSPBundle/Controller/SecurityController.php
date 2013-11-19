@@ -25,9 +25,9 @@ class SecurityController extends Controller
         $error = $this->getRequest()->getSession()->get(SecurityContextInterface::AUTHENTICATION_ERROR);
         $this->getRequest()->getSession()->remove(SecurityContextInterface::AUTHENTICATION_ERROR);
         print "<pre>\n";
-        print $error->getMessage();
+        print $error ? $error->getMessage() : '';
         print "<hr/>\n";
-        print $error->getTraceAsString();
+        print $error ? $error->getTraceAsString() : '';
         exit;
     }
 

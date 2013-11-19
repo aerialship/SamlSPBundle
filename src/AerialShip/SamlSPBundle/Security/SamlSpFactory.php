@@ -3,8 +3,12 @@
 namespace AerialShip\SamlSPBundle\Security;
 
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AbstractFactory;
+use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
+use Symfony\Component\Config\Definition\ScalarNode;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -32,7 +36,7 @@ class SamlSpFactory extends AbstractFactory
             ->scalarNode('login_path')->defaultValue('/login_saml')->cannotBeEmpty()->end()
             ->scalarNode('check_path')->defaultValue('/login_check_saml')->cannotBeEmpty()->end()
             ->scalarNode('logout_path')->defaultValue('/logout_saml')->cannotBeEmpty()->end()
-            ->scalerNode('failure_path')->defaultValue('/failure_saml')->cannotBeEmpty()->end()
+            ->scalarNode('failure_path')->defaultValue('/failure_saml')->cannotBeEmpty()->end()
             ->scalarNode('provider')->defaultValue('aerial_ship_saml_sp.user_provider.default')->cannotBeEmpty()->end()
             ->arrayNode('entity_descriptor')->cannotBeEmpty()
                 ->children()
@@ -54,12 +58,24 @@ class SamlSpFactory extends AbstractFactory
                 ->children()
                     ->arrayNode('config')
                         ->children()
-                            ->scalarNode('name_id_format')->end()
-                            ->arrayNode('binding')
+                            ->scalarNode('name_id_format')->defaultValue('persistent')->end()
+                            ->arrayNode('binding')->required()
                                 ->children()
-                                    ->scalarNode('authn_request')->end()
+                                    ->scalarNode('authn_request')->defaultValue('redirect')->end()
                                 ->end()
                             ->end()
+                        ->end()
+                    ->end()
+                ->end()
+            ->end()
+            ->arrayNode('state')->cannotBeEmpty()
+                ->children()
+                    ->arrayNode('store')->cannotBeEmpty()->required()
+                        ->children()
+                            ->enumNode('type')
+                                ->values('session', 'file')
+                            ->end()
+                            ->scalarNode('id')->end()
                         ->end()
                     ->end()
                 ->end()
@@ -86,13 +102,33 @@ class SamlSpFactory extends AbstractFactory
     }
 
 
-    protected function createRelyingParties(ContainerBuilder $container, $id, $config) {
+    protected function createRelyingParties(ContainerBuilder $container, $id, array $config) {
+        $this->createStateStore($container, $id, $config);
         $this->createEntityDescriptorProviders($container, $id, $config);
         $this->createSpMetaProvider($container, $id, $config);
         $this->createRelyingPartyErrorRecovery($container, $id);
         $this->createRelyingPartyAuthenticate($container, $id);
         $this->createRelyingPartyAssertionConsumer($container, $id);
         $this->createRelyingPartyComposite($container, $id);
+    }
+
+    protected function createStateStore(ContainerBuilder $container, $id, array $config) {
+        $serviceID = 'aerial_ship_saml_sp.state.store.'.$id;
+        if (isset($config['state']['store']['id'])) {
+            $container->setAlias($serviceID, $config['state']['store']['id']);
+        } else {
+            $class = null;
+            if ($config['state']['store']['type'] == 'session') {
+                $class = 'AerialShip\SamlSPBundle\State\StateStoreSession';
+            } else if ($config['state']['store']['type'] == 'file') {
+                $class = 'AerialShip\SamlSPBundle\State\StateStoreFile';
+            }
+            if (!$class) {
+                throw new InvalidConfigurationException('Unknown state store type'.$config['state']['store']['type']);
+            }
+            $service = new Definition($class, array($id, $config['state']['store']));
+            $container->setDefinition($serviceID, $service);
+        }
     }
 
     protected function createRelyingPartyComposite(ContainerBuilder $container, $id) {
@@ -113,6 +149,7 @@ class SamlSpFactory extends AbstractFactory
         $service->replaceArgument(0, new Reference('aerial_ship_saml_sp.entity_descriptor_provider.sp.'.$id));
         $service->replaceArgument(1, new Reference('aerial_ship_saml_sp.entity_descriptor_provider.idp.'.$id));
         $service->replaceArgument(2, new Reference('aerial_ship_saml_sp.sp_meta_provider.'.$id));
+        $service->replaceArgument(3, new Reference('aerial_ship_saml_sp.state.store.'.$id));
         $container->setDefinition('aerial_ship_saml_sp.relying_party.authenticate.'.$id, $service);
     }
 

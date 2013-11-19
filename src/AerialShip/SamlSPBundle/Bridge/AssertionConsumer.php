@@ -45,9 +45,10 @@ class AssertionConsumer implements RelyingPartyInterface
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
+     * @throws \RuntimeException
      * @throws \Symfony\Component\Security\Core\Exception\AuthenticationException
      * @throws \InvalidArgumentException if cannot manage the Request
-     * @return \Symfony\Component\HttpFoundation\RedirectResponse|SamlSpResponse
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse|SamlSpInfo
      */
     public function manage(Request $request)
     {
@@ -63,6 +64,31 @@ class AssertionConsumer implements RelyingPartyInterface
         /** @var Response $response */
         $response = $binding->receive($bindingRequest);
 
+        $this->validateResponse($response, $request);
+
+        $arr = $response->getAllAssertions();
+        if (empty($arr)) {
+            throw new \RuntimeException('No assertion received');
+        }
+        $assertion = $arr[0];
+        $nameID = $assertion->getSubject()->getNameID();
+        $attributes = $assertion->getAllAttributes();
+        $authnStatement = $assertion->getAuthnStatement();
+
+        $result = new SamlSpInfo($nameID, $attributes, $authnStatement);
+        return $result;
+    }
+
+
+    protected function validateResponse(Response $response) {
+        $this->validateStatus($response);
+        $this->validateResponseSignature($response);
+        foreach ($response->getAllAssertions() as $assertion) {
+            $this->validateAssertion($assertion);
+        }
+    }
+
+    protected function validateStatus(Response $response) {
         if (!$response->getStatus()->isSuccess()) {
             $status = $response->getStatus()->getStatusCode()->getValue();
             $status .= "\n".$response->getStatus()->getMessage();
@@ -71,47 +97,48 @@ class AssertionConsumer implements RelyingPartyInterface
             }
             throw new AuthenticationException('Unsuccessful SAML response: '.$status);
         }
-
-        $assertion = $response->getAllAssertions()[0];
-        $nameID = $assertion->getSubject()->getNameID();
-        $attributes = $assertion->getAllAttributes();
-
-        $result = new SamlSpResponse($nameID, $attributes);
-        return $result;
     }
 
-
-    protected function validateResponse(Response $response, Request $request) {
-        $edIDP = $this->idpProvider->getEntityDescriptor($request);
-        if ($edIDP) {
-            $this->validateResponseSignature($response, $edIDP);
-        }
-        foreach ($response->getAllAssertions() as $assertion) {
-            $this->validateAssertion($assertion);
-        }
-    }
-
-    protected function validateResponseSignature(Response $response, EntityDescriptor $edIDP) {
+    protected function validateResponseSignature(Response $response) {
+        /** @var  $signature SignatureXmlValidator */
         if ($signature = $response->getSignature()) {
-            if ($edIDP) {
-                $arr = $edIDP->getIdpSsoDescriptors();
-                if ($arr) {
-                    $idp = $arr[0];
-                    $arr = $idp->findKeyDescriptors('signing');
-                    if ($arr) {
-                        $keyDescriptor = $arr[0];
-                        $certificate = $keyDescriptor->getCertificate();
-                        $key = KeyHelper::createPublicKey($certificate);
-                        /** @var $signature SignatureXmlValidator */
-                        $signature->validate($key);
-                    }
-                }
+            $key = $this->getSigningKey();
+            if ($key) {
+                $signature->validate($key);
             }
         }
     }
 
     private function validateAssertion(Assertion $assertion) {
+        /** @var  $signature SignatureXmlValidator */
+        if ($signature = $assertion->getSignature()) {
+            $key = $this->getSigningKey();
+            if ($key) {
+                $signature->validate($key);
+            }
+        }
+    }
 
+
+    /**
+     * @return null|\XMLSecurityKey
+     */
+    protected function getSigningKey() {
+        $result = null;
+        $edIDP = $this->idpProvider->getEntityDescriptor();
+        if ($edIDP) {
+            $arr = $edIDP->getIdpSsoDescriptors();
+            if ($arr) {
+                $idp = $arr[0];
+                $arr = $idp->findKeyDescriptors('signing');
+                if ($arr) {
+                    $keyDescriptor = $arr[0];
+                    $certificate = $keyDescriptor->getCertificate();
+                    $result = KeyHelper::createPublicKey($certificate);
+                }
+            }
+        }
+        return $result;
     }
 
 

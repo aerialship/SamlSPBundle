@@ -4,6 +4,7 @@ namespace AerialShip\SamlSPBundle\Security\Token;
 
 use AerialShip\LightSaml\Model\Assertion\Attribute;
 use AerialShip\LightSaml\Model\Assertion\NameID;
+use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 
 class SamlSpToken extends AbstractToken
@@ -11,8 +12,8 @@ class SamlSpToken extends AbstractToken
     /** @var string */
     private $providerKey;
 
-    /** @var  NameID */
-    private $nameID;
+    /** @var  SamlSpInfo */
+    private $samlSpInfo;
 
 
     public function __construct($providerKey, array $roles = array()) {
@@ -33,40 +34,28 @@ class SamlSpToken extends AbstractToken
         return '';
     }
 
-    /**
-     * @param \AerialShip\LightSaml\Model\Assertion\NameID $nameID
-     */
-    public function setNameID($nameID) {
-        $this->nameID = $nameID;
-        $this->setAttribute('nameID', $nameID->getValue());
-        $this->setAttribute('nameIDFormat', $nameID->getFormat());
-    }
-
-    /**
-     * @return \AerialShip\LightSaml\Model\Assertion\NameID
-     */
-    public function getNameID() {
-        return $this->nameID;
-    }
 
 
 
+    public function setSamlSpInfo(SamlSpInfo $info) {
+        $this->samlSpInfo = $info;
 
-    /**
-     * @param Attribute[] $attributes
-     */
-    public function setSamlAttributes(array $attributes) {
-        $data = array();
-        foreach ($attributes as $attr) {
-            $name = $attr->getName();
-            $value = $attr->getValues();
-            if (count($value) == 1) {
-                $value = array_shift($value);
-            }
-            $data[$name] = $value;
+        if ($info->getNameID()) {
+            $this->setAttribute('saml_name_id', $info->getNameID()->getValue());
+            $this->setAttribute('saml_name_id_format', $info->getNameID()->getFormat());
         }
-        $this->setAttributes($data);
+        if ($info->getAttributes()) {
+            foreach ($info->getAttributes() as $attribute) {
+                $value = $attribute->getValues();
+                if (count($value) == 1) {
+                    $value = array_shift($value);
+                }
+                $this->setAttribute($attribute->getName(), $value);
+            }
+        }
+        if ($info->getAuthnStatement()) {
+            $this->setAttribute('saml_session_index', $info->getAuthnStatement()->getSessionIndex());
+        }
     }
-
 
 }
