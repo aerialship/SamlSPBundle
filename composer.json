@@ -9,9 +9,10 @@
     "require": {
         "php": ">=5.4.1",
         "aerialship/lightsaml": "dev-master",
-        "symfony/symfony": "~2.2",
-        "doctrine/orm": ">=2.2.3,<2.4-dev",
-        "doctrine/doctrine-bundle": "1.2.*"
+        "symfony/symfony": "~2.2"
+    },
+    "suggest": {
+        "doctrine/orm": "If you want store sso state to database"
     },
     "scripts": {
         "post-install-cmd": [

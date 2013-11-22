@@ -5,14 +5,15 @@ namespace AerialShip\SamlSPBundle\Bridge;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class LogoutStart implements RelyingPartyInterface
+
+class Logout implements RelyingPartyInterface
 {
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return bool
      */
     function supports(Request $request) {
-        $result = $request->attributes->get('logout_start_path') == $request->getPathInfo();
+        $result = $request->attributes->get('logout_path') == $request->getPathInfo();
         return $result;
     }
 

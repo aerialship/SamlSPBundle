@@ -1,0 +1,9 @@
+
+parameters:
+    aerial_ship_saml_sp.state.store.class: AerialShip\SamlSPBundle\Entity\SSOStateStoreManager
+
+services:
+    aerial_ship_saml_sp.state.store:
+        class: %aerial_ship_saml_sp.state.store.class%
+        arguments: [@doctrine.orm.entity_manager, %aerial_ship_saml_sp.state.store.entity_class%]
+        public: false

@@ -2,37 +2,38 @@
 parameters:
     security.authentication.provider.aerial_ship_saml_sp.class: AerialShip\SamlSPBundle\Security\Authentication\Provider\SamlSpProvider
     security.authentication.listener.aerial_ship_saml_sp.class: AerialShip\SamlSPBundle\Security\Listener\SamlSpListener
-    aerial_ship_saml_sp.relying_party.error_recovery.class: AerialShip\SamlSPBundle\RelyingParty\ErrorRecovery
+
     aerial_ship_saml_sp.relying_party.authenticate.class: AerialShip\SamlSPBundle\Bridge\Authenticate
     aerial_ship_saml_sp.relying_party.assertion_consumer.class: AerialShip\SamlSPBundle\Bridge\AssertionConsumer
     aerial_ship_saml_sp.relying_party.collection.class: AerialShip\SamlSPBundle\RelyingParty\RelyingPartyCollection
-    aerial_ship_saml_sp.entity_descriptor_provider.sp.class: AerialShip\SamlSPBundle\Config\EntityDescriptorFileProvider
     aerial_ship_saml_sp.entity_descriptor_provider.idp.class: AerialShip\SamlSPBundle\Config\EntityDescriptorFileProvider
     aerial_ship_saml_sp.sp_meta_provider.class: AerialShip\SamlSPBundle\Config\SpMetaConfigProvider
     aerial_ship_saml_sp.bridge.binding_request_builder.class: AerialShip\SamlSPBundle\Bridge\BindingRequestBuilder
+    aerial_ship_saml_sp.meta.provider_collection.class: AerialShip\SamlSPBundle\ConfigMetaProviderCollection
+    aerial_ship_saml_sp.meta.provider.class: AerialShip\SamlSPBundle\Config\MetaProvider
+    aerial_ship_saml_sp.relying_party.discovery.class: AerialShip\SamlSPBundle\Bridge\Discovery
+    aerial_ship_saml_sp.sp_entity_descriptor_builder.class: AerialShip\SamlSPBundle\Config\SpEntityDescriptorBuilder
 
 services:
 
-    aerial_ship_saml_sp.bridge.binding_request_builder:
-        class: %aerial_ship_saml_sp.bridge.binding_request_builder.class%
-
-
-    security.authentication.provider.aerial_ship_saml_sp:
-        class: %security.authentication.provider.aerial_ship_saml_sp.class%
-        public: false
-        abstract: true
-        arguments: [~]
-
-
-    security.authentication.listener.aerial_ship_saml_sp:
-        class: %security.authentication.listener.aerial_ship_saml_sp.class%
-        parent: security.authentication.listener.abstract
+    # SP entity descriptor builder ----------------------------
+    aerial_ship_saml_sp.sp_entity_descriptor_builder:
+        class: %aerial_ship_saml_sp.sp_entity_descriptor_builder.class%
+        arguments: [~, @security.http_utils]
         public: false
         abstract: true
 
-    aerial_ship_saml_sp.entity_descriptor_provider.sp:
-        class: %aerial_ship_saml_sp.entity_descriptor_provider.sp.class%
-        arguments: [@kernel]
+
+    # Meta Providers ----------------------------------------
+
+    aerial_ship_saml_sp.meta.provider_collection:
+        class: %aerial_ship_saml_sp.meta.provider_collection.class%
+        public: false
+        abstract: true
+
+    aerial_ship_saml_sp.meta.provider:
+        class: %aerial_ship_saml_sp.meta.provider.class%
+        arguments: [~, ~, ~, ~]
         public: false
         abstract: true
 
@@ -48,8 +49,13 @@ services:
         public: false
         abstract: true
 
-    aerial_ship_saml_sp.relying_party.error_recovery:
-        class: %aerial_ship_saml_sp.relying_party.error_recovery.class%
+
+
+    # relaying parties ---------------------------------------
+
+    aerial_ship_saml_sp.relying_party.discovery:
+        class: %aerial_ship_saml_sp.relying_party.discovery.class%
+        arguments: [@aerial_ship_saml_sp.meta.provider_collection, @twig]
         public: false
         abstract: true
 
@@ -75,6 +81,32 @@ services:
         class: %aerial_ship_saml_sp.relying_party.collection.class%
         public: false
         abstract: true
+
+
+
+    # Security -------------------------------------------------
+
+    security.authentication.provider.aerial_ship_saml_sp:
+        class: %security.authentication.provider.aerial_ship_saml_sp.class%
+        public: false
+        abstract: true
+        arguments: [~]
+
+
+    security.authentication.listener.aerial_ship_saml_sp:
+        class: %security.authentication.listener.aerial_ship_saml_sp.class%
+        parent: security.authentication.listener.abstract
+        public: false
+        abstract: true
+
+
+    # -----------------------------------------------
+
+
+    aerial_ship_saml_sp.bridge.binding_request_builder:
+        class: %aerial_ship_saml_sp.bridge.binding_request_builder.class%
+
+
 
 
 

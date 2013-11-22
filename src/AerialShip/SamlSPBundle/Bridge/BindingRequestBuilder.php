@@ -6,6 +6,10 @@ use Symfony\Component\HttpFoundation\Request;
 
 class BindingRequestBuilder
 {
+    /**
+     * @param Request $request
+     * @return \AerialShip\LightSaml\Binding\Request
+     */
     function getBindingRequest(Request $request) {
         $result = new \AerialShip\LightSaml\Binding\Request();
         $result->setQueryString($request->getQueryString());

@@ -1,9 +1,9 @@
 <?php
 
-namespace AerialShip\SamlSPBundle\State;
+namespace AerialShip\SamlSPBundle\State\Authn;
 
 
-class AuthnState implements StateInterface, \Serializable
+class AuthnState implements \Serializable
 {
     /** @var  string */
     private $id;
@@ -37,13 +37,6 @@ class AuthnState implements StateInterface, \Serializable
      * @return string
      */
     public function getId() {
-        return $this->id;
-    }
-
-    /**
-     * @return string
-     */
-    public function getStateID() {
         return $this->id;
     }
 

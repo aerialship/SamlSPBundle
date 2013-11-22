@@ -18,6 +18,8 @@ class SamlSpInfo implements \Serializable
     /** @var  AuthnStatement */
     protected $authnStatement;
 
+
+
     /**
      * @param NameID|null $nameID
      * @param Attribute[] $attributes
@@ -29,6 +31,7 @@ class SamlSpInfo implements \Serializable
         $this->attributes = $attributes === null ? array() : $attributes;
         $this->authnStatement = $authnStatement;
     }
+
 
     /**
      * @return \AerialShip\LightSaml\Model\Assertion\Attribute[]

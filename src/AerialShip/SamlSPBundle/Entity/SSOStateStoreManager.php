@@ -1,0 +1,70 @@
+<?php
+
+namespace AerialShip\SamlSPBundle\Entity;
+
+use AerialShip\SamlSPBundle\State\SSO\SSOState;
+use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
+use Doctrine\ORM\EntityManager;
+
+
+class SSOStateStoreManager implements SSOStateStoreInterface
+{
+    /** @var EntityManager  */
+    protected $entityManager;
+
+    /** @var  string */
+    protected $entityClass;
+
+
+    function __construct(EntityManager $entityManager, $entityClass) {
+        $this->entityManager = $entityManager;
+        $this->entityClass = $entityClass;
+    }
+
+
+    /**
+     * @param SSOState $state
+     * @return void
+     */
+    public function set(SSOState $state)
+    {
+        $this->entityManager->persist($state);
+        $this->entityManager->flush();
+    }
+
+    /**
+     * @param string $providerID
+     * @param string $authenticationServiceName
+     * @param string $sessionIndex
+     * @return SSOState|null
+     */
+    public function get($providerID, $authenticationServiceName, $sessionIndex)
+    {
+        return $this->getRepository()->findOneBy(
+            array(
+                'providerID' => $providerID,
+                'authenticationServiceName' => $authenticationServiceName,
+                'sessionIndex' => $sessionIndex
+            )
+        );
+    }
+
+    /**
+     * @param SSOState $state
+     * @return bool
+     */
+    public function remove(SSOState $state)
+    {
+        $this->entityManager->remove($state);
+        $this->entityManager->flush();
+    }
+
+
+    /**
+     * @return \Doctrine\ORM\EntityRepository
+     */
+    protected function getRepository()
+    {
+        return $this->entityManager->getRepository($this->entityClass);
+    }
+}

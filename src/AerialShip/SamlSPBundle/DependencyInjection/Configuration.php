@@ -15,7 +15,21 @@ class Configuration implements ConfigurationInterface
      */
     public function getConfigTreeBuilder() {
         $treeBuilder = new TreeBuilder();
-        $treeBuilder->root('aerial_ship_saml_sp');
+        $root = $treeBuilder->root('aerial_ship_saml_sp');
+
+        $root->children()
+            ->enumNode('driver')
+                ->values(array('orm'))
+                ->isRequired()
+                ->cannotBeEmpty()
+                ->defaultValue('orm')
+                ->end()
+            ->scalarNode('identity_class')
+                ->isRequired()
+                ->cannotBeEmpty()
+            ->end()
+        ->end();
+
         return $treeBuilder;
     }
 

@@ -6,14 +6,14 @@ use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 
-class LogoutDo implements RelyingPartyInterface
+class LogoutReceive implements RelyingPartyInterface
 {
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return bool
      */
     function supports(Request $request) {
-        $result = $request->attributes->get('logout_do_path') == $request->getPathInfo();
+        $result = $request->attributes->get('logout_receive_path') == $request->getPathInfo();
         return $result;
     }
 
@@ -27,7 +27,7 @@ class LogoutDo implements RelyingPartyInterface
             throw new \InvalidArgumentException('Unsupported request');
         }
 
-        // TODO receive logout request, do the loguot, and send logout response back to idp
+        // TODO receive logout request, drop sso state from store, and send logout response back to idp
     }
 
-} 
+}
