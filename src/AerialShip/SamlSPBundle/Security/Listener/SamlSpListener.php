@@ -48,6 +48,10 @@ class SamlSpListener extends AbstractAuthenticationListener
             return true;
         } else if ($this->httpUtils->checkRequestPath($request, $this->options['logout_path'])) {
             return true;
+        } else if ($this->httpUtils->checkRequestPath($request, $this->options['discovery_path'])) {
+            return true;
+        } else if ($this->httpUtils->checkRequestPath($request, $this->options['metadata_path'])) {
+            return true;
         }
         return $this->getRelyingParty()->supports($request);
     }
