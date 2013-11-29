@@ -81,6 +81,7 @@ services:
             - @aerial_ship_saml_sp.sp_entity_descriptor_builder
             - @aerial_ship_saml_sp.meta.provider_collection
             - @aerial_ship_saml_sp.state.store.authn
+            - @security.http_utils
         public: false
         abstract: true
 

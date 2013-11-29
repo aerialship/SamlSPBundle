@@ -6,6 +6,11 @@ namespace AerialShip\SamlSPBundle\State\SSO;
 interface SSOStateStoreInterface
 {
     /**
+     * @return SSOState
+     */
+    function create();
+
+    /**
      * @param SSOState $state
      * @return void
      */

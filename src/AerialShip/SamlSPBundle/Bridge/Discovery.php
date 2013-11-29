@@ -70,6 +70,7 @@ class Discovery implements RelyingPartyInterface
             // configuration validation should ensure this... but anyway just to be sure
             throw new \RuntimeException('At least one authentication service required in configuration');
         } else {
+            //$this->metaProviders->get('')->getIdpProvider()->getEntityDescriptor()->getEntityID()
             // present user to choose which idp he wants to authenticate with
             return new Response($this->twig->render(
                 '@AerialShipSamlSP/Discovery.html.twig',

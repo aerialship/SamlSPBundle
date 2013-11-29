@@ -47,7 +47,7 @@ class SamlSpFactory extends AbstractFactory
             ->scalarNode('failure_path')->defaultValue('/saml/failure')->cannotBeEmpty()->end()
             ->scalarNode('metadata_path')->defaultValue('/saml/FederationMetadata.xml')->cannotBeEmpty()->end()
             ->scalarNode('discovery_path')->defaultValue('/saml/discovery')->cannotBeEmpty()->end()
-            ->scalarNode('provider')->defaultValue('aerial_ship_saml_sp.user_provider.default')->cannotBeEmpty()->end()
+            #->scalarNode('provider')->defaultValue('aerial_ship_saml_sp.user_provider.default')->cannotBeEmpty()->end()
             ->arrayNode('services')
                 ->isRequired()
                 ->requiresAtLeastOneElement()
@@ -131,11 +131,11 @@ class SamlSpFactory extends AbstractFactory
                 $idp = new Reference($meta['idp']['id']);
             } else {
                 $idpService = new DefinitionDecorator('aerial_ship_saml_sp.entity_descriptor_provider.idp');
-                $container->setDefinition("aerial_ship_saml_sp.entity_descriptor_provider.idp.{$id}", $idpService);
+                $container->setDefinition("aerial_ship_saml_sp.entity_descriptor_provider.idp.{$id}.{$name}", $idpService);
                 if (isset($meta['idp']['file'])) {
                     $idpService->addMethodCall('setFilename', array($meta['idp']['file']));
                 }
-                $idp = new Reference("aerial_ship_saml_sp.entity_descriptor_provider.idp.{$id}");
+                $idp = new Reference("aerial_ship_saml_sp.entity_descriptor_provider.idp.{$id}.{$name}");
             }
 
             if (isset($meta['sp']['id'])) {

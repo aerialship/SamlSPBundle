@@ -3,6 +3,7 @@
 namespace AerialShip\SamlSPBundle\Security\Authentication\Provider;
 
 use AerialShip\LightSaml\Model\Assertion\NameID;
+use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
 use AerialShip\SamlSPBundle\Security\Token\SamlSpToken;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -68,7 +69,7 @@ class SamlSpProvider implements AuthenticationProviderInterface
             ;
 
             return $this->createAuthenticatedToken(
-                $token->getNameID(),
+                $token->getSamlSpInfo(),
                 $token->getAttributes(),
                 $user instanceof UserInterface ? $user->getRoles() : array(),
                 $user
@@ -94,21 +95,24 @@ class SamlSpProvider implements AuthenticationProviderInterface
 
 
     /**
-     * @param NameID $nameID
+     * @param \AerialShip\SamlSPBundle\Bridge\SamlSpInfo $samlInfo
      * @param array $attributes
      * @param array $roles
      * @param mixed $user
      * @return SamlSpToken
      */
-    protected function createAuthenticatedToken(NameID $nameID, array $attributes, array $roles, $user) {
-        if ($user instanceof UserInterface) {
+    protected function createAuthenticatedToken(SamlSpInfo $samlInfo, array $attributes, array $roles, $user) {
+        if ($user instanceof UserInterface && $this->userChecker) {
             $this->userChecker->checkPostAuth($user);
         }
         $newToken = new SamlSpToken($this->providerKey, $roles);
         $newToken->setUser($user);
         $newToken->setAttributes($attributes);
-        $newToken->setNameID($nameID);
+        $newToken->setSamlSpInfo($samlInfo);
         $newToken->setAuthenticated(true);
+        if (!in_array('ROLE_USER', $roles)) {
+            $roles[] = 'ROLE_USER';
+        }
         return $newToken;
     }
 
@@ -120,11 +124,11 @@ class SamlSpProvider implements AuthenticationProviderInterface
      * @throws \RuntimeException
      */
     private function getProviderUser(SamlSpToken $token) {
-        if (!$token || !$token->getNameID() || !$token->getNameID()->getValue()) {
+        if (!$token || !$token->getSamlSpInfo()->getNameID() || !$token->getSamlSpInfo()->getNameID()->getValue()) {
             throw new UsernameNotFoundException('Token contains no nameID');
         }
         try {
-            $user = $this->userProvider->loadUserByUsername($token->getNameID()->getValue());
+            $user = $this->userProvider->loadUserByUsername($token->getSamlSpInfo()->getNameID()->getValue());
         } catch (UsernameNotFoundException $ex) {
             throw $ex;
 //            if (false == $this->createIfNotExists) {
@@ -145,7 +149,7 @@ class SamlSpProvider implements AuthenticationProviderInterface
      * @return UserInterface
      */
     private function getDefaultUser(SamlSpToken $token) {
-        $nameID = $token && $token->getNameID() && $token->getNameID()->getValue() ? $token->getNameID()->getValue() : 'anon.';
+        $nameID = $token && $token->getSamlSpInfo()->getNameID() && $token->getSamlSpInfo()->getNameID()->getValue() ? $token->getSamlSpInfo()->getNameID()->getValue() : 'anon.';
         $result = new User($nameID, '', array('ROLE_USER'));
         return $result;
     }

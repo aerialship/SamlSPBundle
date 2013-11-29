@@ -16,6 +16,7 @@ use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
 use AerialShip\SamlSPBundle\State\StateStoreInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Security\Http\HttpUtils;
 
 
 class Authenticate implements RelyingPartyInterface
@@ -29,15 +30,20 @@ class Authenticate implements RelyingPartyInterface
     /** @var  AuthnStateStoreInterface */
     protected $authnStore;
 
+    /** @var \Symfony\Component\Security\Http\HttpUtils  */
+    protected $httpUtils;
+
 
 
     public function __construct(SpEntityDescriptorBuilder $spProvider,
         MetaProviderCollection $metaProviders,
-        AuthnStateStoreInterface $authnStore
+        AuthnStateStoreInterface $authnStore,
+        HttpUtils $httpUtils
     ) {
         $this->spProvider = $spProvider;
         $this->metaProviders = $metaProviders;
         $this->authnStore = $authnStore;
+        $this->httpUtils = $httpUtils;
     }
 
 
@@ -48,9 +54,8 @@ class Authenticate implements RelyingPartyInterface
      */
     public function supports(Request $request)
     {
-        $pathOK = $request->attributes->get('login_path') == $request->getPathInfo();
-        $metaProvider = $this->metaProviders->findByAS($request->query->get('as'));
-        return $pathOK && $metaProvider;
+        $result = $request->attributes->get('login_path') == $request->getPathInfo();
+        return $result;
     }
 
     /**
@@ -64,10 +69,14 @@ class Authenticate implements RelyingPartyInterface
             throw new \InvalidArgumentException('Unsupported request');
         }
 
+        $metaProvider = $this->metaProviders->findByAS($request->query->get('as'));
+        if (!$metaProvider) {
+            return new RedirectResponse($this->httpUtils->generateUri($request, $request->attributes->get('discovery_path')));
+        }
+
         $this->spProvider->setRequest($request);
         $spED = $this->spProvider->getEntityDescriptor($request);
 
-        $metaProvider = $this->metaProviders->findByAS($request->query->get('as'));
         $idpED = $metaProvider->getIdpProvider()->getEntityDescriptor();
         $spMeta = $metaProvider->getSpMetaProvider()->getSpMeta();
 
@@ -80,7 +89,7 @@ class Authenticate implements RelyingPartyInterface
 
         $state = new AuthnState();
         $state->setId($message->getID());
-        $state->setDestination($message->getDestination());
+        $state->setDestination($metaProvider->getIdpProvider()->getEntityDescriptor()->getEntityID());
         $this->authnStore->set($state);
 
         $result = new RedirectResponse($bindingResponse->getUrl());

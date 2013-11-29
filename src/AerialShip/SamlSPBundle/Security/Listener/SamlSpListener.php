@@ -41,7 +41,7 @@ class SamlSpListener extends AbstractAuthenticationListener
      */
     protected function requiresAuthentication(Request $request)
     {
-        return true;
+        //return true;
         if ($this->httpUtils->checkRequestPath($request, $this->options['login_path'])) {
             return true;
         } else if ($this->httpUtils->checkRequestPath($request, $this->options['check_path'])) {
@@ -93,10 +93,7 @@ class SamlSpListener extends AbstractAuthenticationListener
 
         if ($result instanceof SamlSpInfo) {
             $token = new SamlSpToken($this->providerKey);
-            $token->setSamlAttributes($result->getAttributes());
-            if ($result->getNameID()) {
-                $token->setNameID($result->getNameID());
-            }
+            $token->setSamlSpInfo($result);
             try {
                 return $this->authenticationManager->authenticate($token);
             } catch (AuthenticationException $e) {

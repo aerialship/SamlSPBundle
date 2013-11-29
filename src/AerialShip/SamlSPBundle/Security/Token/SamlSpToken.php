@@ -58,4 +58,13 @@ class SamlSpToken extends AbstractToken
         }
     }
 
+    /**
+     * @return \AerialShip\SamlSPBundle\Bridge\SamlSpInfo
+     */
+    public function getSamlSpInfo() {
+        return $this->samlSpInfo;
+    }
+
+
+
 }

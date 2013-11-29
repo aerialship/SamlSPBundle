@@ -23,6 +23,20 @@ class SSOStateStoreManager implements SSOStateStoreInterface
 
 
     /**
+     * @throws \RuntimeException
+     * @return SSOState
+     */
+    function create() {
+        $class = $this->entityClass;
+        $result = new $class();
+        if (!$result instanceof SSOState) {
+            throw new \RuntimeException("Specified entity class $this->entityClass is not child of SSOState");
+        }
+        return $result;
+    }
+
+
+    /**
      * @param SSOState $state
      * @return void
      */
