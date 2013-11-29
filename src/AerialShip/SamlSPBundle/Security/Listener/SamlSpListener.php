@@ -41,6 +41,7 @@ class SamlSpListener extends AbstractAuthenticationListener
      */
     protected function requiresAuthentication(Request $request)
     {
+        return true;
         if ($this->httpUtils->checkRequestPath($request, $this->options['login_path'])) {
             return true;
         } else if ($this->httpUtils->checkRequestPath($request, $this->options['check_path'])) {
@@ -63,15 +64,22 @@ class SamlSpListener extends AbstractAuthenticationListener
     protected function attemptAuthentication(Request $request)
     {
         $myRequest = $request->duplicate();
-        if (false == empty($this->options['login_path'])) {
+        if (!empty($this->options['login_path'])) {
             $myRequest->attributes->set('login_path', $this->options['login_path']);
         }
-        if (false == empty($this->options['check_path'])) {
+        if (!empty($this->options['check_path'])) {
             $myRequest->attributes->set('check_path', $this->options['check_path']);
         }
-        if (false == empty($this->options['logout_path'])) {
+        if (!empty($this->options['logout_path'])) {
             $myRequest->attributes->set('logout_path', $this->options['logout_path']);
         }
+        if (!empty($this->options['metadata_path'])) {
+            $myRequest->attributes->set('metadata_path', $this->options['metadata_path']);
+        }
+        if (!empty($this->options['discovery_path'])) {
+            $myRequest->attributes->set('discovery_path', $this->options['discovery_path']);
+        }
+
 
         if (!$this->getRelyingParty()->supports($myRequest)) {
             return null;

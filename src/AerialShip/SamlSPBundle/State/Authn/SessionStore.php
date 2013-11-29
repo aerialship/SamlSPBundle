@@ -56,17 +56,17 @@ class SessionStore implements AuthnStateStoreInterface
     }
 
     /**
-     * @param string $id
+     * @param AuthnState $state
      * @return bool
      */
-    public function remove($id)
+    public function remove(AuthnState $state)
     {
         $result = false;
         $key = "saml_state_{$this->providerID}";
         $arr = $this->session->get($key);
         if (is_array($arr)) {
-            $result = isset($arr[$id]);
-            unset($arr[$id]);
+            $result = isset($arr[$state->getId()]);
+            unset($arr[$state->getId()]);
         } else {
             $arr = array();
         }

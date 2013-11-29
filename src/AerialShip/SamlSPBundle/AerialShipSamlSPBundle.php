@@ -2,7 +2,7 @@
 
 namespace AerialShip\SamlSPBundle;
 
-use AerialShip\SamlSPBundle\Security\SamlSpFactory;
+use AerialShip\SamlSPBundle\DependencyInjection\Security\Factory\SamlSpFactory;
 use Symfony\Bundle\SecurityBundle\DependencyInjection\SecurityExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;

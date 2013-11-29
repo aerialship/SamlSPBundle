@@ -1,16 +1,28 @@
 
 aerial_ship_saml_sp.security.login:
-    pattern: /login_saml
+    pattern: /saml/login
     defaults: { _controller: "AerialShipSamlSPBundle:Security:login" }
 
-aerial_ship_saml_sp.security.check:
-    pattern: /login_check_saml
+aerial_ship_saml_sp.security.acs:
+    pattern: /saml/acs
     defaults: { _controller: "AerialShipSamlSPBundle:Security:check" }
 
 aerial_ship_saml_sp.security.logout:
-    pattern: /logout_saml
+    pattern: /saml/logout
     defaults: { _controller: "AerialShipSamlSPBundle:Security:logout" }
 
+aerial_ship_saml_sp.security.logout_receive:
+    pattern: /saml/logout_receive
+    defaults: { _controller: "AerialShipSamlSPBundle:Security:logout_receive" }
+
 aerial_ship_saml_sp.security.failure:
-    pattern: /failure_saml
+    pattern: /saml/failure
     defaults: { _controller: "AerialShipSamlSPBundle:Security:failure" }
+
+aerial_ship_saml_sp.security.federation_metadata:
+    pattern: /saml/FederationMetadata.xml
+    defaults: { _controller: "AerialShipSamlSPBundle:Security:federationMetadata" }
+
+aerial_ship_saml_sp.security.discovery:
+    pattern: /saml/discovery
+    defaults: { _controller: "AerialShipSamlSPBundle:Security:discovery" }

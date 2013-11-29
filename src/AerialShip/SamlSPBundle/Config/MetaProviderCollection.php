@@ -14,7 +14,7 @@ class MetaProviderCollection
      */
     public function add(MetaProvider $provider)
     {
-        $this->data[$provider->getId()] = $provider;
+        $this->data[$provider->getAuthenticationService()] = $provider;
     }
 
 
@@ -55,4 +55,21 @@ class MetaProviderCollection
         }
         return $result;
     }
+
+
+    /**
+     * @param string $as
+     * @return MetaProvider|null
+     */
+    public function findByAS($as) {
+        $result = null;
+        if (!$as && count($this->data)==1) {
+            $arr = $this->data;
+            $result = array_pop($arr);
+        } else if ($as) {
+            $result = $this->get($as);
+        }
+        return $result;
+    }
+
 } 

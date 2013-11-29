@@ -51,5 +51,6 @@ class RelyingPartyCollection implements RelyingPartyInterface
                 return $relyingParty;
             }
         }
+        return null;
     }
 }

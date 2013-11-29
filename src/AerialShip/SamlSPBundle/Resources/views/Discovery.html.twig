@@ -1,6 +1,8 @@
 
-<h1></h1>discovery
+<h1>Discovery</h1>
 
+<ul>
 {% for name, meta in providers %}
-
+    <li><a href="{{ login_path }}?as={{ name }}">{{ name }}</a></li>
 {% endfor %}
+</ul>

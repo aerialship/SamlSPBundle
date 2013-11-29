@@ -12,10 +12,13 @@ class AerialShipSamlSPExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container)
     {
-        $this->processConfiguration(new Configuration(), $configs);
+        $config = $this->processConfiguration(new Configuration(), $configs);
 
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.yml');
+
+        $container->setParameter('aerial_ship_saml_sp.state.store.sso.entity_class', $config['identity_class']);
+        $loader->load($config['driver'].'.yml');
     }
 
 }

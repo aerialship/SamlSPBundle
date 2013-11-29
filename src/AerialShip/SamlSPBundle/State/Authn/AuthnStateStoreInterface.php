@@ -18,10 +18,10 @@ interface AuthnStateStoreInterface
     public function get($id);
 
     /**
-     * @param string $id
+     * @param AuthnState $state
      * @return bool
      */
-    public function remove($id);
+    public function remove(AuthnState $state);
 
 
     /**

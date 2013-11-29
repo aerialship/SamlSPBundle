@@ -9,26 +9,46 @@ use AerialShip\LightSaml\Model\Protocol\Response;
 use AerialShip\LightSaml\Model\XmlDSig\SignatureXmlValidator;
 use AerialShip\LightSaml\Security\KeyHelper;
 use AerialShip\SamlSPBundle\Config\EntityDescriptorProviderInterface;
+use AerialShip\SamlSPBundle\Config\MetaProvider;
+use AerialShip\SamlSPBundle\Config\MetaProviderCollection;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
+use AerialShip\SamlSPBundle\State\Authn\AuthnStateStoreInterface;
+use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
+use Symfony\Component\Form\Exception\RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 
 class AssertionConsumer implements RelyingPartyInterface
 {
-    /** @var \AerialShip\SamlSPBundle\Bridge\BindingRequestBuilder  */
+    /** @var BindingRequestBuilder  */
     protected $bindingRequestBuilder;
 
-    /** @var  EntityDescriptorProviderInterface */
-    protected $idpProvider;
+    /** @var  MetaProviderCollection */
+    protected $metaProviders;
+
+    /** @var  AuthnStateStoreInterface */
+    protected $authnStore;
+
+    /** @var SSOStateStoreInterface  */
+    protected $ssoStore;
+
+
+    /** @var  BindingDetector */
+    protected $bindingDetector;
 
 
 
     public function __construct(BindingRequestBuilder $bindingRequestBuilder,
-        EntityDescriptorProviderInterface $idpProvider
+        MetaProviderCollection $metaProviders,
+        AuthnStateStoreInterface $authnStore,
+        SSOStateStoreInterface $ssoStore
     ) {
         $this->bindingRequestBuilder = $bindingRequestBuilder;
-        $this->idpProvider = $idpProvider;
+        $this->metaProviders = $metaProviders;
+        $this->authnStore = $authnStore;
+        $this->ssoStore = $ssoStore;
+        $this->bindingDetector = new BindingDetector();
     }
 
 
@@ -39,7 +59,9 @@ class AssertionConsumer implements RelyingPartyInterface
      */
     public function supports(Request $request)
     {
-        $result = $request->attributes->get('check_path') == $request->getPathInfo();
+        $result = $request->attributes->get('check_path') == $request->getPathInfo()
+            && $this->metaProviders->findByAS($request->query->get('as'))
+        ;
         return $result;
     }
 
@@ -57,12 +79,12 @@ class AssertionConsumer implements RelyingPartyInterface
         }
 
         $bindingRequest = $this->bindingRequestBuilder->getBindingRequest($request);
-
-        $detector = new BindingDetector();
-        $bindingType = $detector->getBinding($bindingRequest);
-        $binding = $detector->instantiate($bindingType);
+        $binding = $this->getBinding($bindingRequest);
         /** @var Response $response */
         $response = $binding->receive($bindingRequest);
+        if (!$response instanceof Response) {
+            throw new \RuntimeException('Expected Protocol/Response type but got '.get_class($response));
+        }
 
         $this->validateResponse($response, $request);
 
@@ -80,12 +102,32 @@ class AssertionConsumer implements RelyingPartyInterface
     }
 
 
+    protected function getBinding(\AerialShip\LightSaml\Binding\Request $bindingRequest) {
+        $detector = new BindingDetector();
+        $bindingType = $this->bindingDetector->getBinding($bindingRequest);
+        $binding = $detector->instantiate($bindingType);
+        return $binding;
+    }
+
+
     protected function validateResponse(Response $response) {
+        $this->validateState($response);
         $this->validateStatus($response);
         $this->validateResponseSignature($response);
         foreach ($response->getAllAssertions() as $assertion) {
             $this->validateAssertion($assertion);
         }
+    }
+
+    protected function validateState(Response $response) {
+        $authnState = $this->authnStore->get($response->getInResponseTo());
+        if (!$authnState) {
+            throw new \RuntimeException('Got response to a request that was not made');
+        }
+        if ($authnState->getDestination() != $response->getIssuer()) {
+            throw new \RuntimeException('Got response from different issuer');
+        }
+        $this->authnStore->remove($authnState);
     }
 
     protected function validateStatus(Response $response) {
@@ -117,6 +159,7 @@ class AssertionConsumer implements RelyingPartyInterface
                 $signature->validate($key);
             }
         }
+        // TODO check notBefore and notOnOrAfter
     }
 
 

@@ -5,9 +5,14 @@ namespace AerialShip\SamlSPBundle\Bridge;
 use AerialShip\LightSaml\Binding\HttpRedirect;
 use AerialShip\LightSaml\Meta\AuthnRequestBuilder;
 use AerialShip\SamlSPBundle\Config\EntityDescriptorProviderInterface;
+use AerialShip\SamlSPBundle\Config\MetaProviderCollection;
+use AerialShip\SamlSPBundle\Config\SpEntityDescriptorBuilder;
 use AerialShip\SamlSPBundle\Config\SpMetaProviderInterface;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
+use AerialShip\SamlSPBundle\State\Authn\AuthnState;
+use AerialShip\SamlSPBundle\State\Authn\AuthnStateStoreInterface;
 use AerialShip\SamlSPBundle\State\SamlState;
+use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
 use AerialShip\SamlSPBundle\State\StateStoreInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -15,28 +20,24 @@ use Symfony\Component\HttpFoundation\Request;
 
 class Authenticate implements RelyingPartyInterface
 {
-    /** @var  EntityDescriptorProviderInterface */
+    /** @var  SpEntityDescriptorBuilder */
     protected $spProvider;
 
-    /** @var  EntityDescriptorProviderInterface */
-    protected $idpProvider;
+    /** @var  MetaProviderCollection */
+    protected $metaProviders;
 
-    /** @var  SpMetaProviderInterface */
-    protected $spMetaProvider;
-
-    /** @var \AerialShip\SamlSPBundle\State\StateStoreInterface  */
-    protected $stateStore;
+    /** @var  AuthnStateStoreInterface */
+    protected $authnStore;
 
 
-    public function __construct(EntityDescriptorProviderInterface $spProvider,
-        EntityDescriptorProviderInterface $idpProvider,
-        SpMetaProviderInterface $spMetaProvider,
-        StateStoreInterface $stateStore
+
+    public function __construct(SpEntityDescriptorBuilder $spProvider,
+        MetaProviderCollection $metaProviders,
+        AuthnStateStoreInterface $authnStore
     ) {
         $this->spProvider = $spProvider;
-        $this->idpProvider = $idpProvider;
-        $this->spMetaProvider = $spMetaProvider;
-        $this->stateStore = $stateStore;
+        $this->metaProviders = $metaProviders;
+        $this->authnStore = $authnStore;
     }
 
 
@@ -47,8 +48,9 @@ class Authenticate implements RelyingPartyInterface
      */
     public function supports(Request $request)
     {
-        $result = $request->attributes->get('login_path') == $request->getPathInfo();
-        return $result;
+        $pathOK = $request->attributes->get('login_path') == $request->getPathInfo();
+        $metaProvider = $this->metaProviders->findByAS($request->query->get('as'));
+        return $pathOK && $metaProvider;
     }
 
     /**
@@ -62,9 +64,12 @@ class Authenticate implements RelyingPartyInterface
             throw new \InvalidArgumentException('Unsupported request');
         }
 
+        $this->spProvider->setRequest($request);
         $spED = $this->spProvider->getEntityDescriptor($request);
-        $idpED = $this->idpProvider->getEntityDescriptor($request);
-        $spMeta = $this->spMetaProvider->getSpMeta($request);
+
+        $metaProvider = $this->metaProviders->findByAS($request->query->get('as'));
+        $idpED = $metaProvider->getIdpProvider()->getEntityDescriptor();
+        $spMeta = $metaProvider->getSpMetaProvider()->getSpMeta();
 
         $builder = new AuthnRequestBuilder($spED, $idpED, $spMeta);
         $message = $builder->build();
@@ -73,10 +78,10 @@ class Authenticate implements RelyingPartyInterface
         /** @var \AerialShip\LightSaml\Binding\RedirectResponse $resp */
         $bindingResponse = $binding->send($message);
 
-        $state = new SamlState();
+        $state = new AuthnState();
         $state->setId($message->getID());
         $state->setDestination($message->getDestination());
-        $this->stateStore->setState($state);
+        $this->authnStore->set($state);
 
         $result = new RedirectResponse($bindingResponse->getUrl());
         return $result;
