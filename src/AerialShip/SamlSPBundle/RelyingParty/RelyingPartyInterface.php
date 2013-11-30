@@ -11,12 +11,12 @@ interface RelyingPartyInterface
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return bool
      */
-    function supports(Request $request);
+    public function supports(Request $request);
 
     /**
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @throws \InvalidArgumentException if cannot manage the Request
-     * @return \Symfony\Component\HttpFoundation\Response|SamlSpInfo
+     * @return \Symfony\Component\HttpFoundation\Response|SamlSpInfo|null
      */
-    function manage(Request $request);
+    public function manage(Request $request);
 }

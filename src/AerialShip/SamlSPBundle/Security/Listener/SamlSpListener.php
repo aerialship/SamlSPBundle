@@ -2,13 +2,11 @@
 
 namespace AerialShip\SamlSPBundle\Security\Listener;
 
-use AerialShip\LightSaml\Binding\RedirectResponse;
 use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use AerialShip\SamlSPBundle\Security\Token\SamlSpToken;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
@@ -41,19 +39,7 @@ class SamlSpListener extends AbstractAuthenticationListener
      */
     protected function requiresAuthentication(Request $request)
     {
-        //return true;
-        if ($this->httpUtils->checkRequestPath($request, $this->options['login_path'])) {
-            return true;
-        } else if ($this->httpUtils->checkRequestPath($request, $this->options['check_path'])) {
-            return true;
-        } else if ($this->httpUtils->checkRequestPath($request, $this->options['logout_path'])) {
-            return true;
-        } else if ($this->httpUtils->checkRequestPath($request, $this->options['discovery_path'])) {
-            return true;
-        } else if ($this->httpUtils->checkRequestPath($request, $this->options['metadata_path'])) {
-            return true;
-        }
-        return $this->getRelyingParty()->supports($request);
+        return true;
     }
 
 
@@ -83,6 +69,9 @@ class SamlSpListener extends AbstractAuthenticationListener
         if (!empty($this->options['discovery_path'])) {
             $myRequest->attributes->set('discovery_path', $this->options['discovery_path']);
         }
+        if (!empty($this->options['failure_path'])) {
+            $myRequest->attributes->set('failure_path', $this->options['failure_path']);
+        }
 
 
         if (!$this->getRelyingParty()->supports($myRequest)) {
@@ -105,11 +94,7 @@ class SamlSpListener extends AbstractAuthenticationListener
                 throw $e;
             }
         }
-
-        throw new \RuntimeException(sprintf(
-            'The relying party %s::manage() must either return a Response or instance of SamlSpInfo.',
-            get_class($this->getRelyingParty())
-        ));
+        return null;
     }
 
 } 

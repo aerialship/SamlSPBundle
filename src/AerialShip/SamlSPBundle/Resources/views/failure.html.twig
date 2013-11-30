@@ -1,0 +1,9 @@
+{% if error %}
+    {{ error.getMessage() }}
+    <hr/>
+    <pre>{{ error.getTraceAsString() }}</pre>
+    <hr>
+    {{ dump(error.getToken()) }}
+{% else %}
+    <p>Some error occurred but went out of the scope</p>
+{% endif %}

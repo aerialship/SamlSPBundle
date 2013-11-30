@@ -2,14 +2,9 @@
 
 namespace AerialShip\SamlSPBundle\DependencyInjection\Security\Factory;
 
-use AerialShip\SamlSPBundle\Config\MetaProvider;
 use Symfony\Bundle\SecurityBundle\DependencyInjection\Security\Factory\AbstractFactory;
-use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\Builder\NodeDefinition;
-use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
-use Symfony\Component\Config\Definition\ScalarNode;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Reference;
 
@@ -23,6 +18,7 @@ class SamlSpFactory extends AbstractFactory
         $this->defaultFailureHandlerOptions['failure_path'] = '/saml/failure';
 
         // these are available in listener->options[]
+        $this->addOption('require_previous_session', false); // otherwise it will end up with throw new SessionUnavailableException('Your session has timed out, or you have disabled cookies.'); on each new session
         $this->addOption('login_path', '/saml/login');
         $this->addOption('check_path', '/saml/login_check');
         $this->addOption('logout_path', '/saml/logout');
@@ -173,6 +169,7 @@ class SamlSpFactory extends AbstractFactory
         $this->createRelyingPartyFederationMetadata($container, $id, $config);
         $this->createRelyingPartyAuthenticate($container, $id);
         $this->createRelyingPartyAssertionConsumer($container, $id);
+        $this->createRelyingPartySSOSessionCheck($container, $id);
         $this->createRelyingPartyComposite($container, $id);
     }
 
@@ -182,13 +179,15 @@ class SamlSpFactory extends AbstractFactory
         $container->setDefinition("aerial_ship_saml_sp.relying_party.discovery.{$id}", $service);
     }
 
-    protected function createRelyingPartyFederationMetadata(ContainerBuilder $container, $id, array $config) {
+    protected function createRelyingPartyFederationMetadata(ContainerBuilder $container, $id, array $config)
+    {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.federation_metadata');
         $service->replaceArgument(0, new Reference('aerial_ship_saml_sp.sp_entity_descriptor_builder.'.$id));
         $container->setDefinition('aerial_ship_saml_sp.relying_party.federation_metadata.'.$id, $service);
     }
 
-    protected function createRelyingPartyAuthenticate(ContainerBuilder $container, $id) {
+    protected function createRelyingPartyAuthenticate(ContainerBuilder $container, $id)
+    {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.authenticate');
         $service->replaceArgument(0, new Reference('aerial_ship_saml_sp.sp_entity_descriptor_builder.'.$id));
         $service->replaceArgument(1, new Reference('aerial_ship_saml_sp.meta.provider_collection.'.$id));
@@ -196,11 +195,19 @@ class SamlSpFactory extends AbstractFactory
         $container->setDefinition('aerial_ship_saml_sp.relying_party.authenticate.'.$id, $service);
     }
 
-    protected function createRelyingPartyAssertionConsumer(ContainerBuilder $container, $id) {
+    protected function createRelyingPartyAssertionConsumer(ContainerBuilder $container, $id)
+    {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.assertion_consumer');
         $service->replaceArgument(1, new Reference('aerial_ship_saml_sp.meta.provider_collection.'.$id));
         $service->replaceArgument(2, new Reference('aerial_ship_saml_sp.state.store.authn.'.$id));
         $container->setDefinition('aerial_ship_saml_sp.relying_party.assertion_consumer.'.$id, $service);
+    }
+
+    protected function createRelyingPartySSOSessionCheck(ContainerBuilder $container, $id)
+    {
+        $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.sso_session_check');
+        $service->replaceArgument(0, $id);
+        $container->setDefinition('aerial_ship_saml_sp.relying_party.sso_session_check.'.$id, $service);
     }
 
     protected function createRelyingPartyComposite(ContainerBuilder $container, $id) {
@@ -209,6 +216,7 @@ class SamlSpFactory extends AbstractFactory
         $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.federation_metadata.'.$id)));
         $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.authenticate.'.$id)));
         $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.assertion_consumer.'.$id)));
+        $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.sso_session_check.'.$id)));
         $container->setDefinition('aerial_ship_saml_sp.relying_party.composite.'.$id, $service);
     }
 

@@ -2,7 +2,6 @@
 
 namespace AerialShip\SamlSPBundle\Security\Authentication\Provider;
 
-use AerialShip\LightSaml\Model\Assertion\NameID;
 use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
 use AerialShip\SamlSPBundle\Security\Token\SamlSpToken;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
@@ -55,7 +54,7 @@ class SamlSpProvider implements AuthenticationProviderInterface
         /** @var $token SamlSpToken */
         if ($token->getUser() instanceof UserInterface) {
             return $this->createAuthenticatedToken(
-                $token->getNameID(),
+                $token->getSamlSpInfo(),
                 $token->getAttributes(),
                 $token->getUser()->getRoles(),
                 $token->getUser()

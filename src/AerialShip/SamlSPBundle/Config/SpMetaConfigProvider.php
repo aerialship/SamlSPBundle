@@ -5,7 +5,6 @@ namespace AerialShip\SamlSPBundle\Config;
 use AerialShip\LightSaml\Bindings;
 use AerialShip\LightSaml\Meta\SpMeta;
 use AerialShip\LightSaml\NameIDPolicy;
-use Symfony\Component\HttpFoundation\Request;
 
 
 class SpMetaConfigProvider implements SpMetaProviderInterface

@@ -4,16 +4,11 @@ namespace AerialShip\SamlSPBundle\Bridge;
 
 use AerialShip\LightSaml\Binding\HttpRedirect;
 use AerialShip\LightSaml\Meta\AuthnRequestBuilder;
-use AerialShip\SamlSPBundle\Config\EntityDescriptorProviderInterface;
 use AerialShip\SamlSPBundle\Config\MetaProviderCollection;
 use AerialShip\SamlSPBundle\Config\SpEntityDescriptorBuilder;
-use AerialShip\SamlSPBundle\Config\SpMetaProviderInterface;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use AerialShip\SamlSPBundle\State\Authn\AuthnState;
 use AerialShip\SamlSPBundle\State\Authn\AuthnStateStoreInterface;
-use AerialShip\SamlSPBundle\State\SamlState;
-use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
-use AerialShip\SamlSPBundle\State\StateStoreInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\HttpUtils;

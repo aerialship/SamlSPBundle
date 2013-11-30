@@ -6,6 +6,9 @@ use AerialShip\SamlSPBundle\State\SSO\SSOState;
 use Doctrine\ORM\Mapping as ORM;
 
 
+/**
+ * @ORM\HasLifecycleCallbacks
+ */
 abstract class SSOStateEntity extends SSOState
 {
     /**
@@ -38,4 +41,34 @@ abstract class SSOStateEntity extends SSOState
      */
     protected $nameIDFormat;
 
-} 
+    /**
+     * @var \DateTime
+     * @ORM\Column(type="datetime", name="created_on")
+     */
+    protected $createdOn;
+
+
+
+
+
+
+    /**
+     * @param \DateTime $createdOn
+     */
+    public function setCreatedOn($createdOn) {
+        $this->createdOn = $createdOn;
+    }
+
+    /**
+     * @return \DateTime
+     */
+    public function getCreatedOn() {
+        return $this->createdOn;
+    }
+
+
+
+
+
+
+}

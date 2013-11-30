@@ -2,8 +2,6 @@
 
 namespace AerialShip\SamlSPBundle\Security\Token;
 
-use AerialShip\LightSaml\Model\Assertion\Attribute;
-use AerialShip\LightSaml\Model\Assertion\NameID;
 use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 
@@ -65,6 +63,14 @@ class SamlSpToken extends AbstractToken
         return $this->samlSpInfo;
     }
 
+    public function serialize() {
+        return serialize(array($this->providerKey, $this->samlSpInfo, parent::serialize()));
+    }
+
+    public function unserialize($serialized) {
+        list($this->providerKey, $this->samlSpInfo, $parentStr) = unserialize($serialized);
+        parent::unserialize($parentStr);
+    }
 
 
 }

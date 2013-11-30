@@ -9,6 +9,9 @@ use AerialShip\LightSaml\Model\Assertion\NameID;
 
 class SamlSpInfo implements \Serializable
 {
+    /** @var  string */
+    protected $authenticationServiceID;
+
     /** @var NameID */
     protected $nameID;
 
@@ -19,14 +22,15 @@ class SamlSpInfo implements \Serializable
     protected $authnStatement;
 
 
-
     /**
+     * @param string $authenticationServiceID
      * @param NameID|null $nameID
      * @param Attribute[] $attributes
      * @param \AerialShip\LightSaml\Model\Assertion\AuthnStatement $authnStatement
      */
-    public function __construct(NameID $nameID = null, array $attributes = null, AuthnStatement $authnStatement = null)
+    public function __construct($authenticationServiceID, NameID $nameID = null, array $attributes = null, AuthnStatement $authnStatement = null)
     {
+        $this->authenticationServiceID = $authenticationServiceID;
         $this->nameID = $nameID;
         $this->attributes = $attributes === null ? array() : $attributes;
         $this->authnStatement = $authnStatement;
@@ -68,6 +72,20 @@ class SamlSpInfo implements \Serializable
         return $this->authnStatement;
     }
 
+    /**
+     * @param string $authenticationServiceID
+     */
+    public function setAuthenticationServiceID($authenticationServiceID) {
+        $this->authenticationServiceID = $authenticationServiceID;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthenticationServiceID() {
+        return $this->authenticationServiceID;
+    }
+
 
 
 
@@ -78,7 +96,7 @@ class SamlSpInfo implements \Serializable
      */
     public function serialize()
     {
-        return serialize(array($this->nameID, $this->attributes, $this->authnStatement));
+        return serialize(array($this->authenticationServiceID, $this->nameID, $this->attributes, $this->authnStatement));
     }
 
     /**
@@ -86,6 +104,6 @@ class SamlSpInfo implements \Serializable
      */
     public function unserialize($serialized)
     {
-        list($this->nameID, $this->attributes, $this->authnStatement) = unserialize($serialized);
+        list($this->authenticationServiceID, $this->nameID, $this->attributes, $this->authnStatement) = unserialize($serialized);
     }
 }

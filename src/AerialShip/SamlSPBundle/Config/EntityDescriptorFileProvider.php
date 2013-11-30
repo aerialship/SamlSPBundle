@@ -3,7 +3,6 @@
 namespace AerialShip\SamlSPBundle\Config;
 
 use AerialShip\LightSaml\Model\Metadata\EntityDescriptor;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\KernelInterface;
 
 

@@ -4,18 +4,14 @@ namespace AerialShip\SamlSPBundle\Bridge;
 
 use AerialShip\LightSaml\Binding\BindingDetector;
 use AerialShip\LightSaml\Model\Assertion\Assertion;
-use AerialShip\LightSaml\Model\Metadata\EntityDescriptor;
 use AerialShip\LightSaml\Model\Protocol\Response;
 use AerialShip\LightSaml\Model\XmlDSig\SignatureXmlValidator;
 use AerialShip\LightSaml\Security\KeyHelper;
-use AerialShip\SamlSPBundle\Config\EntityDescriptorProviderInterface;
 use AerialShip\SamlSPBundle\Config\MetaProvider;
 use AerialShip\SamlSPBundle\Config\MetaProviderCollection;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use AerialShip\SamlSPBundle\State\Authn\AuthnStateStoreInterface;
-use AerialShip\SamlSPBundle\State\SSO\SSOState;
 use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
-use Symfony\Component\Form\Exception\RuntimeException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
@@ -106,7 +102,7 @@ class AssertionConsumer implements RelyingPartyInterface
         $ssoState->setSessionIndex($authnStatement->getSessionIndex());
         $this->ssoStore->set($ssoState);
 
-        $result = new SamlSpInfo($nameID, $attributes, $authnStatement);
+        $result = new SamlSpInfo($metaProvider->getAuthenticationService(), $nameID, $attributes, $authnStatement);
         return $result;
     }
 
@@ -132,15 +128,14 @@ class AssertionConsumer implements RelyingPartyInterface
     }
 
     protected function validateState(Response $response) {
-        return;
         $authnState = $this->authnStore->get($response->getInResponseTo());
         if (!$authnState) {
-            //throw new \RuntimeException('Got response to a request that was not made');
+            throw new \RuntimeException('Got response to a request that was not made');
         }
         if ($authnState->getDestination() != $response->getIssuer()) {
             throw new \RuntimeException('Got response from different issuer');
         }
-        //$this->authnStore->remove($authnState);
+        $this->authnStore->remove($authnState);
     }
 
     protected function validateStatus(Response $response) {

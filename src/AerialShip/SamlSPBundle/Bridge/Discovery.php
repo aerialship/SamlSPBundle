@@ -73,7 +73,7 @@ class Discovery implements RelyingPartyInterface
             //$this->metaProviders->get('')->getIdpProvider()->getEntityDescriptor()->getEntityID()
             // present user to choose which idp he wants to authenticate with
             return new Response($this->twig->render(
-                '@AerialShipSamlSP/Discovery.html.twig',
+                '@AerialShipSamlSP/discovery.html.twig',
                 array(
                     'providers' => $this->metaProviders->all(),
                     'login_path' => $loginPath

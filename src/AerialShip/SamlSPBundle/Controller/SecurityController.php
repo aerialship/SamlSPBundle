@@ -35,12 +35,16 @@ class SecurityController extends Controller
     function failureAction() {
         /** @var $error AuthenticationException */
         $error = $this->getRequest()->getSession()->get(SecurityContextInterface::AUTHENTICATION_ERROR);
-        $this->getRequest()->getSession()->remove(SecurityContextInterface::AUTHENTICATION_ERROR);
-        print "<pre>\n";
-        print $error ? $error->getMessage() : '';
-        print "<hr/>\n";
-        print $error ? $error->getTraceAsString() : '';
-        exit;
+//        $this->getRequest()->getSession()->remove(SecurityContextInterface::AUTHENTICATION_ERROR);
+//        print "<pre>\n";
+//        print $error ? $error->getMessage() : '';
+//        print "<hr/>\n";
+//        print "Token:\n";
+//        $token = $error ? $error->getToken() : null;
+//        var_dump($token);
+//        print "<hr/>\n";
+//        print $error ? $error->getTraceAsString() : '';
+        return $this->render('AerialShipSamlSPBundle::failure.html.twig', array('error'=>$error));
     }
 
 }
