@@ -44,7 +44,6 @@ security.xml
 
 
         access_control:
-            - { path: ^/login_saml, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-            - { path: ^/login_check_saml, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+            - { path: ^/saml/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+            - { path: ^/saml/acs, roles: IS_AUTHENTICATED_ANONYMOUSLY }
             - { path: ^/admin, roles: ROLE_USER }
-            #- { path: ^/login, roles: IS_AUTHENTICATED_ANONYMOUSLY, requires_channel: https }
