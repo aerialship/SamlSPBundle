@@ -12,7 +12,8 @@ use Symfony\Component\DependencyInjection\Reference;
 class SamlSpFactory extends AbstractFactory
 {
 
-    function __construct() {
+    function __construct()
+    {
         $this->defaultSuccessHandlerOptions['login_path'] = '/saml/login';
         $this->defaultFailureHandlerOptions['login_path'] = '/saml/login';
         $this->defaultFailureHandlerOptions['failure_path'] = '/saml/failure';
@@ -26,7 +27,8 @@ class SamlSpFactory extends AbstractFactory
         $this->addOption('target_path_parameter', $this->defaultSuccessHandlerOptions['target_path_parameter']);
     }
 
-    public function addConfiguration(NodeDefinition $node) {
+    public function addConfiguration(NodeDefinition $node)
+    {
         parent::addConfiguration($node);
         $node->children()
             ->arrayNode('sp')
@@ -43,7 +45,7 @@ class SamlSpFactory extends AbstractFactory
             ->scalarNode('failure_path')->defaultValue('/saml/failure')->cannotBeEmpty()->end()
             ->scalarNode('metadata_path')->defaultValue('/saml/FederationMetadata.xml')->cannotBeEmpty()->end()
             ->scalarNode('discovery_path')->defaultValue('/saml/discovery')->cannotBeEmpty()->end()
-            #->scalarNode('provider')->defaultValue('aerial_ship_saml_sp.user_provider.default')->cannotBeEmpty()->end()
+            ->booleanNode('create_user_if_not_exists')->defaultFalse()->end()
             ->arrayNode('services')
                 ->isRequired()
                 ->requiresAtLeastOneElement()
@@ -86,7 +88,8 @@ class SamlSpFactory extends AbstractFactory
     }
 
 
-    protected function createListener($container, $id, $config, $userProvider) {
+    protected function createListener($container, $id, $config, $userProvider)
+    {
         $this->addOption('login_path', $config['login_path']);
         $this->addOption('check_path', $config['check_path']);
         $this->addOption('logout_path', $config['logout_path']);
@@ -111,14 +114,16 @@ class SamlSpFactory extends AbstractFactory
     }
 
 
-    protected function createSpEntityDescriptorBuilder(ContainerBuilder $container, $id, array $config) {
+    protected function createSpEntityDescriptorBuilder(ContainerBuilder $container, $id, array $config)
+    {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.sp_entity_descriptor_builder');
         $service->replaceArgument(0, $config);
         $container->setDefinition("aerial_ship_saml_sp.sp_entity_descriptor_builder.{$id}", $service);
     }
 
 
-    protected function createMetaProviders(ContainerBuilder $container, $id, array $config) {
+    protected function createMetaProviders(ContainerBuilder $container, $id, array $config)
+    {
         $collection = new DefinitionDecorator('aerial_ship_saml_sp.meta.provider_collection');
         $container->setDefinition("aerial_ship_saml_sp.meta.provider_collection.{$id}", $collection);
         foreach ($config['services'] as $name=>$meta)
@@ -154,17 +159,20 @@ class SamlSpFactory extends AbstractFactory
     }
 
 
-    protected function createStateStores(ContainerBuilder $container, $id, array $config) {
+    protected function createStateStores(ContainerBuilder $container, $id, array $config)
+    {
         $this->createAuthnStore($container, $id, $config);
     }
 
-    protected function createAuthnStore(ContainerBuilder $container, $id, array $config) {
+    protected function createAuthnStore(ContainerBuilder $container, $id, array $config)
+    {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.state.store.authn');
         $service->replaceArgument(1, $id);
         $container->setDefinition('aerial_ship_saml_sp.state.store.authn.'.$id, $service);
     }
 
-    protected function createRelyingParties(ContainerBuilder $container, $id, array $config) {
+    protected function createRelyingParties(ContainerBuilder $container, $id, array $config)
+    {
         $this->createRelyingPartyDiscovery($container, $id, $config);
         $this->createRelyingPartyFederationMetadata($container, $id, $config);
         $this->createRelyingPartyAuthenticate($container, $id);
@@ -173,7 +181,8 @@ class SamlSpFactory extends AbstractFactory
         $this->createRelyingPartyComposite($container, $id);
     }
 
-    protected function createRelyingPartyDiscovery(ContainerBuilder $container, $id, array $config) {
+    protected function createRelyingPartyDiscovery(ContainerBuilder $container, $id, array $config)
+    {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.discovery');
         $service->replaceArgument(1, new Reference("aerial_ship_saml_sp.meta.provider_collection.{$id}"));
         $container->setDefinition("aerial_ship_saml_sp.relying_party.discovery.{$id}", $service);
@@ -210,7 +219,8 @@ class SamlSpFactory extends AbstractFactory
         $container->setDefinition('aerial_ship_saml_sp.relying_party.sso_session_check.'.$id, $service);
     }
 
-    protected function createRelyingPartyComposite(ContainerBuilder $container, $id) {
+    protected function createRelyingPartyComposite(ContainerBuilder $container, $id)
+    {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.composite');
         $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.discovery.'.$id)));
         $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.federation_metadata.'.$id)));
@@ -232,19 +242,25 @@ class SamlSpFactory extends AbstractFactory
      *
      * @return string never null, the id of the authentication provider
      */
-    protected function createAuthProvider(ContainerBuilder $container, $id, $config, $userProviderId) {
+    protected function createAuthProvider(ContainerBuilder $container, $id, $config, $userProviderId)
+    {
         $providerId = 'security.authentication.provider.aerial_ship_saml_sp.'.$id;
         $provider = $container
                 ->setDefinition($providerId, new DefinitionDecorator('security.authentication.provider.aerial_ship_saml_sp'))
                 ->replaceArgument(0, $id);
 
-        // with user provider
         if (isset($config['provider'])) {
+            $adapter = new DefinitionDecorator('aerial_ship_saml_sp.user_provider_adapter');
+            $adapter->replaceArgument(0, new Reference($userProviderId));
+            $adapterID = 'aerial_ship_saml_sp.user_provider_adapter.'.$id;
+            $container->setDefinition($adapterID, $adapter);
+
             $provider
-                    ->addArgument(new Reference($userProviderId))
-                    ->addArgument(new Reference('security.user_checker'))
+                    ->replaceArgument(1, new Reference($adapterID))
+                    ->replaceArgument(2, new Reference('security.user_checker'))
             ;
         }
+        $provider->replaceArgument(3, $config['create_user_if_not_exists']);
 
         return $providerId;
     }
@@ -265,15 +281,18 @@ class SamlSpFactory extends AbstractFactory
      *
      * @return string
      */
-    protected function getListenerId() {
+    protected function getListenerId()
+    {
         return 'security.authentication.listener.aerial_ship_saml_sp';
     }
 
-    public function getPosition() {
+    public function getPosition()
+    {
         return 'form';
     }
 
-    public function getKey() {
+    public function getKey()
+    {
         return 'aerial_ship_saml_sp';
     }
 

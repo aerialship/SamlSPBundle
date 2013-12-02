@@ -24,6 +24,7 @@ parameters:
     # var -----------------------------------------------
     aerial_ship_saml_sp.state.store.authn.class: AerialShip\SamlSPBundle\State\Authn\SessionStore
     aerial_ship_saml_sp.bridge.binding_request_builder.class: AerialShip\SamlSPBundle\Bridge\BindingRequestBuilder
+    aerial_ship_saml_sp.user_provider_adapter.class: AerialShip\SamlSPBundle\Security\Core\User\UserProviderAdapter
 
 services:
 
@@ -113,7 +114,11 @@ services:
 
     security.authentication.provider.aerial_ship_saml_sp:
         class: %security.authentication.provider.aerial_ship_saml_sp.class%
-        arguments: [~]
+        arguments:
+            - ~ # providerID
+            - ~ # user provider
+            - ~ # user checker
+            - false # create_user_if_not_exists
         public: false
         abstract: true
 
@@ -137,6 +142,11 @@ services:
         class: %aerial_ship_saml_sp.bridge.binding_request_builder.class%
 
 
+    aerial_ship_saml_sp.user_provider_adapter:
+        class: %aerial_ship_saml_sp.user_provider_adapter.class%
+        arguments: [~]
+        public: false
+        abstract: true
 
 
 
