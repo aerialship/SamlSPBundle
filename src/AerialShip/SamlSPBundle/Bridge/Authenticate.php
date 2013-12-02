@@ -79,7 +79,7 @@ class Authenticate implements RelyingPartyInterface
         $message = $builder->build();
 
         $binding = new HttpRedirect();
-        /** @var \AerialShip\LightSaml\Binding\RedirectResponse $resp */
+        /** @var $bindingResponse \AerialShip\LightSaml\Binding\RedirectResponse */
         $bindingResponse = $binding->send($message);
 
         $state = new AuthnState();

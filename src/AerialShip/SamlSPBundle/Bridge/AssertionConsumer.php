@@ -96,7 +96,7 @@ class AssertionConsumer implements RelyingPartyInterface
 
         $ssoState = $this->ssoStore->create();
         $ssoState->setNameID($nameID->getValue());
-        $ssoState->setNameIDFormat($nameID->getFormat());
+        $ssoState->setNameIDFormat($nameID->getFormat() ?: '');
         $ssoState->setAuthenticationServiceName($metaProvider->getAuthenticationService());
         $ssoState->setProviderID('saml'); // TODO inject this param to this class
         $ssoState->setSessionIndex($authnStatement->getSessionIndex());

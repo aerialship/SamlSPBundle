@@ -1,10 +1,10 @@
 <?php
 
-namespace AerialShip\SamlSPBundle\Security\Listener;
+namespace AerialShip\SamlSPBundle\Security\Http\Firewall;
 
 use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
-use AerialShip\SamlSPBundle\Security\Token\SamlSpToken;
+use AerialShip\SamlSPBundle\Security\Core\Token\SamlSpToken;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -12,7 +12,7 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener;
 
 
-class SamlSpListener extends AbstractAuthenticationListener
+class SamlSpAuthenticationListener extends AbstractAuthenticationListener
 {
     /** @var RelyingPartyInterface */
     protected $relyingParty;

@@ -1,9 +1,9 @@
 <?php
 
-namespace AerialShip\SamlSPBundle\Security\Authentication\Provider;
+namespace AerialShip\SamlSPBundle\Security\Core\Authentication\Provider;
 
 use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
-use AerialShip\SamlSPBundle\Security\Token\SamlSpToken;
+use AerialShip\SamlSPBundle\Security\Core\Token\SamlSpToken;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -15,7 +15,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\UserProviderInterface;
 
 
-class SamlSpProvider implements AuthenticationProviderInterface
+class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
 {
     /** @var string */
     protected $providerKey;

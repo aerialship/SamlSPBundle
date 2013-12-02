@@ -18,8 +18,8 @@ parameters:
     aerial_ship_saml_sp.relying_party.collection.class: AerialShip\SamlSPBundle\RelyingParty\RelyingPartyCollection
 
     # Security -------------------------------------------------
-    security.authentication.provider.aerial_ship_saml_sp.class: AerialShip\SamlSPBundle\Security\Authentication\Provider\SamlSpProvider
-    security.authentication.listener.aerial_ship_saml_sp.class: AerialShip\SamlSPBundle\Security\Listener\SamlSpListener
+    security.authentication.provider.aerial_ship_saml_sp.class: AerialShip\SamlSPBundle\Security\Core\Authentication\Provider\SamlSpAuthenticationProvider
+    security.authentication.listener.aerial_ship_saml_sp.class: AerialShip\SamlSPBundle\Security\Http\Firewall\SamlSpAuthenticationListener
 
     # var -----------------------------------------------
     aerial_ship_saml_sp.state.store.authn.class: AerialShip\SamlSPBundle\State\Authn\SessionStore

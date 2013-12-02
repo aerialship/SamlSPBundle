@@ -4,7 +4,7 @@ namespace AerialShip\SamlSPBundle\Bridge;
 
 use AerialShip\SamlSPBundle\Error\SSOSessionException;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
-use AerialShip\SamlSPBundle\Security\Token\SamlSpToken;
+use AerialShip\SamlSPBundle\Security\Core\Token\SamlSpToken;
 use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;

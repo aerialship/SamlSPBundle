@@ -1,6 +1,6 @@
 <?php
 
-namespace AerialShip\SamlSPBundle\Security\Token;
+namespace AerialShip\SamlSPBundle\Security\Core\Token;
 
 use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
