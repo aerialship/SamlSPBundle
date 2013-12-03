@@ -31,13 +31,13 @@ class SamlSpFactory extends AbstractFactory
     {
         parent::addConfiguration($node);
         $node->children()
-            ->arrayNode('sp')
+            ->arrayNode('sp')->isRequired()
                 ->children()
                     ->scalarNode('entity_id')->cannotBeEmpty()->isRequired()->end()
                     ->booleanNode('want_assertions_signed')->cannotBeEmpty()->defaultTrue()->end()
                 ->end()
             ->end()
-            ->scalarNode('relying_party')->defaultValue('aerial_ship_saml_sp.relying_party.default')->cannotBeEmpty()->end()
+            ->scalarNode('relying_party')->defaultValue(null)->end()
             ->scalarNode('login_path')->defaultValue('/saml/login')->cannotBeEmpty()->end()
             ->scalarNode('check_path')->defaultValue('/saml/acs')->cannotBeEmpty()->end()
             ->scalarNode('logout_path')->defaultValue('/saml/logout')->cannotBeEmpty()->end()
@@ -45,7 +45,7 @@ class SamlSpFactory extends AbstractFactory
             ->scalarNode('failure_path')->defaultValue('/saml/failure')->cannotBeEmpty()->end()
             ->scalarNode('metadata_path')->defaultValue('/saml/FederationMetadata.xml')->cannotBeEmpty()->end()
             ->scalarNode('discovery_path')->defaultValue('/saml/discovery')->cannotBeEmpty()->end()
-            ->booleanNode('create_user_if_not_exists')->defaultFalse()->end()
+            ->booleanNode('create_user_if_not_exists')->defaultFalse()->cannotBeEmpty()->end()
             ->arrayNode('services')
                 ->isRequired()
                 ->requiresAtLeastOneElement()
@@ -57,7 +57,7 @@ class SamlSpFactory extends AbstractFactory
                                 ->scalarNode('id')->end()
                             ->end()
                         ->end()
-                        ->arrayNode('sp')->isRequired()
+                        ->arrayNode('sp')->addDefaultsIfNotSet()
                             ->children()
                                 ->scalarNode('id')->end()
                                 ->enumNode('name_id_format')
@@ -65,7 +65,7 @@ class SamlSpFactory extends AbstractFactory
                                     ->cannotBeEmpty()
                                     ->defaultValue('persistent')
                                 ->end()
-                                ->arrayNode('binding')->isRequired()
+                                ->arrayNode('binding')->addDefaultsIfNotSet()
                                     ->children()
                                         ->enumNode('authn_request')
                                             ->values(array('redirect', 'post'))
@@ -105,10 +105,17 @@ class SamlSpFactory extends AbstractFactory
 
         $listenerId = parent::createListener($container, $id, $config, $userProvider);
 
-        $container
-                ->getDefinition($listenerId)
-                ->addMethodCall('setRelyingParty', array(new Reference('aerial_ship_saml_sp.relying_party.composite.'.$id)))
-        ;
+        if ($config['relying_party']) {
+            $container
+                    ->getDefinition($listenerId)
+                    ->addMethodCall('setRelyingParty', array(new Reference($config['relying_party'])))
+                ;
+        } else {
+            $container
+                    ->getDefinition($listenerId)
+                    ->addMethodCall('setRelyingParty', array(new Reference('aerial_ship_saml_sp.relying_party.composite.'.$id)))
+                ;
+        }
 
         return $listenerId;
     }
@@ -259,6 +266,9 @@ class SamlSpFactory extends AbstractFactory
                     ->replaceArgument(1, new Reference($adapterID))
                     ->replaceArgument(2, new Reference('security.user_checker'))
             ;
+        }
+        if (!isset($config['create_user_if_not_exists'])) {
+            $config['create_user_if_not_exists'] = false;
         }
         $provider->replaceArgument(3, $config['create_user_if_not_exists']);
 

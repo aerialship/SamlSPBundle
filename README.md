@@ -13,3 +13,9 @@ Documentation
 
 [Documentation](src/AerialShip/SamlSPBundle/Resources/doc/index.md)
 
+
+Credits
+------
+
+Thanks to fos/user-bundle and fp/openid-bundle open source projects that helped understand better how symfony2
+security works and learn how custom security extensions should be built.
