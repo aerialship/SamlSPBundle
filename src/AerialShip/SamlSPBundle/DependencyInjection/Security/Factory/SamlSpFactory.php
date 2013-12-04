@@ -45,7 +45,7 @@ class SamlSpFactory extends AbstractFactory
             ->scalarNode('failure_path')->defaultValue('/saml/failure')->cannotBeEmpty()->end()
             ->scalarNode('metadata_path')->defaultValue('/saml/FederationMetadata.xml')->cannotBeEmpty()->end()
             ->scalarNode('discovery_path')->defaultValue('/saml/discovery')->cannotBeEmpty()->end()
-            ->booleanNode('create_user_if_not_exists')->defaultFalse()->cannotBeEmpty()->end()
+            ->booleanNode('create_user_if_not_exists')->defaultFalse()->end()
             ->arrayNode('services')
                 ->isRequired()
                 ->requiresAtLeastOneElement()

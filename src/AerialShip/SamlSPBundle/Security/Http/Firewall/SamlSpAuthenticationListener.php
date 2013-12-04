@@ -3,6 +3,7 @@
 namespace AerialShip\SamlSPBundle\Security\Http\Firewall;
 
 use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
+use AerialShip\SamlSPBundle\Error\RelyingPartyNotSetException;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use AerialShip\SamlSPBundle\Security\Core\Token\SamlSpToken;
 use Symfony\Component\HttpFoundation\Request;
@@ -25,11 +26,11 @@ class SamlSpAuthenticationListener extends AbstractAuthenticationListener
 
     /**
      * @return RelyingPartyInterface
-     * @throws \RuntimeException
+     * @throws RelyingPartyNotSetException
      */
     protected function getRelyingParty() {
         if (false == $this->relyingParty) {
-            throw new \RuntimeException('The relying party is required for the listener work, but it was not set. Seems like miss configuration');
+            throw new RelyingPartyNotSetException('The relying party is required for the listener work, but it was not set. Seems like miss configuration');
         }
         return $this->relyingParty;
     }

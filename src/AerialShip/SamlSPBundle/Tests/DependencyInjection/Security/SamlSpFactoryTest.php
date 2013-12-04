@@ -2,7 +2,6 @@
 
 namespace AerialShip\SamlSPBundle\Tests\DependencyInjection\Security;
 
-
 use AerialShip\SamlSPBundle\DependencyInjection\Security\Factory\SamlSpFactory;
 use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\BooleanNode;
@@ -11,6 +10,7 @@ use Symfony\Component\Config\Definition\NodeInterface;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+
 
 class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
 {
@@ -370,6 +370,102 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.assertion_consumer.main'));
         $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.sso_session_check.main'));
         $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.composite.main'));
+    }
+
+
+    /**
+     * @test
+     */
+    public function shouldSetOnlyProviderKeyToAuthenticationProviderIfProviderNotSetInConfig()
+    {
+        $expectedProviderKey = 'some_provider_key';
+
+        $factory = new SamlSpFactory();
+        $configProcessor = new SamlSpFactoryConfiguration($factory, 'name');
+        $config = $configProcessor->processCommonConfiguration();
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+
+        list($providerID) = $factory->create($containerBuilder, $expectedProviderKey, $config, 'user.provider.id', null);
+
+        $this->assertTrue($containerBuilder->hasDefinition($providerID));
+        $providerDefinition = $containerBuilder->getDefinition($providerID);
+        $this->assertEquals($expectedProviderKey, $providerDefinition->getArgument(0));
+    }
+
+    /**
+     * @test
+     */
+    public function shouldSetProviderKeyUserProviderAdapterAndUserCheckerIfProviderSetInConfig()
+    {
+        $expectedProviderKey = 'some_provider_key';
+        $expectedUserProvider = 'user.provider.id';
+
+        $factory = new SamlSpFactory();
+        $configProcessor = new SamlSpFactoryConfiguration($factory, 'name');
+        $config = $configProcessor->getCommonConfiguration();
+        $config['provider'] = $expectedUserProvider;
+        $config = $configProcessor->processConfiguration($config);
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+
+        list($providerID) = $factory->create($containerBuilder, $expectedProviderKey, $config, $expectedUserProvider, null);
+
+        $this->assertTrue($containerBuilder->hasDefinition($providerID));
+
+        $providerDefinition = $containerBuilder->getDefinition($providerID);
+        $this->assertCount(4, $providerDefinition->getArguments());
+
+        $this->assertEquals($expectedProviderKey, $providerDefinition->getArgument(0));
+
+        $adapterReference = $providerDefinition->getArgument(1);
+        $this->assertInstanceOf('Symfony\Component\DependencyInjection\Reference', $adapterReference);
+        $this->assertEquals('aerial_ship_saml_sp.user_provider_adapter.'.$expectedProviderKey, (string)$adapterReference);
+
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.user_provider_adapter.'.$expectedProviderKey));
+        $adapterDefinition = $containerBuilder->getDefinition('aerial_ship_saml_sp.user_provider_adapter.'.$expectedProviderKey);
+        $this->assertInstanceOf('Symfony\Component\DependencyInjection\Reference', $adapterDefinition->getArgument(0));
+        $this->assertEquals($expectedUserProvider, (string)$adapterDefinition->getArgument(0));
+
+        $checkerReference = $providerDefinition->getArgument(2);
+        $this->assertInstanceOf('Symfony\Component\DependencyInjection\Reference', $checkerReference);
+        $this->assertEquals('security.user_checker', (string)$checkerReference);
+    }
+
+
+    /**
+     * @test
+     */
+    public function shouldSetCreateUserIfNotExistsToAuthenticationProviderWhenTrue()
+    {
+        $factory = new SamlSpFactory();
+        $configProcessor = new SamlSpFactoryConfiguration($factory, 'name');
+        $config = $configProcessor->getCommonConfiguration();
+        $config['create_user_if_not_exists'] = true;
+        $config = $configProcessor->processConfiguration($config);
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+
+        list($providerID) = $factory->create($containerBuilder, 'main', $config, 'user.provider.id', null);
+        $providerDefinition = $containerBuilder->getDefinition($providerID);
+
+        $this->assertTrue($providerDefinition->getArgument(3));
+    }
+
+
+    /**
+     * @test
+     */
+    public function shouldSetCreateUserIfNotExistsToAuthenticationProviderWhenFalse()
+    {
+        $factory = new SamlSpFactory();
+        $configProcessor = new SamlSpFactoryConfiguration($factory, 'name');
+        $config = $configProcessor->getCommonConfiguration();
+        $config['create_user_if_not_exists'] = false;
+        $config = $configProcessor->processConfiguration($config);
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+
+        list($providerID) = $factory->create($containerBuilder, 'main', $config, 'user.provider.id', null);
+        $providerDefinition = $containerBuilder->getDefinition($providerID);
+
+        $this->assertFalse($providerDefinition->getArgument(3));
     }
 
 } 
