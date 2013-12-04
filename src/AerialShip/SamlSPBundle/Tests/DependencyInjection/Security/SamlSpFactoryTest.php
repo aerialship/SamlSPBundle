@@ -195,9 +195,7 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertInternalType('array', $result);
         $this->assertCount(3, $result);
-        $this->assertInternalType('string', $result[0]);
-        $this->assertInternalType('string', $result[1]);
-        $this->assertNull($result[2]);
+        $this->assertContainsOnly('string', $result);
     }
 
     /**
@@ -210,7 +208,7 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
         $config = $configProcessor->processCommonConfiguration();
         $containerBuilder = new ContainerBuilder(new ParameterBag());
 
-        list($providerID) = $factory->create($containerBuilder, 'main', $config, 'user.provider.id', '');
+        list($providerID) = $factory->create($containerBuilder, 'main', $config, 'user.provider.id', null);
         $this->assertStringStartsWith('security.authentication.provider.aerial_ship_saml_sp', $providerID);
         $this->assertStringEndsWith('.main', $providerID);
     }
@@ -225,9 +223,153 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
         $config = $configProcessor->processCommonConfiguration();
         $containerBuilder = new ContainerBuilder(new ParameterBag());
 
-        list(,$listenerID) = $factory->create($containerBuilder, 'main', $config, 'user.provider.id', '');
+        list(,$listenerID) = $factory->create($containerBuilder, 'main', $config, 'user.provider.id', null);
         $this->assertStringStartsWith('security.authentication.listener.aerial_ship_saml_sp', $listenerID);
         $this->assertStringEndsWith('.main', $listenerID);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldReturnFormEntryPointyWithPostfixId()
+    {
+        $factory = new SamlSpFactory();
+        $configProcessor = new SamlSpFactoryConfiguration($factory, 'name');
+        $config = $configProcessor->processCommonConfiguration();
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+
+        list(,,$entryPointID) = $factory->create($containerBuilder, 'main', $config, 'user.provider.id', null);
+        $this->assertStringStartsWith('security.authentication.form_entry_point', $entryPointID);
+        $this->assertStringEndsWith('.main', $entryPointID);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldInjectRelayingPartyWithListenerSetterMethod()
+    {
+        $expectedRelyingPartyId = 'custom.relying_party.id';
+
+        $factory = new SamlSpFactory();
+        $configProcessor = new SamlSpFactoryConfiguration($factory, 'name');
+        $config = $configProcessor->processCommonConfiguration();
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+
+        $config['relying_party'] = $expectedRelyingPartyId;
+
+        list(,$listenerID) = $factory->create($containerBuilder, 'main', $config, 'user.provider.id', null);
+
+        $this->assertTrue($containerBuilder->hasDefinition($listenerID));
+
+        $listenerDefinition = $containerBuilder->getDefinition($listenerID);
+
+        $methodCalls = $listenerDefinition->getMethodCalls();
+        $this->assertCount(1, $methodCalls);
+        $this->assertEquals('setRelyingParty', $methodCalls[0][0]);
+
+        $this->assertInstanceOf('Symfony\Component\DependencyInjection\Reference', $methodCalls[0][1][0]);
+        $this->assertEquals($expectedRelyingPartyId, (string) $methodCalls[0][1][0]);
+    }
+
+    /**
+     * @test
+     */
+    public function shouldCreateSpEntityDescriptorBuilder()
+    {
+        $factory = new SamlSpFactory();
+        $configProcessor = new SamlSpFactoryConfiguration($factory, 'name');
+        $config = $configProcessor->processCommonConfiguration();
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+
+        $factory->create($containerBuilder, 'main', $config, 'user.provider.id', null);
+
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.sp_entity_descriptor_builder.main'));
+    }
+
+    /**
+     * @test
+     */
+    public function shouldCreateMetaProviderCollection()
+    {
+        $expectedIDPProvider = 'custom.idp.ed.provider';
+        $expectedSPProvider = 'custom.sp.meta.provider';
+
+        $factory = new SamlSpFactory();
+        $configProcessor = new SamlSpFactoryConfiguration($factory, 'name');
+        $config = $configProcessor->getCommonConfiguration();
+
+        $config['services']['bbb']['idp']['id'] = $expectedIDPProvider;
+        $config['services']['bbb']['sp']['id'] = $expectedSPProvider;
+
+        $config = $configProcessor->processConfiguration($config);
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+
+        $factory->create($containerBuilder, 'main', $config, 'user.provider.id', null);
+
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.meta.provider_collection.main'));
+        $metaProvidersDefinition = $containerBuilder->getDefinition('aerial_ship_saml_sp.meta.provider_collection.main');
+
+        $methodCalls = $metaProvidersDefinition->getMethodCalls();
+        $this->assertCount(2, $methodCalls);
+        $this->assertEquals('add', $methodCalls[0][0]);
+        $this->assertEquals('add', $methodCalls[1][0]);
+        $this->assertInstanceOf('Symfony\Component\DependencyInjection\Reference', $methodCalls[0][1][0]);
+        $this->assertInstanceOf('Symfony\Component\DependencyInjection\Reference', $methodCalls[1][1][0]);
+
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.meta.provider.main.aaa'));
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.meta.provider.main.bbb'));
+
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.entity_descriptor_provider.idp.main.aaa'));
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.sp_meta_provider.main.aaa'));
+
+        $this->assertFalse($containerBuilder->hasDefinition('aerial_ship_saml_sp.entity_descriptor_provider.idp.main.bbb'));
+        $this->assertFalse($containerBuilder->hasDefinition('aerial_ship_saml_sp.sp_meta_provider.main.bbb'));
+
+        $bbbProviderDefinition = $containerBuilder->getDefinition('aerial_ship_saml_sp.meta.provider.main.bbb');
+
+        $idpArgument = $bbbProviderDefinition->getArgument(2);
+        $this->assertInstanceOf('Symfony\Component\DependencyInjection\Reference', $idpArgument);
+        $this->assertEquals($expectedIDPProvider, (string)$idpArgument);
+
+        $spArgument = $bbbProviderDefinition->getArgument(3);
+        $this->assertInstanceOf('Symfony\Component\DependencyInjection\Reference', $spArgument);
+        $this->assertEquals($expectedSPProvider, (string)$spArgument);
+    }
+
+
+    /**
+     * @test
+     */
+    public function shouldCreateAuthnStateStore()
+    {
+        $factory = new SamlSpFactory();
+        $configProcessor = new SamlSpFactoryConfiguration($factory, 'name');
+        $config = $configProcessor->processCommonConfiguration();
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+
+        $factory->create($containerBuilder, 'main', $config, 'user.provider.id', null);
+
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.state.store.authn.main'));
+    }
+
+    /**
+     * @test
+     */
+    public function shouldCreateRelyingParties()
+    {
+        $factory = new SamlSpFactory();
+        $configProcessor = new SamlSpFactoryConfiguration($factory, 'name');
+        $config = $configProcessor->processCommonConfiguration();
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+
+        $factory->create($containerBuilder, 'main', $config, 'user.provider.id', null);
+
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.discovery.main'));
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.federation_metadata.main'));
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.authenticate.main'));
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.assertion_consumer.main'));
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.sso_session_check.main'));
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.composite.main'));
     }
 
 } 

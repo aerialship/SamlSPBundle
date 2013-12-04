@@ -52,19 +52,22 @@ class SamlSpFactoryConfiguration implements ConfigurationInterface
 
 
     public function processCommonConfiguration() {
-        return $this->processConfiguration(
-            array(
-                'sp' => array(
-                    'entity_id' => 'entity.id'
-                ),
-                'services' => array(
-                    'aaa' => array(
-                        'idp' => array(
-                            'file' => 'name.xml'
-                        )
+        return $this->processConfiguration($this->getCommonConfiguration());
+    }
+
+    public function getCommonConfiguration() {
+        return array(
+            'sp' => array(
+                'entity_id' => 'entity.id'
+            ),
+            'services' => array(
+                'aaa' => array(
+                    'idp' => array(
+                        'file' => 'name.xml'
                     )
                 )
             )
         );
+
     }
 } 
