@@ -184,6 +184,7 @@ class SamlSpFactory extends AbstractFactory
         $this->createRelyingPartyFederationMetadata($container, $id, $config);
         $this->createRelyingPartyAuthenticate($container, $id);
         $this->createRelyingPartyAssertionConsumer($container, $id);
+        $this->createRelyingPartyLogout($container, $id);
         $this->createRelyingPartySSOSessionCheck($container, $id);
         $this->createRelyingPartyComposite($container, $id);
     }
@@ -226,6 +227,14 @@ class SamlSpFactory extends AbstractFactory
         $container->setDefinition('aerial_ship_saml_sp.relying_party.sso_session_check.'.$id, $service);
     }
 
+    protected function createRelyingPartyLogout(ContainerBuilder $container, $id)
+    {
+        $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.logout');
+        $service->replaceArgument(1, new Reference('aerial_ship_saml_sp.sp_entity_descriptor_builder.'.$id));
+        $service->replaceArgument(2, new Reference('aerial_ship_saml_sp.meta.provider_collection.'.$id));
+        $container->setDefinition('aerial_ship_saml_sp.relying_party.logout.'.$id, $service);
+    }
+
     protected function createRelyingPartyComposite(ContainerBuilder $container, $id)
     {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.composite');
@@ -233,6 +242,8 @@ class SamlSpFactory extends AbstractFactory
         $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.federation_metadata.'.$id)));
         $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.authenticate.'.$id)));
         $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.assertion_consumer.'.$id)));
+        $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.logout.'.$id)));
+        // sso session check must be the last one since it can handle every request
         $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.sso_session_check.'.$id)));
         $container->setDefinition('aerial_ship_saml_sp.relying_party.composite.'.$id, $service);
     }

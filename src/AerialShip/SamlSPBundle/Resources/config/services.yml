@@ -15,6 +15,7 @@ parameters:
     aerial_ship_saml_sp.relying_party.authenticate.class: AerialShip\SamlSPBundle\Bridge\Authenticate
     aerial_ship_saml_sp.relying_party.assertion_consumer.class: AerialShip\SamlSPBundle\Bridge\AssertionConsumer
     aerial_ship_saml_sp.relying_party.sso_session_check.class: AerialShip\SamlSPBundle\Bridge\SSOSessionCheck
+    aerial_ship_saml_sp.relying_party.logout.class: AerialShip\SamlSPBundle\Bridge\Logout
     aerial_ship_saml_sp.relying_party.collection.class: AerialShip\SamlSPBundle\RelyingParty\RelyingPartyCollection
 
     # Security -------------------------------------------------
@@ -97,11 +98,21 @@ services:
         public: false
         abstract: true
 
+    aerial_ship_saml_sp.relying_party.logout:
+        class: %aerial_ship_saml_sp.relying_party.logout.class%
+        arguments:
+            - @security.context
+            - @aerial_ship_saml_sp.sp_entity_descriptor_builder
+            - @aerial_ship_saml_sp.meta.provider_collection
+        public: false
+        abstract: true
+
     aerial_ship_saml_sp.relying_party.sso_session_check:
         class: %aerial_ship_saml_sp.relying_party.sso_session_check.class%
         arguments: [~, @security.context, @aerial_ship_saml_sp.state.store.sso, @security.http_utils]
         public: false
         abstract: true
+
 
     aerial_ship_saml_sp.relying_party.composite:
         class: %aerial_ship_saml_sp.relying_party.collection.class%
