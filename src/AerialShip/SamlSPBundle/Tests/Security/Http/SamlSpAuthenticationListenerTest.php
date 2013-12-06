@@ -2,11 +2,17 @@
 
 namespace AerialShip\SamlSPBundle\Tests\Security\Http;
 
+use AerialShip\LightSaml\Model\Assertion\Attribute;
+use AerialShip\LightSaml\Model\Assertion\AuthnStatement;
+use AerialShip\LightSaml\Model\Assertion\NameID;
+use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
+use AerialShip\SamlSPBundle\Security\Core\Token\SamlSpToken;
 use AerialShip\SamlSPBundle\Security\Http\Firewall\SamlSpAuthenticationListener;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
@@ -163,6 +169,78 @@ class SamlSpAuthenticationListenerTest extends \PHPUnit_Framework_TestCase
         );
     }
 
+
+    /**
+     * @test
+     */
+    public function shouldCreateTokenFromIDPResponseAndPassItToAuthenticationManager()
+    {
+        $requestMock = $this->createRequestStub(
+            $hasSessionReturn = true,
+            $hasPreviousSessionReturn = true,
+            $duplicateReturn = $this->createRequestMock(),
+            $getSessionReturn = $this->createSessionMock()
+        );
+        $duplicateReturn->attributes = new ParameterBag();
+
+        $nameID = new NameID();
+        $nameID->setValue('name.id');
+        $attribute1 = new Attribute();
+        $attribute1->setName('common.name');
+        $attribute1->setValues(array('my common name'));
+        $authnStatement = new AuthnStatement();
+        $authnStatement->setSessionIndex('1234567890');
+
+        $relyingPartyMock = $this->createRelyingPartyStub(
+            $supportsReturn = true,
+            $manageReturnSamlSpInfo = new SamlSpInfo(
+                'idp1',
+                $nameID,
+                array($attribute1),
+                $authnStatement
+            )
+        );
+
+        $httpUtilsStub = $this->createHttpUtilsStub(
+            $checkRequestPathReturn = true,
+            $createRedirectResponseReturn = new RedirectResponse('uri')
+        );
+
+        $testCase = $this;
+        $authenticationManagerMock = $this->createAuthenticationManagerMock();
+        $authenticationManagerMock
+                ->expects($this->once())
+                ->method('authenticate')
+                ->with($this->isInstanceOf('AerialShip\SamlSPBundle\Security\Core\Token\SamlSpToken'))
+                ->will($this->returnCallback(function(SamlSpToken $actualToken) use ($testCase, $manageReturnSamlSpInfo) {
+                    $samlInfo = $actualToken->getSamlSpInfo();
+                    $testCase->assertNotNull($samlInfo);
+                    $testCase->assertNotNull($samlInfo->getNameID());
+                    $testCase->assertEquals('name.id', $samlInfo->getNameID()->getValue());
+                    $testCase->assertNotNull($samlInfo->getAttributes());
+                    $testCase->assertCount(1, $samlInfo->getAttributes());
+                    $testCase->assertEquals($manageReturnSamlSpInfo, $actualToken->getSamlSpInfo());
+                    return $actualToken;
+                }))
+        ;
+
+        $eventMock = $this->createGetResponseEventStub($requestMock);
+
+        $listener = new SamlSpAuthenticationListener(
+            $this->createSecurityContextMock(),
+            $authenticationManagerMock,
+            $this->createSessionAuthenticationStrategyMock(),
+            $httpUtilsStub,
+            'providerKey',
+            $this->createAuthenticationSuccessHandlerStub(),
+            $this->createAuthenticationFailureHandlerMock(),
+            $options = array()
+        );
+
+        $listener->setRelyingParty($relyingPartyMock);
+
+        $listener->handle($eventMock);
+    }
 
 
     /**
@@ -330,6 +408,22 @@ class SamlSpAuthenticationListenerTest extends \PHPUnit_Framework_TestCase
     private function createAuthenticationSuccessHandlerMock()
     {
         return $this->getMock('Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface');
+    }
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject|AuthenticationSuccessHandlerInterface
+     */
+    protected function createAuthenticationSuccessHandlerStub()
+    {
+        $handlerMock = $this->createAuthenticationSuccessHandlerMock();
+
+        $handlerMock
+                ->expects($this->any())
+                ->method('onAuthenticationSuccess')
+                ->will($this->returnValue(new Response()))
+        ;
+
+        return $handlerMock;
     }
 
     /**
