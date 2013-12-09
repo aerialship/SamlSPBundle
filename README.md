@@ -1,6 +1,10 @@
 SamlSPBundle
 ============
 
+[![Build Status](https://travis-ci.org/aerialship/SamlSPBundle.png)](https://travis-ci.org/aerialship/SamlSPBundle)
+[![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/aerialship/SamlSPBundle/badges/quality-score.png?s=ea75a9e869bb19543fb0ab9530f63010d8a8da95)](https://scrutinizer-ci.com/g/aerialship/SamlSPBundle/)
+
+
 Currently under development.
 It is not recommended to use this bundle in any way but to explore SAML integration in symfony.
 When it reaches beta phase documentation will be written.
