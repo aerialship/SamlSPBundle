@@ -73,6 +73,9 @@ class SamlSpAuthenticationListener extends AbstractAuthenticationListener
         if (!empty($this->options['failure_path'])) {
             $myRequest->attributes->set('failure_path', $this->options['failure_path']);
         }
+        if (!empty($this->options['local_logout_path'])) {
+            $myRequest->attributes->set('local_logout_path', $this->options['local_logout_path']);
+        }
 
 
         if (!$this->getRelyingParty()->supports($myRequest)) {

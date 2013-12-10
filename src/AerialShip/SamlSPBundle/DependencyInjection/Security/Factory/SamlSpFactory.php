@@ -31,20 +31,14 @@ class SamlSpFactory extends AbstractFactory
     {
         parent::addConfiguration($node);
         $node->children()
-            ->arrayNode('sp')->isRequired()
-                ->children()
-                    ->scalarNode('entity_id')->cannotBeEmpty()->isRequired()->end()
-                    ->booleanNode('want_assertions_signed')->cannotBeEmpty()->defaultTrue()->end()
-                ->end()
-            ->end()
             ->scalarNode('relying_party')->defaultValue(null)->end()
             ->scalarNode('login_path')->defaultValue('/saml/login')->cannotBeEmpty()->end()
             ->scalarNode('check_path')->defaultValue('/saml/acs')->cannotBeEmpty()->end()
             ->scalarNode('logout_path')->defaultValue('/saml/logout')->cannotBeEmpty()->end()
-            ->scalarNode('logout_receive_path')->defaultValue('/saml/logout_receive')->cannotBeEmpty()->end()
             ->scalarNode('failure_path')->defaultValue('/saml/failure')->cannotBeEmpty()->end()
             ->scalarNode('metadata_path')->defaultValue('/saml/FederationMetadata.xml')->cannotBeEmpty()->end()
             ->scalarNode('discovery_path')->defaultValue('/saml/discovery')->cannotBeEmpty()->end()
+            ->scalarNode('local_logout_path')->defaultValue('/logout')->cannotBeEmpty()->end()
             ->booleanNode('create_user_if_not_exists')->defaultFalse()->end()
             ->arrayNode('services')
                 ->isRequired()
@@ -59,23 +53,42 @@ class SamlSpFactory extends AbstractFactory
                         ->end()
                         ->arrayNode('sp')->addDefaultsIfNotSet()
                             ->children()
-                                ->scalarNode('id')->end()
-                                ->enumNode('name_id_format')
-                                    ->values(array('persistent', 'transient'))
-                                    ->cannotBeEmpty()
-                                    ->defaultValue('persistent')
-                                ->end()
-                                ->arrayNode('binding')->addDefaultsIfNotSet()
+                                ->arrayNode('config')
                                     ->children()
-                                        ->enumNode('authn_request')
-                                            ->values(array('redirect', 'post'))
-                                            ->defaultValue('redirect')
+                                        ->scalarNode('entity_id')->cannotBeEmpty()->isRequired()->end()
+                                        ->scalarNode('base_url')->defaultValue(null)->end()
+                                        ->booleanNode('want_assertions_signed')->cannotBeEmpty()->defaultTrue()->end()
+                                    ->end()
+                                ->end()
+                                ->arrayNode('signing')->addDefaultsIfNotSet()
+                                    ->children()
+                                        ->scalarNode('id')->cannotBeEmpty()->end()
+                                        ->scalarNode('cert_file')->cannotBeEmpty()->end()
+                                        ->scalarNode('key_file')->cannotBeEmpty()->end()
+                                        ->scalarNode('key_pass')->end()
+                                    ->end()
+                                ->end()
+                                ->arrayNode('meta')
+                                    ->children()
+                                        ->scalarNode('id')->end()
+                                        ->enumNode('name_id_format')
+                                            ->values(array('persistent', 'transient'))
                                             ->cannotBeEmpty()
+                                            ->defaultValue('persistent')
                                         ->end()
-                                        ->enumNode('logout_request')
-                                            ->values(array('redirect', 'post'))
-                                            ->defaultValue('redirect')
-                                            ->cannotBeEmpty()
+                                        ->arrayNode('binding')->addDefaultsIfNotSet()
+                                            ->children()
+                                                ->enumNode('authn_request')
+                                                    ->values(array('redirect', 'post'))
+                                                    ->defaultValue('redirect')
+                                                    ->cannotBeEmpty()
+                                                ->end()
+                                                ->enumNode('logout_request')
+                                                    ->values(array('redirect', 'post'))
+                                                    ->defaultValue('redirect')
+                                                    ->cannotBeEmpty()
+                                                ->end()
+                                            ->end()
                                         ->end()
                                     ->end()
                                 ->end()
@@ -93,13 +106,11 @@ class SamlSpFactory extends AbstractFactory
         $this->addOption('login_path', $config['login_path']);
         $this->addOption('check_path', $config['check_path']);
         $this->addOption('logout_path', $config['logout_path']);
-        $this->addOption('logout_receive_path', $config['logout_receive_path']);
         $this->addOption('failure_path', $config['failure_path']);
         $this->addOption('metadata_path', $config['metadata_path']);
         $this->addOption('discovery_path', $config['discovery_path']);
 
-        $this->createSpEntityDescriptorBuilder($container, $id, $config);
-        $this->createMetaProviders($container, $id, $config);
+        $this->createServiceInfoCollection($container, $id, $config);
         $this->createStateStores($container, $id, $config);
         $this->createRelyingParties($container, $id, $config);
 
@@ -121,61 +132,103 @@ class SamlSpFactory extends AbstractFactory
     }
 
 
-    protected function createSpEntityDescriptorBuilder(ContainerBuilder $container, $id, array $config)
+
+
+    protected function createServiceInfoCollection(ContainerBuilder $container, $id, array $config)
     {
-        $service = new DefinitionDecorator('aerial_ship_saml_sp.sp_entity_descriptor_builder');
-        $service->replaceArgument(0, $config);
-        $container->setDefinition("aerial_ship_saml_sp.sp_entity_descriptor_builder.{$id}", $service);
-    }
+        $collection = new DefinitionDecorator('aerial_ship_saml_sp.service_info_collection');
+        $container->setDefinition("aerial_ship_saml_sp.service_info_collection.{$id}", $collection);
 
+        foreach ($config['services'] as $name => $asConfig) {
+            $this->createSPSigningProvider($container, $id, $name, $asConfig['sp']['signing']);
+            $this->createSPEntityDescriptorBuilder($container, $id, $name, $asConfig['sp']['config'], $config['check_path'], $config['logout_path']);
+            $this->createIDPEntityDescriptorBuilder($container, $id, $name, $asConfig['idp']);
+            $this->createSPMetaProvider($container, $id, $name, $asConfig['sp']['meta']);
 
-    protected function createMetaProviders(ContainerBuilder $container, $id, array $config)
-    {
-        $collection = new DefinitionDecorator('aerial_ship_saml_sp.meta.provider_collection');
-        $container->setDefinition("aerial_ship_saml_sp.meta.provider_collection.{$id}", $collection);
-        foreach ($config['services'] as $name=>$meta)
-        {
-            if (isset($meta['idp']['id'])) {
-                $idp = new Reference($meta['idp']['id']);
-            } else {
-                $idpService = new DefinitionDecorator('aerial_ship_saml_sp.entity_descriptor_provider.idp');
-                $container->setDefinition("aerial_ship_saml_sp.entity_descriptor_provider.idp.{$id}.{$name}", $idpService);
-                if (isset($meta['idp']['file'])) {
-                    $idpService->addMethodCall('setFilename', array($meta['idp']['file']));
-                }
-                $idp = new Reference("aerial_ship_saml_sp.entity_descriptor_provider.idp.{$id}.{$name}");
-            }
+            $provider = new DefinitionDecorator('aerial_ship_saml_sp.service_info');
 
-            if (isset($meta['sp']['id'])) {
-                $spMeta = new Reference($meta['sp']['id']);
-            } else {
-                $spMetaService = new DefinitionDecorator('aerial_ship_saml_sp.sp_meta_provider');
-                $spMetaService->replaceArgument(0, $meta['sp']);
-                $container->setDefinition("aerial_ship_saml_sp.sp_meta_provider.{$id}.{$name}", $spMetaService);
-                $spMeta = new Reference("aerial_ship_saml_sp.sp_meta_provider.{$id}.{$name}");
-            }
-
-            $provider = new DefinitionDecorator('aerial_ship_saml_sp.meta.provider');
             $provider->replaceArgument(0, $id);
             $provider->replaceArgument(1, $name);
-            $provider->replaceArgument(2, $idp);
-            $provider->replaceArgument(3, $spMeta);
-            $container->setDefinition("aerial_ship_saml_sp.meta.provider.{$id}.{$name}", $provider);
-            $collection->addMethodCall('add', array(new Reference("aerial_ship_saml_sp.meta.provider.{$id}.{$name}")));
+            $provider->replaceArgument(2, new Reference("aerial_ship_saml_sp.sp_entity_descriptor_builder.{$id}.{$name}"));
+            $provider->replaceArgument(3, new Reference("aerial_ship_saml_sp.idp_entity_descriptor_provider.{$id}.{$name}"));
+            $provider->replaceArgument(4, new Reference("aerial_ship_saml_sp.sp_meta_provider.{$id}.{$name}"));
+            $provider->replaceArgument(5, new Reference("aerial_ship_saml_sp.sp_signing.{$id}.{$name}"));
+
+            $container->setDefinition("aerial_ship_saml_sp.service_info.{$id}.{$name}", $provider);
+
+            $collection->addMethodCall('add', array(new Reference("aerial_ship_saml_sp.service_info.{$id}.{$name}")));
         }
+    }
+
+    protected function createSPSigningProvider(ContainerBuilder $container, $id, $name, array $config)
+    {
+        $serviceID = "aerial_ship_saml_sp.sp_signing.{$id}.{$name}";
+        if (isset($config['id'])) {
+            $container->setAlias($serviceID, $config['sp']['signing']['sp']);
+        } else if (isset($config['cert_file']) &&
+                isset($config['key_file']) &&
+                isset($config['key_pass'])
+        ) {
+            $service = new DefinitionDecorator('aerial_ship_saml_sp.sp_signing.file');
+            $service->replaceArgument(1, $config['cert_file']);
+            $service->replaceArgument(2, $config['key_file']);
+            $service->replaceArgument(3, $config['key_pass']);
+            $container->setDefinition($serviceID, $service);
+        } else {
+            $service = new DefinitionDecorator('aerial_ship_saml_sp.sp_signing.null');
+            $container->setDefinition($serviceID, $service);
+        }
+    }
+
+    protected function createSPEntityDescriptorBuilder(ContainerBuilder $container, $id, $name, array $config, $checkPath, $logoutPath)
+    {
+        $service = new DefinitionDecorator('aerial_ship_saml_sp.sp_entity_descriptor_builder');
+        $service->replaceArgument(0, $name);
+        $service->replaceArgument(1, new Reference("aerial_ship_saml_sp.sp_signing.{$id}.{$name}"));
+        $service->replaceArgument(2, $config);
+        $service->replaceArgument(3, $checkPath);
+        $service->replaceArgument(4, $logoutPath);
+        $container->setDefinition("aerial_ship_saml_sp.sp_entity_descriptor_builder.{$id}.{$name}", $service);
+    }
+
+    protected function createIDPEntityDescriptorBuilder(ContainerBuilder $container, $id, $name, array $config)
+    {
+        $serviceID = "aerial_ship_saml_sp.idp_entity_descriptor_provider.{$id}.{$name}";
+        if (isset($config['id'])) {
+            $container->setAlias($serviceID, $config['id']);
+        } else {
+            $service = new DefinitionDecorator('aerial_ship_saml_sp.idp_entity_descriptor_provider');
+            $container->setDefinition($serviceID, $service);
+            if (isset($config['file'])) {
+                $service->addMethodCall('setFilename', array($config['file']));
+            }
+        }
+    }
+
+    protected function createSPMetaProvider(ContainerBuilder $container, $id, $name, array $config)
+    {
+        $serviceID = "aerial_ship_saml_sp.sp_meta_provider.{$id}.{$name}";
+        if (isset($config['id'])) {
+            $container->setAlias($serviceID, $config['id']);
+        } else {
+            $service = new DefinitionDecorator('aerial_ship_saml_sp.sp_meta_provider');
+            $service->replaceArgument(0, $config);
+            $container->setDefinition("aerial_ship_saml_sp.sp_meta_provider.{$id}.{$name}", $service);
+        }
+
     }
 
 
     protected function createStateStores(ContainerBuilder $container, $id, array $config)
     {
-        $this->createAuthnStore($container, $id, $config);
+        $this->createRequestStore($container, $id, $config);
     }
 
-    protected function createAuthnStore(ContainerBuilder $container, $id, array $config)
+    protected function createRequestStore(ContainerBuilder $container, $id, array $config)
     {
-        $service = new DefinitionDecorator('aerial_ship_saml_sp.state.store.authn');
+        $service = new DefinitionDecorator('aerial_ship_saml_sp.state.store.request');
         $service->replaceArgument(1, $id);
-        $container->setDefinition('aerial_ship_saml_sp.state.store.authn.'.$id, $service);
+        $container->setDefinition('aerial_ship_saml_sp.state.store.request.'.$id, $service);
     }
 
     protected function createRelyingParties(ContainerBuilder $container, $id, array $config)
@@ -192,31 +245,30 @@ class SamlSpFactory extends AbstractFactory
     protected function createRelyingPartyDiscovery(ContainerBuilder $container, $id, array $config)
     {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.discovery');
-        $service->replaceArgument(1, new Reference("aerial_ship_saml_sp.meta.provider_collection.{$id}"));
+        $service->replaceArgument(1, new Reference("aerial_ship_saml_sp.service_info_collection.{$id}"));
         $container->setDefinition("aerial_ship_saml_sp.relying_party.discovery.{$id}", $service);
     }
 
     protected function createRelyingPartyFederationMetadata(ContainerBuilder $container, $id, array $config)
     {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.federation_metadata');
-        $service->replaceArgument(0, new Reference('aerial_ship_saml_sp.sp_entity_descriptor_builder.'.$id));
+        $service->replaceArgument(0, new Reference('aerial_ship_saml_sp.service_info_collection.'.$id));
         $container->setDefinition('aerial_ship_saml_sp.relying_party.federation_metadata.'.$id, $service);
     }
 
     protected function createRelyingPartyAuthenticate(ContainerBuilder $container, $id)
     {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.authenticate');
-        $service->replaceArgument(0, new Reference('aerial_ship_saml_sp.sp_entity_descriptor_builder.'.$id));
-        $service->replaceArgument(1, new Reference('aerial_ship_saml_sp.meta.provider_collection.'.$id));
-        $service->replaceArgument(2, new Reference('aerial_ship_saml_sp.state.store.authn.'.$id));
+        $service->replaceArgument(0, new Reference('aerial_ship_saml_sp.service_info_collection.'.$id));
+        $service->replaceArgument(1, new Reference('aerial_ship_saml_sp.state.store.request.'.$id));
         $container->setDefinition('aerial_ship_saml_sp.relying_party.authenticate.'.$id, $service);
     }
 
     protected function createRelyingPartyAssertionConsumer(ContainerBuilder $container, $id)
     {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.assertion_consumer');
-        $service->replaceArgument(1, new Reference('aerial_ship_saml_sp.meta.provider_collection.'.$id));
-        $service->replaceArgument(2, new Reference('aerial_ship_saml_sp.state.store.authn.'.$id));
+        $service->replaceArgument(1, new Reference('aerial_ship_saml_sp.service_info_collection.'.$id));
+        $service->replaceArgument(2, new Reference('aerial_ship_saml_sp.state.store.request.'.$id));
         $container->setDefinition('aerial_ship_saml_sp.relying_party.assertion_consumer.'.$id, $service);
     }
 
@@ -230,8 +282,7 @@ class SamlSpFactory extends AbstractFactory
     protected function createRelyingPartyLogout(ContainerBuilder $container, $id)
     {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.logout');
-        $service->replaceArgument(1, new Reference('aerial_ship_saml_sp.sp_entity_descriptor_builder.'.$id));
-        $service->replaceArgument(2, new Reference('aerial_ship_saml_sp.meta.provider_collection.'.$id));
+        $service->replaceArgument(1, new Reference('aerial_ship_saml_sp.service_info_collection.'.$id));
         $container->setDefinition('aerial_ship_saml_sp.relying_party.logout.'.$id, $service);
     }
 

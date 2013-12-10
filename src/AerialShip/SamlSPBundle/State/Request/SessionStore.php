@@ -1,11 +1,11 @@
 <?php
 
-namespace AerialShip\SamlSPBundle\State\Authn;
+namespace AerialShip\SamlSPBundle\State\Request;
 
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
 
-class SessionStore implements AuthnStateStoreInterface
+class SessionStore implements RequestStateStoreInterface
 {
     /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface  */
     protected $session;
@@ -25,11 +25,11 @@ class SessionStore implements AuthnStateStoreInterface
 
 
     /**
-     * @param AuthnState $state
+     * @param RequestState $state
      * @throws \InvalidArgumentException
      * @return void
      */
-    function set(AuthnState $state) {
+    function set(RequestState $state) {
         $key = "saml_state_{$this->providerID}";
         $arr = $this->session->get($key, array());
         $arr[$state->getId()] = $state;
@@ -38,7 +38,7 @@ class SessionStore implements AuthnStateStoreInterface
 
     /**
      * @param string $id
-     * @return AuthnState|null
+     * @return RequestState|null
      */
     function get($id) {
         $result = null;
@@ -51,17 +51,17 @@ class SessionStore implements AuthnStateStoreInterface
         if (isset($arr[$id])) {
             $result = $arr[$id];
         }
-        if ($result instanceof AuthnState) {
+        if ($result instanceof RequestState) {
             return $result;
         }
         return null;
     }
 
     /**
-     * @param AuthnState $state
+     * @param RequestState $state
      * @return bool
      */
-    public function remove(AuthnState $state)
+    public function remove(RequestState $state)
     {
         $key = "saml_state_{$this->providerID}";
         $arr = $this->session->get($key, array());

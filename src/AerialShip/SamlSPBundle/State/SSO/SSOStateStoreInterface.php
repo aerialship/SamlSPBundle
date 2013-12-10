@@ -20,11 +20,19 @@ interface SSOStateStoreInterface
     /**
      * @param string $providerID
      * @param string $authenticationServiceName
-     * @param string $sessionIndex
-     * @return SSOState|null
+     * @param string $nameID
+     * @return SSOState[]
      */
-    function get($providerID, $authenticationServiceName, $sessionIndex);
+    function getAllByNameID($providerID, $authenticationServiceName, $nameID);
 
+    /**
+     * @param string $providerID
+     * @param string $authenticationServiceName
+     * @param string $nameID
+     * @param string $sessionIndex
+     * @return SSOState
+     */
+    function getOneByNameIDSessionIndex($providerID, $authenticationServiceName, $nameID, $sessionIndex);
 
     /**
      * @param SSOState $state

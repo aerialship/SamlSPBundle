@@ -4,6 +4,7 @@ namespace AerialShip\SamlSPBundle\Config;
 
 use AerialShip\LightSaml\Bindings;
 use AerialShip\LightSaml\Model\Metadata\EntityDescriptor;
+use AerialShip\LightSaml\Model\Metadata\KeyDescriptor;
 use AerialShip\LightSaml\Model\Metadata\Service\AssertionConsumerService;
 use AerialShip\LightSaml\Model\Metadata\Service\SingleLogoutService;
 use AerialShip\LightSaml\Model\Metadata\SpSsoDescriptor;
@@ -13,27 +14,54 @@ use Symfony\Component\Security\Http\HttpUtils;
 
 class SpEntityDescriptorBuilder implements EntityDescriptorProviderInterface
 {
+    /** @var  string */
+    protected $authenticationServiceID;
+
+    /** @var SPSigningProviderInterface  */
+    protected $signingProvider;
+
     /** @var  array */
     protected $config;
+
+    /** @var  string */
+    protected $checkPath;
+
+    /** @var  string */
+    protected $logoutPath;
+
 
     /** @var  HttpUtils */
     protected $httpUtils;
 
+
     /** @var  Request */
     protected $request;
+
 
     /** @var  EntityDescriptor */
     protected $entityDescriptor;
 
 
 
-    function __construct(array $config, HttpUtils $httpUtils) {
+    public function __construct(
+            $authenticationServiceID,
+            SPSigningProviderInterface $signingProvider,
+            array $config,
+            $checkPath,
+            $logoutPath,
+            HttpUtils $httpUtils
+    ) {
+        $this->authenticationServiceID = $authenticationServiceID;
+        $this->signingProvider = $signingProvider;
         $this->config = $config;
+        $this->checkPath = $checkPath;
+        $this->logoutPath = $logoutPath;
         $this->httpUtils = $httpUtils;
     }
 
 
-    public function setRequest(Request $request) {
+    public function setRequest(Request $request)
+    {
         $this->request = $request;
     }
 
@@ -41,7 +69,8 @@ class SpEntityDescriptorBuilder implements EntityDescriptorProviderInterface
     /**
      * @return EntityDescriptor
      */
-    public function getEntityDescriptor() {
+    public function getEntityDescriptor()
+    {
         if (!$this->entityDescriptor) {
             $this->build();
         }
@@ -50,35 +79,55 @@ class SpEntityDescriptorBuilder implements EntityDescriptorProviderInterface
 
 
 
-    protected function build() {
-        if (!$this->request) {
-            throw new \RuntimeException('Request not set');
-        }
-
-        $this->entityDescriptor = new EntityDescriptor($this->config['sp']['entity_id']);
+    protected function build()
+    {
+        $this->entityDescriptor = new EntityDescriptor($this->config['entity_id']);
         $sp = new SpSsoDescriptor();
         $this->entityDescriptor->addItem($sp);
-        $sp->setWantAssertionsSigned($this->config['sp']['want_assertions_signed']);
+        $sp->setWantAssertionsSigned($this->config['want_assertions_signed']);
+
+        if ($this->signingProvider->isEnabled()) {
+            $sp->addKeyDescriptor(new KeyDescriptor('signing', $this->signingProvider->getCertificate()));
+        }
 
         $slo = new SingleLogoutService();
         $sp->addService($slo);
         $slo->setBinding(Bindings::SAML2_HTTP_REDIRECT);
-        $slo->setLocation($this->httpUtils->generateUri($this->request, $this->config['logout_path']));
+        $slo->setLocation($this->buildPath($this->logoutPath).'?as='.$this->authenticationServiceID);
 
         $sp->addService(
             new AssertionConsumerService(
                 Bindings::SAML2_HTTP_POST,
-                $this->httpUtils->generateUri($this->request, $this->config['check_path']),
+                $this->buildPath($this->checkPath).'?as='.$this->authenticationServiceID,
                 0
             )
         );
         $sp->addService(
             new AssertionConsumerService(
                 Bindings::SAML2_HTTP_REDIRECT,
-                $this->httpUtils->generateUri($this->request, $this->config['check_path']),
+                $this->buildPath($this->checkPath).'?as='.$this->authenticationServiceID,
                 1
             )
         );
+    }
+
+
+    /**
+     * @param string $path
+     * @return string
+     * @throws \RuntimeException
+     */
+    protected function buildPath($path)
+    {
+        if ($this->config['base_url']) {
+            return $this->config['base_url'] . $path;
+        } else {
+            if (!$this->request) {
+                throw new \RuntimeException('Request not set');
+            }
+
+            return $this->httpUtils->generateUri($this->request, $path);
+        }
     }
 
 }

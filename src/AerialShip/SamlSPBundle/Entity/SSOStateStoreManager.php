@@ -47,13 +47,52 @@ class SSOStateStoreManager implements SSOStateStoreInterface
         $this->entityManager->flush();
     }
 
+
     /**
      * @param string $providerID
      * @param string $authenticationServiceName
+     * @param string $nameID
+     * @return SSOState[]
+     */
+    public function getAllByNameID($providerID, $authenticationServiceName, $nameID)
+    {
+        return $this->getRepository()->findBy(
+            array(
+                'providerID' => $providerID,
+                'authenticationServiceName' => $authenticationServiceName,
+                'nameID' => $nameID
+            )
+        );
+    }
+
+    /**
+     * @param string $providerID
+     * @param string $authenticationServiceName
+     * @param string $nameID
+     * @param string $sessionIndex
+     * @return SSOState
+     */
+    function getOneByNameIDSessionIndex($providerID, $authenticationServiceName, $nameID, $sessionIndex)
+    {
+        return $this->getRepository()->findOneBy(
+            array(
+                'providerID' => $providerID,
+                'authenticationServiceName' => $authenticationServiceName,
+                'nameID' => $nameID,
+                'sessionIndex' => $sessionIndex
+            )
+        );
+    }
+
+
+    /**
+     * @param string $providerID
+     * @param string $authenticationServiceName
+     * @param string $nameID
      * @param string $sessionIndex
      * @return SSOState|null
      */
-    public function get($providerID, $authenticationServiceName, $sessionIndex)
+    public function get($providerID, $authenticationServiceName, $nameID, $sessionIndex)
     {
         return $this->getRepository()->findOneBy(
             array(

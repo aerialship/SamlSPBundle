@@ -4,11 +4,10 @@ namespace AerialShip\SamlSPBundle\Bridge;
 
 use AerialShip\LightSaml\Binding\HttpRedirect;
 use AerialShip\LightSaml\Meta\AuthnRequestBuilder;
-use AerialShip\SamlSPBundle\Config\MetaProviderCollection;
-use AerialShip\SamlSPBundle\Config\SpEntityDescriptorBuilder;
+use AerialShip\SamlSPBundle\Config\ServiceInfoCollection;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
-use AerialShip\SamlSPBundle\State\Authn\AuthnState;
-use AerialShip\SamlSPBundle\State\Authn\AuthnStateStoreInterface;
+use AerialShip\SamlSPBundle\State\Request\RequestState;
+use AerialShip\SamlSPBundle\State\Request\RequestStateStoreInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\HttpUtils;
@@ -16,28 +15,28 @@ use Symfony\Component\Security\Http\HttpUtils;
 
 class Authenticate implements RelyingPartyInterface
 {
-    /** @var  SpEntityDescriptorBuilder */
-    protected $spProvider;
+    /** @var  ServiceInfoCollection */
+    protected $serviceInfoCollection;
 
-    /** @var  MetaProviderCollection */
-    protected $metaProviders;
-
-    /** @var  AuthnStateStoreInterface */
-    protected $authnStore;
+    /** @var  RequestStateStoreInterface */
+    protected $requestStore;
 
     /** @var \Symfony\Component\Security\Http\HttpUtils  */
     protected $httpUtils;
 
 
-
-    public function __construct(SpEntityDescriptorBuilder $spProvider,
-        MetaProviderCollection $metaProviders,
-        AuthnStateStoreInterface $authnStore,
+    /**
+     * @param ServiceInfoCollection $serviceInfoCollection
+     * @param RequestStateStoreInterface $requestStore
+     * @param HttpUtils $httpUtils
+     */
+    public function __construct(
+        ServiceInfoCollection $serviceInfoCollection,
+        RequestStateStoreInterface $requestStore,
         HttpUtils $httpUtils
     ) {
-        $this->spProvider = $spProvider;
-        $this->metaProviders = $metaProviders;
-        $this->authnStore = $authnStore;
+        $this->serviceInfoCollection = $serviceInfoCollection;
+        $this->requestStore = $requestStore;
         $this->httpUtils = $httpUtils;
     }
 
@@ -64,16 +63,16 @@ class Authenticate implements RelyingPartyInterface
             throw new \InvalidArgumentException('Unsupported request');
         }
 
-        $metaProvider = $this->metaProviders->findByAS($request->query->get('as'));
-        if (!$metaProvider) {
+        $serviceInfo = $this->serviceInfoCollection->findByAS($request->query->get('as'));
+        if (!$serviceInfo) {
             return new RedirectResponse($this->httpUtils->generateUri($request, $request->attributes->get('discovery_path')));
         }
 
-        $this->spProvider->setRequest($request);
-        $spED = $this->spProvider->getEntityDescriptor($request);
+        $serviceInfo->getSpProvider()->setRequest($request);
+        $spED = $serviceInfo->getSpProvider()->getEntityDescriptor();
 
-        $idpED = $metaProvider->getIdpProvider()->getEntityDescriptor();
-        $spMeta = $metaProvider->getSpMetaProvider()->getSpMeta();
+        $idpED = $serviceInfo->getIdpProvider()->getEntityDescriptor();
+        $spMeta = $serviceInfo->getSpMetaProvider()->getSpMeta();
 
         $builder = new AuthnRequestBuilder($spED, $idpED, $spMeta);
         $message = $builder->build();
@@ -82,10 +81,10 @@ class Authenticate implements RelyingPartyInterface
         /** @var $bindingResponse \AerialShip\LightSaml\Binding\RedirectResponse */
         $bindingResponse = $binding->send($message);
 
-        $state = new AuthnState();
+        $state = new RequestState();
         $state->setId($message->getID());
-        $state->setDestination($metaProvider->getIdpProvider()->getEntityDescriptor()->getEntityID());
-        $this->authnStore->set($state);
+        $state->setDestination($serviceInfo->getIdpProvider()->getEntityDescriptor()->getEntityID());
+        $this->requestStore->set($state);
 
         $result = new RedirectResponse($bindingResponse->getUrl());
         return $result;

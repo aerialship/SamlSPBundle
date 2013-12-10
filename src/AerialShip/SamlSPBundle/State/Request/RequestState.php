@@ -1,9 +1,9 @@
 <?php
 
-namespace AerialShip\SamlSPBundle\State\Authn;
+namespace AerialShip\SamlSPBundle\State\Request;
 
 
-class AuthnState implements \Serializable
+class RequestState implements \Serializable
 {
     /** @var  string */
     private $id;

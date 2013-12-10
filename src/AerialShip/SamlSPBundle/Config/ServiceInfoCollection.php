@@ -3,16 +3,16 @@
 namespace AerialShip\SamlSPBundle\Config;
 
 
-class MetaProviderCollection
+class ServiceInfoCollection
 {
-    /** @var MetaProvider[] */
+    /** @var ServiceInfo[] */
     private $data = array();
 
 
     /**
-     * @param MetaProvider $provider
+     * @param ServiceInfo $provider
      */
-    public function add(MetaProvider $provider)
+    public function add(ServiceInfo $provider)
     {
         $this->data[$provider->getAuthenticationService()] = $provider;
     }
@@ -20,7 +20,7 @@ class MetaProviderCollection
 
     /**
      * @param string $id
-     * @return MetaProvider|null
+     * @return ServiceInfo|null
      */
     public function get($id)
     {
@@ -32,7 +32,7 @@ class MetaProviderCollection
 
 
     /**
-     * @return MetaProvider[]
+     * @return ServiceInfo[]
      */
     public function all()
     {
@@ -42,9 +42,9 @@ class MetaProviderCollection
 
     /**
      * @param string $entityID
-     * @return MetaProvider|null
+     * @return ServiceInfo|null
      */
-    public function findByEntityID($entityID)
+    public function findByIDPEntityID($entityID)
     {
         $result = null;
         foreach ($this->data as $provider) {
@@ -59,7 +59,7 @@ class MetaProviderCollection
 
     /**
      * @param string $as
-     * @return MetaProvider|null
+     * @return ServiceInfo|null
      */
     public function findByAS($as) {
         $result = null;

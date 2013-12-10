@@ -2,15 +2,14 @@
 
 namespace AerialShip\SamlSPBundle\Bridge;
 
-use AerialShip\LightSaml\Binding\BindingDetector;
 use AerialShip\LightSaml\Model\Assertion\Assertion;
 use AerialShip\LightSaml\Model\Protocol\Response;
 use AerialShip\LightSaml\Model\XmlDSig\SignatureXmlValidator;
 use AerialShip\LightSaml\Security\KeyHelper;
-use AerialShip\SamlSPBundle\Config\MetaProvider;
-use AerialShip\SamlSPBundle\Config\MetaProviderCollection;
+use AerialShip\SamlSPBundle\Config\ServiceInfo;
+use AerialShip\SamlSPBundle\Config\ServiceInfoCollection;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
-use AerialShip\SamlSPBundle\State\Authn\AuthnStateStoreInterface;
+use AerialShip\SamlSPBundle\State\Request\RequestStateStoreInterface;
 use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
@@ -18,34 +17,30 @@ use Symfony\Component\Security\Core\Exception\AuthenticationException;
 
 class AssertionConsumer implements RelyingPartyInterface
 {
-    /** @var BindingRequestBuilder  */
-    protected $bindingRequestBuilder;
+    /** @var BindingManager  */
+    protected $bindingManager;
 
-    /** @var  MetaProviderCollection */
+    /** @var  ServiceInfoCollection */
     protected $metaProviders;
 
-    /** @var  AuthnStateStoreInterface */
-    protected $authnStore;
+    /** @var  RequestStateStoreInterface */
+    protected $requestStore;
 
     /** @var SSOStateStoreInterface  */
     protected $ssoStore;
 
 
-    /** @var  BindingDetector */
-    protected $bindingDetector;
 
 
-
-    public function __construct(BindingRequestBuilder $bindingRequestBuilder,
-        MetaProviderCollection $metaProviders,
-        AuthnStateStoreInterface $authnStore,
+    public function __construct(BindingManager $bindingManager,
+        ServiceInfoCollection $metaProviders,
+        RequestStateStoreInterface $requestStore,
         SSOStateStoreInterface $ssoStore
     ) {
-        $this->bindingRequestBuilder = $bindingRequestBuilder;
+        $this->bindingManager = $bindingManager;
         $this->metaProviders = $metaProviders;
-        $this->authnStore = $authnStore;
+        $this->requestStore = $requestStore;
         $this->ssoStore = $ssoStore;
-        $this->bindingDetector = new BindingDetector();
     }
 
 
@@ -73,14 +68,12 @@ class AssertionConsumer implements RelyingPartyInterface
             throw new \InvalidArgumentException();
         }
 
-        $bindingRequest = $this->bindingRequestBuilder->getBindingRequest($request);
-        $binding = $this->getBinding($bindingRequest);
         /** @var Response $response */
-        $response = $binding->receive($bindingRequest);
+        $response = $this->bindingManager->receive($request);
         if (!$response instanceof Response) {
-            throw new \RuntimeException('Expected Protocol/Response type but got '.get_class($response));
+            throw new \RuntimeException('Expected Protocol/Response type but got '.($response ? get_class($response) : 'nothing'));
         }
-        $metaProvider = $this->metaProviders->findByEntityID($response->getIssuer());
+        $metaProvider = $this->metaProviders->findByIDPEntityID($response->getIssuer());
 
         $this->validateResponse($metaProvider, $response, $request);
 
@@ -107,15 +100,8 @@ class AssertionConsumer implements RelyingPartyInterface
     }
 
 
-    protected function getBinding(\AerialShip\LightSaml\Binding\Request $bindingRequest) {
-        $detector = new BindingDetector();
-        $bindingType = $this->bindingDetector->getBinding($bindingRequest);
-        $binding = $detector->instantiate($bindingType);
-        return $binding;
-    }
 
-
-    protected function validateResponse(MetaProvider $metaProvider, Response $response) {
+    protected function validateResponse(ServiceInfo $metaProvider, Response $response) {
         if (!$metaProvider) {
             throw new \RuntimeException('Unknown issuer '.$response->getIssuer());
         }
@@ -128,14 +114,14 @@ class AssertionConsumer implements RelyingPartyInterface
     }
 
     protected function validateState(Response $response) {
-        $authnState = $this->authnStore->get($response->getInResponseTo());
-        if (!$authnState) {
+        $requestState = $this->requestStore->get($response->getInResponseTo());
+        if (!$requestState) {
             throw new \RuntimeException('Got response to a request that was not made');
         }
-        if ($authnState->getDestination() != $response->getIssuer()) {
+        if ($requestState->getDestination() != $response->getIssuer()) {
             throw new \RuntimeException('Got response from different issuer');
         }
-        $this->authnStore->remove($authnState);
+        $this->requestStore->remove($requestState);
     }
 
     protected function validateStatus(Response $response) {
@@ -149,7 +135,7 @@ class AssertionConsumer implements RelyingPartyInterface
         }
     }
 
-    protected function validateResponseSignature(MetaProvider $metaProvider, Response $response) {
+    protected function validateResponseSignature(ServiceInfo $metaProvider, Response $response) {
         /** @var  $signature SignatureXmlValidator */
         if ($signature = $response->getSignature()) {
             $key = $this->getSigningKey($metaProvider);
@@ -159,7 +145,7 @@ class AssertionConsumer implements RelyingPartyInterface
         }
     }
 
-    private function validateAssertion(MetaProvider $metaProvider, Assertion $assertion) {
+    private function validateAssertion(ServiceInfo $metaProvider, Assertion $assertion) {
         /** @var  $signature SignatureXmlValidator */
         if ($signature = $assertion->getSignature()) {
             $key = $this->getSigningKey($metaProvider);
@@ -172,14 +158,14 @@ class AssertionConsumer implements RelyingPartyInterface
 
 
     /**
-     * @param \AerialShip\SamlSPBundle\Config\MetaProvider $metaProvider
+     * @param \AerialShip\SamlSPBundle\Config\ServiceInfo $metaProvider
      * @return null|\XMLSecurityKey
      */
-    protected function getSigningKey(MetaProvider $metaProvider) {
+    protected function getSigningKey(ServiceInfo $metaProvider) {
         $result = null;
         $edIDP = $metaProvider->getIdpProvider()->getEntityDescriptor();
         if ($edIDP) {
-            $arr = $edIDP->getIdpSsoDescriptors();
+            $arr = $edIDP->getAllIdpSsoDescriptors();
             if ($arr) {
                 $idp = $arr[0];
                 $arr = $idp->findKeyDescriptors('signing');

@@ -4,7 +4,7 @@
 <ul>
 {% for name, meta in providers %}
     <li>
-        <a href="{{ login_path }}?as={{ name }}">{{ name }}</a> -
+        <a href="{{ path }}?as={{ name }}">{{ name }}</a> -
         {{ meta.getIdpProvider().getEntityDescriptor().getEntityID() }}
     </li>
 {% endfor %}

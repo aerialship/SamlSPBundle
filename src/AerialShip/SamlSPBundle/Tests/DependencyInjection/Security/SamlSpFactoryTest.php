@@ -349,7 +349,7 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
 
         $factory->create($containerBuilder, 'main', $config, 'user.provider.id', null);
 
-        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.state.store.authn.main'));
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.state.store.request.main'));
     }
 
     /**

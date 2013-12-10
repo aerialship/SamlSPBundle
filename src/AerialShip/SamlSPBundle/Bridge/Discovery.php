@@ -2,7 +2,7 @@
 
 namespace AerialShip\SamlSPBundle\Bridge;
 
-use AerialShip\SamlSPBundle\Config\MetaProviderCollection;
+use AerialShip\SamlSPBundle\Config\ServiceInfoCollection;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use Symfony\Bridge\Twig\TwigEngine;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -13,7 +13,7 @@ use Symfony\Component\Security\Http\HttpUtils;
 
 class Discovery implements RelyingPartyInterface
 {
-    /** @var  MetaProviderCollection */
+    /** @var  ServiceInfoCollection */
     protected $metaProviders;
 
     /** @var \Symfony\Bridge\Twig\TwigEngine  */
@@ -25,11 +25,11 @@ class Discovery implements RelyingPartyInterface
 
     /**
      * @param string $providerID
-     * @param MetaProviderCollection $metaProviders
+     * @param ServiceInfoCollection $metaProviders
      * @param TwigEngine $twig
      * @param HttpUtils $httpUtils
      */
-    function __construct($providerID, MetaProviderCollection $metaProviders, TwigEngine $twig, HttpUtils $httpUtils) {
+    function __construct($providerID, ServiceInfoCollection $metaProviders, TwigEngine $twig, HttpUtils $httpUtils) {
         $this->metaProviders = $metaProviders;
         $this->twig = $twig;
         $this->httpUtils = $httpUtils;
@@ -58,14 +58,14 @@ class Discovery implements RelyingPartyInterface
             throw new \InvalidArgumentException('Unsupported request');
         }
 
-        $loginPath = $request->attributes->get('login_path');
-        $loginPath = $this->httpUtils->generateUri($request, $loginPath);
+        $path = $this->getPath($request);
+
         $allProviders = $this->metaProviders->all();
 
         if (count($allProviders) == 1) {
             // there's only one idp... go straight to it
             $names = array_keys($allProviders);
-            return new RedirectResponse($loginPath.'?as='.array_pop($names));
+            return new RedirectResponse($path.'?as='.array_pop($names));
         } else if (count($allProviders) == 0) {
             // configuration validation should ensure this... but anyway just to be sure
             throw new \RuntimeException('At least one authentication service required in configuration');
@@ -76,10 +76,25 @@ class Discovery implements RelyingPartyInterface
                 '@AerialShipSamlSP/discovery.html.twig',
                 array(
                     'providers' => $this->metaProviders->all(),
-                    'login_path' => $loginPath
+                    'path' => $path
                 )
             ));
         }
     }
 
+
+    protected function getPath(Request $request)
+    {
+        $type = $request->query->get('type');
+        switch ($type) {
+            case 'metadata':
+                $path = $request->attributes->get('metadata_path'); break;
+            case 'logout':
+                $path = $request->attributes->get('logout_path'); break;
+            default:
+                $path = $request->attributes->get('login_path');
+        }
+        $path = $this->httpUtils->generateUri($request, $path);
+        return $path;
+    }
 }

@@ -3,23 +3,33 @@
 namespace AerialShip\SamlSPBundle\Bridge;
 
 use AerialShip\LightSaml\Meta\SerializationContext;
+use AerialShip\SamlSPBundle\Config\ServiceInfoCollection;
 use AerialShip\SamlSPBundle\Config\SpEntityDescriptorBuilder;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Http\HttpUtils;
 
 
 class FederationMetadata implements RelyingPartyInterface
 {
-    /** @var \AerialShip\SamlSPBundle\Config\SpEntityDescriptorBuilder  */
-    protected $sp;
+    /** @var \AerialShip\SamlSPBundle\Config\ServiceInfoCollection */
+    protected $serviceInfoCollection;
+
+    /** @var \Symfony\Component\Security\Http\HttpUtils  */
+    protected $httpUtils;
+
 
 
     /**
-     * @param SpEntityDescriptorBuilder $sp
+     * @param ServiceInfoCollection $serviceInfoCollection
+     * @param \Symfony\Component\Security\Http\HttpUtils $httpUtils
      */
-    function __construct(SpEntityDescriptorBuilder $sp) {
-        $this->sp = $sp;
+    public function __construct(ServiceInfoCollection $serviceInfoCollection, HttpUtils $httpUtils)
+    {
+        $this->serviceInfoCollection = $serviceInfoCollection;
+        $this->httpUtils = $httpUtils;
     }
 
 
@@ -39,8 +49,14 @@ class FederationMetadata implements RelyingPartyInterface
      * @return \Symfony\Component\HttpFoundation\Response|SamlSpInfo
      */
     function manage(Request $request) {
-        $this->sp->setRequest($request);
-        $ed = $this->sp->getEntityDescriptor();
+        $serviceInfo = $this->serviceInfoCollection->findByAS($request->query->get('as'));
+        if (!$serviceInfo) {
+            return $this->httpUtils->createRedirectResponse($request, $request->attributes->get('discovery_path').'?type=metadata');
+        }
+
+        $serviceInfo->getSpProvider()->setRequest($request);
+        $ed = $serviceInfo->getSpProvider()->getEntityDescriptor();
+
         $context = new SerializationContext();
         $ed->getXml($context->getDocument(), $context);
         $result = new Response($context->getDocument()->saveXML());
