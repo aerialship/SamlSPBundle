@@ -3,15 +3,17 @@
 namespace AerialShip\SamlSPBundle\Bridge;
 
 use AerialShip\LightSaml\Model\Protocol\LogoutResponse;
+use AerialShip\SamlSPBundle\Config\ServiceInfoCollection;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use AerialShip\SamlSPBundle\Security\Core\Token\SamlSpToken;
 use AerialShip\SamlSPBundle\State\Request\RequestStateStoreInterface;
+use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Http\HttpUtils;
 
 
-class LogoutReceiveResponse implements RelyingPartyInterface
+class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
 {
     /** @var BindingManager */
     protected $bindingManager;
@@ -19,29 +21,34 @@ class LogoutReceiveResponse implements RelyingPartyInterface
     /** @var RequestStateStoreInterface  */
     protected $requestStore;
 
+    /** @var ServiceInfoCollection  */
+    protected $serviceInfoCollection;
+
     /** @var \Symfony\Component\Security\Core\SecurityContextInterface  */
     protected $securityContext;
-
-    /** @var \Symfony\Component\Security\Http\HttpUtils  */
-    protected $httpUtils;
 
 
     /**
      * @param BindingManager $bindingManager
      * @param RequestStateStoreInterface $requestStore
+     * @param \AerialShip\SamlSPBundle\Config\ServiceInfoCollection $serviceInfoCollection
+     * @param \AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface $ssoStore
      * @param \Symfony\Component\Security\Core\SecurityContextInterface $securityContext
      * @param \Symfony\Component\Security\Http\HttpUtils $httpUtils
      */
     public function __construct(
             BindingManager $bindingManager,
             RequestStateStoreInterface $requestStore,
+            ServiceInfoCollection $serviceInfoCollection,
+            SSOStateStoreInterface $ssoStore,
             SecurityContextInterface $securityContext,
             HttpUtils $httpUtils
     ) {
+        parent::__construct($ssoStore, $httpUtils);
         $this->bindingManager = $bindingManager;
         $this->requestStore = $requestStore;
+        $this->serviceInfoCollection = $serviceInfoCollection;
         $this->securityContext = $securityContext;
-        $this->httpUtils = $httpUtils;
     }
 
 
@@ -76,6 +83,8 @@ class LogoutReceiveResponse implements RelyingPartyInterface
             throw new \InvalidArgumentException('Did not receive logout response');
         }
 
+        $serviceInfo = $this->serviceInfoCollection->findByIDPEntityID($logoutResponse->getIssuer());
+
         $state = $this->requestStore->get($logoutResponse->getID());
         if (!$state) {
             throw new \RuntimeException('Got response to a request that was not made');
@@ -90,9 +99,11 @@ class LogoutReceiveResponse implements RelyingPartyInterface
         if ($token && $token instanceof SamlSpToken) {
             $samlInfo = $token->getSamlSpInfo();
             if ($samlInfo) {
-
+                $arrStates = $this->getSSOState($serviceInfo, $samlInfo->getNameID()->getValue(), $samlInfo->getAuthnStatement()->getSessionIndex());
+                $this->deleteSSOState($arrStates);
             }
         }
+
         return $this->httpUtils->createRedirectResponse($request, $request->attributes->get('local_logout_path'));
     }
 

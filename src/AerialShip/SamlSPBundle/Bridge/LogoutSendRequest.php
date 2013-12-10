@@ -83,21 +83,13 @@ class LogoutSendRequest implements RelyingPartyInterface
         }
 
         $samlInfo = $this->getSamlInfo();
-
-        $serviceInfo = $this->serviceInfoCollection->get($samlInfo->getAuthenticationServiceID());
-        if (!$serviceInfo) {
-            throw new \RuntimeException("redirect to discovery");
-        }
-        if (!$serviceInfo->getSpSigningProvider()->isEnabled()) {
-            throw new \RuntimeException('Signing is required for Logout');
-        }
-        $serviceInfo->getSpProvider()->setRequest($request);
+        $serviceInfo = $this->getServiceInfo($samlInfo, $request);
 
         $builder = $this->createLogoutRequestBuilder($serviceInfo);
         $logoutRequest = $this->createLogoutRequest($builder, $serviceInfo, $samlInfo);
-        $this->createRequestState($request, $serviceInfo);
-
         $bindingResponse = $builder->send($logoutRequest);
+
+        $this->createRequestState($logoutRequest, $serviceInfo);
 
         if ($bindingResponse instanceof \AerialShip\LightSaml\Binding\PostResponse) {
             return new Response($bindingResponse->render());
@@ -120,6 +112,26 @@ class LogoutSendRequest implements RelyingPartyInterface
         return $samlInfo;
     }
 
+
+    /**
+     * @param SamlSpInfo $samlInfo
+     * @param Request $request
+     * @return ServiceInfo
+     * @throws \RuntimeException
+     */
+    protected function getServiceInfo(SamlSpInfo $samlInfo, Request $request)
+    {
+        $serviceInfo = $this->serviceInfoCollection->get($samlInfo->getAuthenticationServiceID());
+        if (!$serviceInfo) {
+            throw new \RuntimeException("redirect to discovery");
+        }
+        if (!$serviceInfo->getSpSigningProvider()->isEnabled()) {
+            throw new \RuntimeException('Signing is required for Logout');
+        }
+        $serviceInfo->getSpProvider()->setRequest($request);
+
+        return $serviceInfo;
+    }
 
     /**
      * @param ServiceInfo $serviceInfo

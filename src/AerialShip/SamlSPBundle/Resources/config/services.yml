@@ -15,7 +15,11 @@ parameters:
     aerial_ship_saml_sp.relying_party.authenticate.class: AerialShip\SamlSPBundle\Bridge\Authenticate
     aerial_ship_saml_sp.relying_party.assertion_consumer.class: AerialShip\SamlSPBundle\Bridge\AssertionConsumer
     aerial_ship_saml_sp.relying_party.sso_session_check.class: AerialShip\SamlSPBundle\Bridge\SSOSessionCheck
-    aerial_ship_saml_sp.relying_party.logout.class: AerialShip\SamlSPBundle\Bridge\Logout
+    aerial_ship_saml_sp.relying_party.logout.class: AerialShip\SamlSPBundle\RelyingParty\RelyingPartyCollection
+    aerial_ship_saml_sp.relying_party.logout.send_request.class: AerialShip\SamlSPBundle\Bridge\LogoutSendRequest
+    aerial_ship_saml_sp.relying_party.logout.receive_response.class: AerialShip\SamlSPBundle\Bridge\LogoutReceiveResponse
+    aerial_ship_saml_sp.relying_party.logout.receive_request.class: AerialShip\SamlSPBundle\Bridge\LogoutReceiveRequest
+    aerial_ship_saml_sp.relying_party.logout.fallback: AerialShip\SamlSPBundle\Bridge\LogoutFallback
     aerial_ship_saml_sp.relying_party.collection.class: AerialShip\SamlSPBundle\RelyingParty\RelyingPartyCollection
 
     # Security -------------------------------------------------
@@ -115,10 +119,41 @@ services:
 
     aerial_ship_saml_sp.relying_party.logout:
         class: %aerial_ship_saml_sp.relying_party.logout.class%
+        public: false
+        abstract: true
+
+    aerial_ship_saml_sp.relying_party.logout.receive_response:
+        class: %aerial_ship_saml_sp.relying_party.logout.receive_response.class%
+        arguments:
+            - @aerial_ship_saml_sp.bridge.binding_manager
+            - @aerial_ship_saml_sp.state.store.request
+            - @security.context
+            - @security.http_utils
+        public: false
+        abstract: true
+
+    aerial_ship_saml_sp.relying_party.logout.receive_request:
+        class: %aerial_ship_saml_sp.relying_party.logout.receive_request.class%
+        arguments:
+            - @aerial_ship_saml_sp.bridge.binding_manager
+            - @aerial_ship_saml_sp.state.store.sso
+            - @aerial_ship_saml_sp.service_info_collection
+        public: false
+        abstract: true
+
+    aerial_ship_saml_sp.relying_party.logout.send_request:
+        class: %aerial_ship_saml_sp.relying_party.logout.send_request.class%
         arguments:
             - @security.context
             - @aerial_ship_saml_sp.service_info_collection
-            - ~
+            - @aerial_ship_saml_sp.state.store.request
+        public: false
+        abstract: true
+
+    aerial_ship_saml_sp.relying_party.logout.fallback:
+        class: %aerial_ship_saml_sp.relying_party.logout.fallback.class%
+        arguments:
+            - @security.http_utils
         public: false
         abstract: true
 

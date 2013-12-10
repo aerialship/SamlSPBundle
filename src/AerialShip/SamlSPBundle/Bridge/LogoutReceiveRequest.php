@@ -17,25 +17,27 @@ use AerialShip\SamlSPBundle\State\SSO\SSOState;
 use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Security\Http\HttpUtils;
 
 
-class LogoutReceiveRequest implements RelyingPartyInterface
+class LogoutReceiveRequest extends LogoutBase implements RelyingPartyInterface
 {
     /** @var BindingManager */
     protected $bindingManager;
-
-    /** @var SSOStateStoreInterface  */
-    protected $ssoStore;
 
     /** @var ServiceInfoCollection  */
     protected $serviceInfoCollection;
 
 
 
-    public function __construct(BindingManager $bindingManager, SSOStateStoreInterface $ssoStore, ServiceInfoCollection $serviceInfoCollection)
-    {
+    public function __construct(
+            BindingManager $bindingManager,
+            SSOStateStoreInterface $ssoStore,
+            ServiceInfoCollection $serviceInfoCollection,
+            HttpUtils $httpUtils
+    ) {
+        parent::__construct($ssoStore, $httpUtils);
         $this->bindingManager = $bindingManager;
-        $this->ssoStore = $ssoStore;
         $this->serviceInfoCollection = $serviceInfoCollection;
     }
 
@@ -44,7 +46,8 @@ class LogoutReceiveRequest implements RelyingPartyInterface
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return bool
      */
-    public function supports(Request $request) {
+    public function supports(Request $request)
+    {
         if ($request->attributes->get('logout_path') != $request->getPathInfo()) {
             return false;
         }
@@ -60,7 +63,8 @@ class LogoutReceiveRequest implements RelyingPartyInterface
      * @throws \InvalidArgumentException if cannot manage the Request
      * @return \Symfony\Component\HttpFoundation\Response|SamlSpInfo|null
      */
-    public function manage(Request $request) {
+    public function manage(Request $request)
+    {
         if (!$this->supports($request)) {
             throw new \InvalidArgumentException('Unsupported request');
         }
@@ -68,7 +72,7 @@ class LogoutReceiveRequest implements RelyingPartyInterface
         $logoutRequest = $this->receiveRequest($request);
         $serviceInfo = $this->getServiceInfo($logoutRequest);
         $this->validateLogoutRequest($serviceInfo, $logoutRequest);
-        $arrStates = $this->getSSOState($serviceInfo, $logoutRequest);
+        $arrStates = $this->getSSOState($serviceInfo, $logoutRequest->getNameID()->getValue(), $logoutRequest->getSessionIndex());
         $this->deleteSSOState($arrStates);
 
         $logoutResponse = new LogoutResponse();
@@ -149,39 +153,5 @@ class LogoutReceiveRequest implements RelyingPartyInterface
     }
 
 
-    /**
-     * @param ServiceInfo $serviceInfo
-     * @param LogoutRequest $logoutRequest
-     * @return SSOState[]
-     */
-    protected function getSSOState(ServiceInfo $serviceInfo, LogoutRequest $logoutRequest)
-    {
-        if ($logoutRequest->getSessionIndex()) {
-            $result = array();
-            $state = $this->ssoStore->getOneByNameIDSessionIndex(
-                $serviceInfo->getProviderID(),
-                $serviceInfo->getAuthenticationService(),
-                $logoutRequest->getNameID()->getValue(),
-                $logoutRequest->getSessionIndex()
-            );
-            if ($state) {
-                $result[] = $state;
-            }
-        } else {
-            $result = $this->ssoStore->getAllByNameID(
-                $serviceInfo->getProviderID(),
-                $serviceInfo->getAuthenticationService(),
-                $logoutRequest->getNameID()->getValue()
-            );
-        }
-        return $result;
-    }
 
-
-    protected function deleteSSOState(array $arrStates)
-    {
-        foreach ($arrStates as $state) {
-            $this->ssoStore->remove($state);
-        }
-    }
 } 

@@ -281,9 +281,39 @@ class SamlSpFactory extends AbstractFactory
 
     protected function createRelyingPartyLogout(ContainerBuilder $container, $id)
     {
+        $this->createRelyingPartyLogoutSendRequest($container, $id);
+        $this->createRelyingPartyLogoutReceiveResponse($container, $id);
+        $this->createRelyingPartyLogoutReceiveRequest($container, $id);
+
         $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.logout');
-        $service->replaceArgument(1, new Reference('aerial_ship_saml_sp.service_info_collection.'.$id));
         $container->setDefinition('aerial_ship_saml_sp.relying_party.logout.'.$id, $service);
+
+        $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.logout.receive_response.'.$id)));
+        $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.logout.receive_request.'.$id)));
+        // must come after receive response
+        $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.logout.send_request.'.$id)));
+    }
+
+    protected function createRelyingPartyLogoutSendRequest(ContainerBuilder $container, $id)
+    {
+        $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.logout.send_request');
+        $service->replaceArgument(1, new Reference('aerial_ship_saml_sp.service_info_collection.'.$id));
+        $service->replaceArgument(2, new Reference('aerial_ship_saml_sp.state.store.request.'.$id));
+        $container->setDefinition("aerial_ship_saml_sp.relying_party.logout.send_request.{$id}", $service);
+    }
+
+    protected function createRelyingPartyLogoutReceiveResponse(ContainerBuilder $container, $id)
+    {
+        $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.logout.receive_response');
+        $service->replaceArgument(1, new Reference('aerial_ship_saml_sp.state.store.request.'.$id));
+        $container->setDefinition("aerial_ship_saml_sp.relying_party.logout.receive_response.{$id}", $service);
+    }
+
+    protected function createRelyingPartyLogoutReceiveRequest(ContainerBuilder $container, $id)
+    {
+        $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.logout.receive_request');
+        $service->replaceArgument(2, new Reference('aerial_ship_saml_sp.service_info_collection.'.$id));
+        $container->setDefinition("aerial_ship_saml_sp.relying_party.logout.receive_request.{$id}", $service);
     }
 
     protected function createRelyingPartyComposite(ContainerBuilder $container, $id)
