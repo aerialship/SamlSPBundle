@@ -11,6 +11,7 @@ Installation
 ------------
 
 Installation is quick 4 steps:
+
 1. Download SamlSpBundle with composer
 2. Enable the bundle
 3. Create your SSO State Entity class
