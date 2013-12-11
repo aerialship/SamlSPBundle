@@ -57,13 +57,15 @@ class SamlSpFactoryConfiguration implements ConfigurationInterface
 
     public function getCommonConfiguration() {
         return array(
-            'sp' => array(
-                'entity_id' => 'entity.id'
-            ),
             'services' => array(
                 'aaa' => array(
                     'idp' => array(
                         'file' => 'name.xml'
+                    ),
+                    'sp' => array(
+                        'config' => array(
+                            'entity_id' => 'entity.id'
+                        )
                     )
                 )
             )

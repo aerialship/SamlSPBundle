@@ -109,7 +109,7 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('check_path', $children);
         $this->assertInstanceOf('Symfony\Component\Config\Definition\ScalarNode', $children['check_path']);
-        $this->assertEquals('/saml/acs', $children['check_path']->getDefaultValue());
+        $this->assertEquals('/saml/sp/acs', $children['check_path']->getDefaultValue());
     }
 
     /**
@@ -126,25 +126,9 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('logout_path', $children);
         $this->assertInstanceOf('Symfony\Component\Config\Definition\ScalarNode', $children['logout_path']);
-        $this->assertEquals('/saml/logout', $children['logout_path']->getDefaultValue());
+        $this->assertEquals('/saml/sp/logout', $children['logout_path']->getDefaultValue());
     }
 
-    /**
-     * @test
-     */
-    public function shouldAddLogoutReceivePathToConfigurationWithExpectedDefaultValue()
-    {
-        $factory = new SamlSpFactory();
-        $treeBuilder = new TreeBuilder();
-        $factory->addConfiguration($treeBuilder->root('name'));
-        /** @var $tree ArrayNode */
-        $tree = $treeBuilder->buildTree();
-        $children = $tree->getChildren();
-
-        $this->assertArrayHasKey('logout_receive_path', $children);
-        $this->assertInstanceOf('Symfony\Component\Config\Definition\ScalarNode', $children['logout_receive_path']);
-        $this->assertEquals('/saml/logout_receive', $children['logout_receive_path']->getDefaultValue());
-    }
 
     /**
      * @test
@@ -160,7 +144,7 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('metadata_path', $children);
         $this->assertInstanceOf('Symfony\Component\Config\Definition\ScalarNode', $children['metadata_path']);
-        $this->assertEquals('/saml/FederationMetadata.xml', $children['metadata_path']->getDefaultValue());
+        $this->assertEquals('/saml/sp/FederationMetadata.xml', $children['metadata_path']->getDefaultValue());
     }
 
     /**
@@ -177,7 +161,7 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('discovery_path', $children);
         $this->assertInstanceOf('Symfony\Component\Config\Definition\ScalarNode', $children['discovery_path']);
-        $this->assertEquals('/saml/discovery', $children['discovery_path']->getDefaultValue());
+        $this->assertEquals('/saml/sp/discovery', $children['discovery_path']->getDefaultValue());
     }
 
 
@@ -283,7 +267,7 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
 
         $factory->create($containerBuilder, 'main', $config, 'user.provider.id', null);
 
-        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.sp_entity_descriptor_builder.main'));
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.sp_entity_descriptor_builder.main.aaa'));
     }
 
     /**
@@ -299,15 +283,15 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
         $config = $configProcessor->getCommonConfiguration();
 
         $config['services']['bbb']['idp']['id'] = $expectedIDPProvider;
-        $config['services']['bbb']['sp']['id'] = $expectedSPProvider;
+        $config['services']['bbb']['sp']['meta']['id'] = $expectedSPProvider;
 
         $config = $configProcessor->processConfiguration($config);
         $containerBuilder = new ContainerBuilder(new ParameterBag());
 
         $factory->create($containerBuilder, 'main', $config, 'user.provider.id', null);
 
-        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.meta.provider_collection.main'));
-        $metaProvidersDefinition = $containerBuilder->getDefinition('aerial_ship_saml_sp.meta.provider_collection.main');
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.service_info_collection.main'));
+        $metaProvidersDefinition = $containerBuilder->getDefinition('aerial_ship_saml_sp.service_info_collection.main');
 
         $methodCalls = $metaProvidersDefinition->getMethodCalls();
         $this->assertCount(2, $methodCalls);
@@ -316,24 +300,14 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Symfony\Component\DependencyInjection\Reference', $methodCalls[0][1][0]);
         $this->assertInstanceOf('Symfony\Component\DependencyInjection\Reference', $methodCalls[1][1][0]);
 
-        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.meta.provider.main.aaa'));
-        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.meta.provider.main.bbb'));
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.service_info.main.aaa'));
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.service_info.main.bbb'));
 
-        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.entity_descriptor_provider.idp.main.aaa'));
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.idp_entity_descriptor_provider.main.aaa'));
         $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.sp_meta_provider.main.aaa'));
 
-        $this->assertFalse($containerBuilder->hasDefinition('aerial_ship_saml_sp.entity_descriptor_provider.idp.main.bbb'));
+        $this->assertFalse($containerBuilder->hasDefinition('aerial_ship_saml_sp.idp_entity_descriptor_provider.main.bbb'));
         $this->assertFalse($containerBuilder->hasDefinition('aerial_ship_saml_sp.sp_meta_provider.main.bbb'));
-
-        $bbbProviderDefinition = $containerBuilder->getDefinition('aerial_ship_saml_sp.meta.provider.main.bbb');
-
-        $idpArgument = $bbbProviderDefinition->getArgument(2);
-        $this->assertInstanceOf('Symfony\Component\DependencyInjection\Reference', $idpArgument);
-        $this->assertEquals($expectedIDPProvider, (string)$idpArgument);
-
-        $spArgument = $bbbProviderDefinition->getArgument(3);
-        $this->assertInstanceOf('Symfony\Component\DependencyInjection\Reference', $spArgument);
-        $this->assertEquals($expectedSPProvider, (string)$spArgument);
     }
 
 
