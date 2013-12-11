@@ -14,16 +14,16 @@ class SamlSpFactory extends AbstractFactory
 
     function __construct()
     {
-        $this->defaultSuccessHandlerOptions['login_path'] = '/saml/login';
-        $this->defaultFailureHandlerOptions['login_path'] = '/saml/login';
-        $this->defaultFailureHandlerOptions['failure_path'] = '/saml/failure';
+        $this->defaultSuccessHandlerOptions['login_path'] = '/saml/sp/login';
+        $this->defaultFailureHandlerOptions['login_path'] = '/saml/sp/login';
+        $this->defaultFailureHandlerOptions['failure_path'] = '/saml/sp/failure';
 
         // these are available in listener->options[]
         $this->addOption('require_previous_session', false); // otherwise it will end up with throw new SessionUnavailableException('Your session has timed out, or you have disabled cookies.'); on each new session
-        $this->addOption('login_path', '/saml/login');
-        $this->addOption('check_path', '/saml/login_check');
-        $this->addOption('logout_path', '/saml/logout');
-        $this->addOption('failure_path', '/saml/failure');
+        $this->addOption('login_path', '/saml/sp/login');
+        $this->addOption('check_path', '/saml/sp/acs');
+        $this->addOption('logout_path', '/saml/sp/logout');
+        $this->addOption('failure_path', '/saml/sp/failure');
         $this->addOption('local_logout_path', '/logout');
         $this->addOption('target_path_parameter', $this->defaultSuccessHandlerOptions['target_path_parameter']);
     }
@@ -33,12 +33,12 @@ class SamlSpFactory extends AbstractFactory
         parent::addConfiguration($node);
         $node->children()
             ->scalarNode('relying_party')->defaultValue(null)->end()
-            ->scalarNode('login_path')->defaultValue('/saml/login')->cannotBeEmpty()->end()
-            ->scalarNode('check_path')->defaultValue('/saml/acs')->cannotBeEmpty()->end()
-            ->scalarNode('logout_path')->defaultValue('/saml/logout')->cannotBeEmpty()->end()
-            ->scalarNode('failure_path')->defaultValue('/saml/failure')->cannotBeEmpty()->end()
-            ->scalarNode('metadata_path')->defaultValue('/saml/FederationMetadata.xml')->cannotBeEmpty()->end()
-            ->scalarNode('discovery_path')->defaultValue('/saml/discovery')->cannotBeEmpty()->end()
+            ->scalarNode('login_path')->defaultValue('/saml/sp/login')->cannotBeEmpty()->end()
+            ->scalarNode('check_path')->defaultValue('/saml/sp/acs')->cannotBeEmpty()->end()
+            ->scalarNode('logout_path')->defaultValue('/saml/sp/logout')->cannotBeEmpty()->end()
+            ->scalarNode('failure_path')->defaultValue('/saml/sp/failure')->cannotBeEmpty()->end()
+            ->scalarNode('metadata_path')->defaultValue('/saml/sp/FederationMetadata.xml')->cannotBeEmpty()->end()
+            ->scalarNode('discovery_path')->defaultValue('/saml/sp/discovery')->cannotBeEmpty()->end()
             ->scalarNode('local_logout_path')->defaultValue('/logout')->cannotBeEmpty()->end()
             ->booleanNode('create_user_if_not_exists')->defaultFalse()->end()
             ->arrayNode('services')
@@ -58,7 +58,7 @@ class SamlSpFactory extends AbstractFactory
                                     ->children()
                                         ->scalarNode('entity_id')->cannotBeEmpty()->isRequired()->end()
                                         ->scalarNode('base_url')->defaultValue(null)->end()
-                                        ->booleanNode('want_assertions_signed')->cannotBeEmpty()->defaultTrue()->end()
+                                        ->booleanNode('want_assertions_signed')->cannotBeEmpty()->defaultFalse()->end()
                                     ->end()
                                 ->end()
                                 ->arrayNode('signing')->addDefaultsIfNotSet()

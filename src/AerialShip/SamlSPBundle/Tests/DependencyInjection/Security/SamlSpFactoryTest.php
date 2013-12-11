@@ -92,7 +92,7 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
 
         $this->assertArrayHasKey('login_path', $children);
         $this->assertInstanceOf('Symfony\Component\Config\Definition\ScalarNode', $children['login_path']);
-        $this->assertEquals('/saml/login', $children['login_path']->getDefaultValue());
+        $this->assertEquals('/saml/sp/login', $children['login_path']->getDefaultValue());
     }
 
     /**

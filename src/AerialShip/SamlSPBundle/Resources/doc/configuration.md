@@ -12,13 +12,12 @@ security.xml
                     sp:
                         entity_id: http://localhost/aerial/test/web/app_dev.php
                         want_assertions_signed: true
-                    login_path: /saml/login
-                    check_path: /saml/acs
-                    logout_path: /saml/logout
-                    logout_receive_path: /saml/logout_receive
-                    failure_path: /saml/failure
-                    metadata_path: /saml/FederationMetadata.xml
-                    discovery_path: /saml/discovery
+                    login_path: /saml/sp/login
+                    check_path: /saml/sp/acs
+                    logout_path: /saml/sp/logout
+                    failure_path: /saml/sp/failure
+                    metadata_path: /saml/sp/FederationMetadata.xml
+                    discovery_path: /saml/sp/discovery
                     default_target_path: /
                     provider: in_memory
                     create_user_if_not_exists: false
@@ -44,6 +43,6 @@ security.xml
 
 
         access_control:
-            - { path: ^/saml/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-            - { path: ^/saml/acs, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+            - { path: ^/saml/sp/login, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+            - { path: ^/saml/sp/acs, roles: IS_AUTHENTICATED_ANONYMOUSLY }
             - { path: ^/admin, roles: ROLE_USER }

@@ -124,12 +124,12 @@ class SamlSpAuthenticationListenerTest extends \PHPUnit_Framework_TestCase
     public function shouldAddOptionsToDuplicatedRequest()
     {
         $requestOptions = array(
-            'login_path' => '/saml/login',
-            'check_path' => '/saml/check',
-            'logout_path' => '/saml/logout',
-            'metadata_path' => '/saml/FederationMetadata.xml',
-            'discovery_path' => '/saml/discovery',
-            'failure_path' => 'saml/failure'
+            'login_path' => '/saml/sp/login',
+            'check_path' => '/saml/sp/check',
+            'logout_path' => '/saml/sp/logout',
+            'metadata_path' => '/saml/sp/FederationMetadata.xml',
+            'discovery_path' => '/saml/sp/discovery',
+            'failure_path' => 'saml/sp/failure'
         );
 
         $duplicatedRequestMock = $this->createRequestMock();
