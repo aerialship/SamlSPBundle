@@ -91,7 +91,7 @@ class AssertionConsumer implements RelyingPartyInterface
         $ssoState->setNameID($nameID->getValue());
         $ssoState->setNameIDFormat($nameID->getFormat() ?: '');
         $ssoState->setAuthenticationServiceName($serviceInfo->getAuthenticationService());
-        $ssoState->setProviderID($serviceInfo->getProviderID()); 
+        $ssoState->setProviderID($serviceInfo->getProviderID());
         $ssoState->setSessionIndex($authnStatement->getSessionIndex());
         $this->ssoStore->set($ssoState);
 
@@ -153,7 +153,26 @@ class AssertionConsumer implements RelyingPartyInterface
                 $signature->validate($key);
             }
         }
-        // TODO check notBefore and notOnOrAfter
+
+        if ($assertion->getNotBefore() && $assertion->getNotBefore() > time() + 60) {
+            throw new AuthenticationException('Received an assertion that is valid in the future. Check clock synchronization on IdP and SP');
+        }
+        if ($assertion->getNotOnOrAfter() && $assertion->getNotOnOrAfter() <= time() - 60) {
+            throw new AuthenticationException('Received an assertion that has expired. Check clock synchronization on IdP and SP');
+        }
+        $arrSubjectConfirmations = $assertion->getSubject()->getSubjectConfirmations();
+        if ($arrSubjectConfirmations) {
+            foreach ($arrSubjectConfirmations as $subjectConfirmation) {
+                if ($data = $subjectConfirmation->getData()) {
+                    if ($data->getNotBefore() && $data->getNotBefore() > time() + 60) {
+                        throw new AuthenticationException('Received an assertion with a session valid in future. Check clock synchronization on IdP and SP');
+                    }
+                    if ($data->getNotOnOrAfter() && $data->getNotOnOrAfter() <= time() - 60) {
+                        throw new AuthenticationException('Received an assertion with a session that has expired. Check clock synchronization on IdP and SP');
+                    }
+                }
+            }
+        }
     }
 
 
