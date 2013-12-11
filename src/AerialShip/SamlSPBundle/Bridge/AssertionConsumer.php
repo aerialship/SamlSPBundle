@@ -21,7 +21,7 @@ class AssertionConsumer implements RelyingPartyInterface
     protected $bindingManager;
 
     /** @var  ServiceInfoCollection */
-    protected $metaProviders;
+    protected $serviceInfoCollection;
 
     /** @var  RequestStateStoreInterface */
     protected $requestStore;
@@ -33,12 +33,12 @@ class AssertionConsumer implements RelyingPartyInterface
 
 
     public function __construct(BindingManager $bindingManager,
-        ServiceInfoCollection $metaProviders,
+        ServiceInfoCollection $serviceInfoCollection,
         RequestStateStoreInterface $requestStore,
         SSOStateStoreInterface $ssoStore
     ) {
         $this->bindingManager = $bindingManager;
-        $this->metaProviders = $metaProviders;
+        $this->serviceInfoCollection = $serviceInfoCollection;
         $this->requestStore = $requestStore;
         $this->ssoStore = $ssoStore;
     }
@@ -73,9 +73,9 @@ class AssertionConsumer implements RelyingPartyInterface
         if (!$response instanceof Response) {
             throw new \RuntimeException('Expected Protocol/Response type but got '.($response ? get_class($response) : 'nothing'));
         }
-        $metaProvider = $this->metaProviders->findByIDPEntityID($response->getIssuer());
+        $serviceInfo = $this->serviceInfoCollection->findByIDPEntityID($response->getIssuer());
 
-        $this->validateResponse($metaProvider, $response, $request);
+        $this->validateResponse($serviceInfo, $response, $request);
 
         $arr = $response->getAllAssertions();
         if (empty($arr)) {
@@ -90,12 +90,12 @@ class AssertionConsumer implements RelyingPartyInterface
         $ssoState = $this->ssoStore->create();
         $ssoState->setNameID($nameID->getValue());
         $ssoState->setNameIDFormat($nameID->getFormat() ?: '');
-        $ssoState->setAuthenticationServiceName($metaProvider->getAuthenticationService());
-        $ssoState->setProviderID('saml'); // TODO inject this param to this class
+        $ssoState->setAuthenticationServiceName($serviceInfo->getAuthenticationService());
+        $ssoState->setProviderID($serviceInfo->getProviderID()); 
         $ssoState->setSessionIndex($authnStatement->getSessionIndex());
         $this->ssoStore->set($ssoState);
 
-        $result = new SamlSpInfo($metaProvider->getAuthenticationService(), $nameID, $attributes, $authnStatement);
+        $result = new SamlSpInfo($serviceInfo->getAuthenticationService(), $nameID, $attributes, $authnStatement);
         return $result;
     }
 
