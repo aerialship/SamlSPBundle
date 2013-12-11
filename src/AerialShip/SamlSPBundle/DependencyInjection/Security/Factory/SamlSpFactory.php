@@ -24,6 +24,7 @@ class SamlSpFactory extends AbstractFactory
         $this->addOption('check_path', '/saml/login_check');
         $this->addOption('logout_path', '/saml/logout');
         $this->addOption('failure_path', '/saml/failure');
+        $this->addOption('local_logout_path', '/logout');
         $this->addOption('target_path_parameter', $this->defaultSuccessHandlerOptions['target_path_parameter']);
     }
 
@@ -109,6 +110,7 @@ class SamlSpFactory extends AbstractFactory
         $this->addOption('failure_path', $config['failure_path']);
         $this->addOption('metadata_path', $config['metadata_path']);
         $this->addOption('discovery_path', $config['discovery_path']);
+        $this->addOption('local_logout_path', $config['local_logout_path']);
 
         $this->createServiceInfoCollection($container, $id, $config);
         $this->createStateStores($container, $id, $config);
@@ -292,6 +294,7 @@ class SamlSpFactory extends AbstractFactory
         $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.logout.receive_request.'.$id)));
         // must come after receive response
         $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.logout.send_request.'.$id)));
+        $service->addMethodCall('append', array(new Reference('aerial_ship_saml_sp.relying_party.logout.fallback')));
     }
 
     protected function createRelyingPartyLogoutSendRequest(ContainerBuilder $container, $id)
@@ -306,6 +309,7 @@ class SamlSpFactory extends AbstractFactory
     {
         $service = new DefinitionDecorator('aerial_ship_saml_sp.relying_party.logout.receive_response');
         $service->replaceArgument(1, new Reference('aerial_ship_saml_sp.state.store.request.'.$id));
+        $service->replaceArgument(2, new Reference('aerial_ship_saml_sp.service_info_collection.'.$id));
         $container->setDefinition("aerial_ship_saml_sp.relying_party.logout.receive_response.{$id}", $service);
     }
 

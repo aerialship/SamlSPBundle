@@ -85,7 +85,7 @@ class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
 
         $serviceInfo = $this->serviceInfoCollection->findByIDPEntityID($logoutResponse->getIssuer());
 
-        $state = $this->requestStore->get($logoutResponse->getID());
+        $state = $this->requestStore->get($logoutResponse->getInResponseTo());
         if (!$state) {
             throw new \RuntimeException('Got response to a request that was not made');
         }

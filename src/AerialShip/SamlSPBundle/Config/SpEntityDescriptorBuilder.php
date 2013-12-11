@@ -93,19 +93,19 @@ class SpEntityDescriptorBuilder implements EntityDescriptorProviderInterface
         $slo = new SingleLogoutService();
         $sp->addService($slo);
         $slo->setBinding(Bindings::SAML2_HTTP_REDIRECT);
-        $slo->setLocation($this->buildPath($this->logoutPath).'?as='.$this->authenticationServiceID);
+        $slo->setLocation($this->buildPath($this->logoutPath));
 
         $sp->addService(
             new AssertionConsumerService(
                 Bindings::SAML2_HTTP_POST,
-                $this->buildPath($this->checkPath).'?as='.$this->authenticationServiceID,
+                $this->buildPath($this->checkPath),
                 0
             )
         );
         $sp->addService(
             new AssertionConsumerService(
                 Bindings::SAML2_HTTP_REDIRECT,
-                $this->buildPath($this->checkPath).'?as='.$this->authenticationServiceID,
+                $this->buildPath($this->checkPath),
                 1
             )
         );

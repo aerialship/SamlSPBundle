@@ -44,7 +44,8 @@ class BindingManager extends BindingDetector
     public function getBindingRequest(Request $request)
     {
         $result = new \AerialShip\LightSaml\Binding\Request();
-        $result->setQueryString($request->getQueryString());
+        // must be taken unmodified from server since getQueryString() capitalized urlenocoded escape chars, ie. %2f becomes %2F
+        $result->setQueryString($request->server->get('QUERY_STRING'));
         $result->setGet($request->query->all());
         $result->setPost($request->request->all());
         $result->setRequestMethod($request->getMethod());
