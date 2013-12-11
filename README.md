@@ -26,6 +26,11 @@ Documentation
 [Configuring/Implementing User Provider](src/AerialShip/SamlSPBundle/Resources/doc/user_provider.md)
 
 
+CONTRIBUTING
+------------
+SamlSpBundle is an open source project and is open for contributions.
+
+
 Credits
 ------
 
