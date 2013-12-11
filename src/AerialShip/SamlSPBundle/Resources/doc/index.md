@@ -210,3 +210,4 @@ Following documents are available:
 
 * [Configuration Reference](configuration.md)
 * [User Provider](user_provider.md)
+* [Certificates and Signing](signing_and_certificates.md)
