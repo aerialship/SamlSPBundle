@@ -77,14 +77,36 @@ class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
             throw new \InvalidArgumentException('Unsupported request');
         }
 
+        $logoutResponse = $this->getLogoutResponse($request);
+        $this->validateRequestState($logoutResponse);
+        $this->deleteSSOSession($logoutResponse);
+
+        return $this->httpUtils->createRedirectResponse($request, $request->attributes->get('local_logout_path'));
+    }
+
+
+    /**
+     * @param Request $request
+     * @return LogoutResponse
+     * @throws \InvalidArgumentException
+     */
+    protected function getLogoutResponse(Request $request)
+    {
         /** @var  $logoutResponse LogoutResponse */
         $logoutResponse = $this->bindingManager->receive($request);
         if (!$logoutResponse || !$logoutResponse instanceof LogoutResponse) {
             throw new \InvalidArgumentException('Did not receive logout response');
         }
 
-        $serviceInfo = $this->serviceInfoCollection->findByIDPEntityID($logoutResponse->getIssuer());
+        return $logoutResponse;
+    }
 
+    /**
+     * @param LogoutResponse $logoutResponse
+     * @throws \RuntimeException
+     */
+    protected function validateRequestState(LogoutResponse $logoutResponse)
+    {
         $state = $this->requestStore->get($logoutResponse->getInResponseTo());
         if (!$state) {
             throw new \RuntimeException('Got response to a request that was not made');
@@ -93,7 +115,12 @@ class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
             throw new \RuntimeException('Got response from different issuer');
         }
         $this->requestStore->remove($state);
+    }
 
+
+    protected function deleteSSOSession(LogoutResponse $logoutResponse)
+    {
+        $serviceInfo = $this->serviceInfoCollection->findByIDPEntityID($logoutResponse->getIssuer());
         /** @var $token SamlSpToken */
         $token = $this->securityContext->getToken();
         if ($token && $token instanceof SamlSpToken) {
@@ -103,8 +130,6 @@ class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
                 $this->deleteSSOState($arrStates);
             }
         }
-
-        return $this->httpUtils->createRedirectResponse($request, $request->attributes->get('local_logout_path'));
     }
 
 } 
