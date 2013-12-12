@@ -145,21 +145,45 @@ class AssertionConsumer implements RelyingPartyInterface
         }
     }
 
-    private function validateAssertion(ServiceInfo $metaProvider, Assertion $assertion) {
+    protected function validateAssertion(ServiceInfo $serviceInfo, Assertion $assertion)
+    {
+        $this->validateAssertionSignature($assertion, $serviceInfo);
+        $this->validateAssertionTime($assertion);
+        $this->validateAssertionSubjectTime($assertion);
+    }
+
+    protected function validateAssertionSignature(Assertion $assertion, ServiceInfo $serviceInfo)
+    {
         /** @var  $signature SignatureXmlValidator */
         if ($signature = $assertion->getSignature()) {
-            $key = $this->getSigningKey($metaProvider);
+            $key = $this->getSigningKey($serviceInfo);
             if ($key) {
                 $signature->validate($key);
             }
         }
+    }
 
+
+    /**
+     * @param Assertion $assertion
+     * @throws \Symfony\Component\Security\Core\Exception\AuthenticationException
+     */
+    protected function validateAssertionTime(Assertion $assertion)
+    {
         if ($assertion->getNotBefore() && $assertion->getNotBefore() > time() + 60) {
             throw new AuthenticationException('Received an assertion that is valid in the future. Check clock synchronization on IdP and SP');
         }
         if ($assertion->getNotOnOrAfter() && $assertion->getNotOnOrAfter() <= time() - 60) {
             throw new AuthenticationException('Received an assertion that has expired. Check clock synchronization on IdP and SP');
         }
+    }
+
+    /**
+     * @param Assertion $assertion
+     * @throws \Symfony\Component\Security\Core\Exception\AuthenticationException
+     */
+    protected function validateAssertionSubjectTime(Assertion $assertion)
+    {
         $arrSubjectConfirmations = $assertion->getSubject()->getSubjectConfirmations();
         if ($arrSubjectConfirmations) {
             foreach ($arrSubjectConfirmations as $subjectConfirmation) {
@@ -180,7 +204,8 @@ class AssertionConsumer implements RelyingPartyInterface
      * @param \AerialShip\SamlSPBundle\Config\ServiceInfo $metaProvider
      * @return null|\XMLSecurityKey
      */
-    protected function getSigningKey(ServiceInfo $metaProvider) {
+    protected function getSigningKey(ServiceInfo $metaProvider)
+    {
         $result = null;
         $edIDP = $metaProvider->getIdpProvider()->getEntityDescriptor();
         if ($edIDP) {
@@ -195,6 +220,7 @@ class AssertionConsumer implements RelyingPartyInterface
                 }
             }
         }
+        
         return $result;
     }
 
