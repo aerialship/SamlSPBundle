@@ -56,22 +56,12 @@ class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
         if (false == $this->supports($token)) {
             return null;
         }
-        /** @var $token SamlSpToken */
-        if ($token->getUser() instanceof UserInterface) {
-            return $this->createAuthenticatedToken(
-                $token->getSamlSpInfo(),
-                $token->getAttributes(),
-                $token->getUser()->getRoles(),
-                $token->getUser()
-            );
-        }
 
         try {
-            $user = $this->userProvider ?
-                    $this->getProviderUser($token) :
-                    $this->getDefaultUser($token)
-            ;
 
+            $user = $this->getUser($token);
+
+            /** @var $token SamlSpToken */
             return $this->createAuthenticatedToken(
                 $token->getSamlSpInfo(),
                 $token->getAttributes(),
@@ -79,12 +69,29 @@ class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
                 $user
             );
 
-
         } catch (AuthenticationException $ex) {
             throw $ex;
         } catch (\Exception $ex) {
             throw new AuthenticationServiceException($ex->getMessage(), (int) $ex->getCode(), $ex);
         }
+    }
+
+
+    /**
+     * @param TokenInterface $token
+     * @return mixed|UserInterface
+     */
+    protected function getUser(TokenInterface $token)
+    {
+        if ($token->getUser() instanceof UserInterface) {
+            $result = $token->getUser();
+        } else if ($this->userProvider) {
+            $result = $this->getProviderUser($token);
+        } else {
+            $result = $this->getDefaultUser($token);
+        }
+
+        return $result;
     }
 
 
