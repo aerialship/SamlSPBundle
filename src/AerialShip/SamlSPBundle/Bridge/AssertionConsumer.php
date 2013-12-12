@@ -68,37 +68,63 @@ class AssertionConsumer implements RelyingPartyInterface
             throw new \InvalidArgumentException();
         }
 
+        $response = $this->getSamlResponse($request);
+        $serviceInfo = $this->serviceInfoCollection->findByIDPEntityID($response->getIssuer());
+
+        $this->validateResponse($serviceInfo, $response, $request);
+
+        $assertion = $this->getSingleAssertion($response);
+
+        $this->createSSOState($serviceInfo, $assertion);
+
+        return new SamlSpInfo($serviceInfo->getAuthenticationService(),
+            $assertion->getSubject()->getNameID(),
+            $assertion->getAllAttributes(),
+            $assertion->getAuthnStatement()
+        );
+    }
+
+
+    protected function getSamlResponse(Request $request)
+    {
         /** @var Response $response */
         $response = $this->bindingManager->receive($request);
         if (!$response instanceof Response) {
             throw new \RuntimeException('Expected Protocol/Response type but got '.($response ? get_class($response) : 'nothing'));
         }
-        $serviceInfo = $this->serviceInfoCollection->findByIDPEntityID($response->getIssuer());
 
-        $this->validateResponse($serviceInfo, $response, $request);
+        return $response;
+    }
 
+    /**
+     * @param Response $response
+     * @return Assertion
+     * @throws \RuntimeException
+     */
+    protected function getSingleAssertion(Response $response)
+    {
         $arr = $response->getAllAssertions();
         if (empty($arr)) {
             throw new \RuntimeException('No assertion received');
         }
-        $assertion = $arr[0];
-        $nameID = $assertion->getSubject()->getNameID();
-        $attributes = $assertion->getAllAttributes();
-        $authnStatement = $assertion->getAuthnStatement();
+        $assertion = array_pop($arr);
 
-
-        $ssoState = $this->ssoStore->create();
-        $ssoState->setNameID($nameID->getValue());
-        $ssoState->setNameIDFormat($nameID->getFormat() ?: '');
-        $ssoState->setAuthenticationServiceName($serviceInfo->getAuthenticationService());
-        $ssoState->setProviderID($serviceInfo->getProviderID());
-        $ssoState->setSessionIndex($authnStatement->getSessionIndex());
-        $this->ssoStore->set($ssoState);
-
-        $result = new SamlSpInfo($serviceInfo->getAuthenticationService(), $nameID, $attributes, $authnStatement);
-        return $result;
+        return $assertion;
     }
 
+
+    protected function createSSOState(ServiceInfo $serviceInfo, Assertion $assertion)
+    {
+        $ssoState = $this->ssoStore->create();
+        $ssoState->setNameID($assertion->getSubject()->getNameID()->getValue());
+        $ssoState->setNameIDFormat($assertion->getSubject()->getNameID()->getFormat() ?: '');
+        $ssoState->setAuthenticationServiceName($serviceInfo->getAuthenticationService());
+        $ssoState->setProviderID($serviceInfo->getProviderID());
+        $ssoState->setSessionIndex($assertion->getAuthnStatement()->getSessionIndex());
+        $this->ssoStore->set($ssoState);
+
+        return $ssoState;
+    }
 
 
     protected function validateResponse(ServiceInfo $metaProvider, Response $response) {
