@@ -55,28 +55,7 @@ class SamlSpAuthenticationListener extends AbstractAuthenticationListener
     protected function attemptAuthentication(Request $request)
     {
         $myRequest = $request->duplicate();
-        if (!empty($this->options['login_path'])) {
-            $myRequest->attributes->set('login_path', $this->options['login_path']);
-        }
-        if (!empty($this->options['check_path'])) {
-            $myRequest->attributes->set('check_path', $this->options['check_path']);
-        }
-        if (!empty($this->options['logout_path'])) {
-            $myRequest->attributes->set('logout_path', $this->options['logout_path']);
-        }
-        if (!empty($this->options['metadata_path'])) {
-            $myRequest->attributes->set('metadata_path', $this->options['metadata_path']);
-        }
-        if (!empty($this->options['discovery_path'])) {
-            $myRequest->attributes->set('discovery_path', $this->options['discovery_path']);
-        }
-        if (!empty($this->options['failure_path'])) {
-            $myRequest->attributes->set('failure_path', $this->options['failure_path']);
-        }
-        if (!empty($this->options['local_logout_path'])) {
-            $myRequest->attributes->set('local_logout_path', $this->options['local_logout_path']);
-        }
-
+        $this->copyOptionsToRequestAttributes($myRequest);
 
         if (!$this->getRelyingParty()->supports($myRequest)) {
             return null;
@@ -99,6 +78,19 @@ class SamlSpAuthenticationListener extends AbstractAuthenticationListener
             }
         }
         return null;
+    }
+
+
+    protected function copyOptionsToRequestAttributes(Request $myRequest)
+    {
+        $options = array('login_path', 'check_path', 'logout_path', 'metadata_path', 'discovery_path',
+            'failure_path', 'local_logout_path'
+        );
+        foreach ($options as $name) {
+            if (!empty($this->options[$name])) {
+                $myRequest->attributes->set($name, $this->options[$name]);
+            }
+        }
     }
 
 } 
