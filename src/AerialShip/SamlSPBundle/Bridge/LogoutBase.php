@@ -2,13 +2,12 @@
 
 namespace AerialShip\SamlSPBundle\Bridge;
 
-
-use AerialShip\LightSaml\Model\Protocol\LogoutRequest;
 use AerialShip\SamlSPBundle\Config\ServiceInfo;
 use AerialShip\SamlSPBundle\State\SSO\SSOState;
 use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\HttpUtils;
+
 
 class LogoutBase
 {

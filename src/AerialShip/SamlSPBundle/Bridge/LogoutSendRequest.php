@@ -2,18 +2,12 @@
 
 namespace AerialShip\SamlSPBundle\Bridge;
 
-use AerialShip\LightSaml\Binding\HttpPost;
-use AerialShip\LightSaml\Binding\HttpRedirect;
 use AerialShip\LightSaml\Meta\LogoutRequestBuilder;
-use AerialShip\LightSaml\Meta\SerializationContext;
 use AerialShip\LightSaml\Model\Protocol\LogoutRequest;
 use AerialShip\SamlSPBundle\Config\ServiceInfo;
 use AerialShip\SamlSPBundle\Config\ServiceInfoCollection;
-use AerialShip\SamlSPBundle\Config\SpEntityDescriptorBuilder;
-use AerialShip\SamlSPBundle\Config\SPSigningProviderFile;
-use AerialShip\SamlSPBundle\Config\SPSigningProviderInterface;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
-use AerialShip\SamlSPBundle\Security\Core\Token\SamlSpToken;
+use AerialShip\SamlSPBundle\Security\Core\Authentication\Token\SamlSpToken;
 use AerialShip\SamlSPBundle\State\Request\RequestState;
 use AerialShip\SamlSPBundle\State\Request\RequestStateStoreInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;

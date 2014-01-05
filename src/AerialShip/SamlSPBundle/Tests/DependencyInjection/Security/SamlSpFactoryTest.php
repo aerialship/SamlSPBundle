@@ -6,8 +6,6 @@ use AerialShip\SamlSPBundle\DependencyInjection\Security\Factory\SamlSpFactory;
 use Symfony\Component\Config\Definition\ArrayNode;
 use Symfony\Component\Config\Definition\BooleanNode;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
-use Symfony\Component\Config\Definition\NodeInterface;
-use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 
@@ -230,7 +228,7 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function shouldInjectRelayingPartyWithListenerSetterMethod()
+    public function shouldCreateRelayingPartyWithListenerSetterMethod()
     {
         $expectedRelyingPartyId = 'custom.relying_party.id';
 
@@ -314,7 +312,7 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
-    public function shouldCreateAuthnStateStore()
+    public function shouldCreateRequestStateStore()
     {
         $factory = new SamlSpFactory();
         $configProcessor = new SamlSpFactoryConfiguration($factory, 'name');
@@ -342,6 +340,7 @@ class SamlSpFactoryTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.federation_metadata.main'));
         $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.authenticate.main'));
         $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.assertion_consumer.main'));
+        $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.logout.main'));
         $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.sso_session_check.main'));
         $this->assertTrue($containerBuilder->hasDefinition('aerial_ship_saml_sp.relying_party.composite.main'));
     }

@@ -40,8 +40,19 @@ class SamlSpInfo implements \Serializable
     /**
      * @return \AerialShip\LightSaml\Model\Assertion\Attribute[]
      */
-    public function getAttributes() {
+    public function getAttributes()
+    {
         return $this->attributes;
+    }
+
+    /**
+     * @param Attribute $attr
+     * @return SamlSpInfo
+     */
+    public function addAttribute(Attribute $attr)
+    {
+        $this->attributes[] = $attr;
+        return $this;
     }
 
     /**

@@ -5,7 +5,7 @@ namespace AerialShip\SamlSPBundle\Security\Http\Firewall;
 use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
 use AerialShip\SamlSPBundle\Error\RelyingPartyNotSetException;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
-use AerialShip\SamlSPBundle\Security\Core\Token\SamlSpToken;
+use AerialShip\SamlSPBundle\Security\Core\Authentication\Token\SamlSpToken;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;

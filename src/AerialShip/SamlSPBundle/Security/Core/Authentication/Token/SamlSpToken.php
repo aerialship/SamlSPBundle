@@ -1,12 +1,18 @@
 <?php
 
-namespace AerialShip\SamlSPBundle\Security\Core\Token;
+namespace AerialShip\SamlSPBundle\Security\Core\Authentication\Token;
 
 use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
 use Symfony\Component\Security\Core\Authentication\Token\AbstractToken;
 
+
 class SamlSpToken extends AbstractToken
 {
+    const ATTRIBUTE_NAME_ID = 'saml_name_id';
+    const ATTRIBUTE_NAME_ID_FORMAT = 'saml_name_id_format';
+    const ATTRIBUTE_SESSION_INDEX = 'saml_session_index';
+
+
     /** @var string */
     private $providerKey;
 
@@ -39,8 +45,8 @@ class SamlSpToken extends AbstractToken
         $this->samlSpInfo = $info;
 
         if ($info->getNameID()) {
-            $this->setAttribute('saml_name_id', $info->getNameID()->getValue());
-            $this->setAttribute('saml_name_id_format', $info->getNameID()->getFormat());
+            $this->setAttribute(self::ATTRIBUTE_NAME_ID, $info->getNameID()->getValue());
+            $this->setAttribute(self::ATTRIBUTE_NAME_ID_FORMAT, $info->getNameID()->getFormat());
         }
         if ($info->getAttributes()) {
             foreach ($info->getAttributes() as $attribute) {
@@ -52,7 +58,7 @@ class SamlSpToken extends AbstractToken
             }
         }
         if ($info->getAuthnStatement()) {
-            $this->setAttribute('saml_session_index', $info->getAuthnStatement()->getSessionIndex());
+            $this->setAttribute(self::ATTRIBUTE_SESSION_INDEX, $info->getAuthnStatement()->getSessionIndex());
         }
     }
 

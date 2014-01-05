@@ -7,7 +7,7 @@ use AerialShip\LightSaml\Model\Assertion\AuthnStatement;
 use AerialShip\LightSaml\Model\Assertion\NameID;
 use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
-use AerialShip\SamlSPBundle\Security\Core\Token\SamlSpToken;
+use AerialShip\SamlSPBundle\Security\Core\Authentication\Token\SamlSpToken;
 use AerialShip\SamlSPBundle\Security\Http\Firewall\SamlSpAuthenticationListener;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -211,7 +211,7 @@ class SamlSpAuthenticationListenerTest extends \PHPUnit_Framework_TestCase
         $authenticationManagerMock
                 ->expects($this->once())
                 ->method('authenticate')
-                ->with($this->isInstanceOf('AerialShip\SamlSPBundle\Security\Core\Token\SamlSpToken'))
+                ->with($this->isInstanceOf('AerialShip\SamlSPBundle\Security\Core\Authentication\Token\SamlSpToken'))
                 ->will($this->returnCallback(function(SamlSpToken $actualToken) use ($testCase, $manageReturnSamlSpInfo) {
                     $samlInfo = $actualToken->getSamlSpInfo();
                     $testCase->assertNotNull($samlInfo);

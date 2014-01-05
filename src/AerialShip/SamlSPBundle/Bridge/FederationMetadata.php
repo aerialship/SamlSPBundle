@@ -4,9 +4,7 @@ namespace AerialShip\SamlSPBundle\Bridge;
 
 use AerialShip\LightSaml\Meta\SerializationContext;
 use AerialShip\SamlSPBundle\Config\ServiceInfoCollection;
-use AerialShip\SamlSPBundle\Config\SpEntityDescriptorBuilder;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\HttpUtils;

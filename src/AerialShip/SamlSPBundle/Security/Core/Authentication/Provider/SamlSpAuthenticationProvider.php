@@ -3,7 +3,7 @@
 namespace AerialShip\SamlSPBundle\Security\Core\Authentication\Provider;
 
 use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
-use AerialShip\SamlSPBundle\Security\Core\Token\SamlSpToken;
+use AerialShip\SamlSPBundle\Security\Core\Authentication\Token\SamlSpToken;
 use AerialShip\SamlSPBundle\Security\Core\User\UserManagerInterface;
 use Symfony\Component\Security\Core\Authentication\Provider\AuthenticationProviderInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -34,10 +34,13 @@ class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
     public function __construct($providerKey,
             UserManagerInterface $userProvider = null,
             UserCheckerInterface $userChecker = null,
-            $createIfNotExists
+            $createIfNotExists = false
     ) {
         if (null !== $userProvider && null === $userChecker) {
             throw new \InvalidArgumentException('$userChecker cannot be null, if $userProvider is not null');
+        }
+        if (null == $userProvider && $createIfNotExists) {
+            throw new \InvalidArgumentException('$createIfNotExists cannot be true, if $userProvider is null');
         }
         $this->providerKey = $providerKey;
         $this->userProvider = $userProvider;
@@ -78,10 +81,10 @@ class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
 
 
     /**
-     * @param TokenInterface $token
+     * @param SamlSpToken $token
      * @return mixed|UserInterface
      */
-    protected function getUser(TokenInterface $token)
+    protected function getUser(SamlSpToken $token)
     {
         if ($token->getUser() instanceof UserInterface) {
             $result = $token->getUser();
@@ -136,11 +139,10 @@ class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
      */
     private function getProviderUser(SamlSpToken $token) {
         if (!$token || !$token->getSamlSpInfo()) {
-            throw new UsernameNotFoundException('Token does not contain SamlSpInfo');
+            throw new \RuntimeException('Token does not contain SamlSpInfo');
         }
         try {
             $user = $this->userProvider->loadUserBySamlInfo($token->getSamlSpInfo());
-            //$user = $this->userProvider->loadUserByUsername($token->getSamlSpInfo()->getNameID()->getValue());
         } catch (UsernameNotFoundException $ex) {
             if (false == $this->createIfNotExists) {
                 throw $ex;
@@ -156,7 +158,7 @@ class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
     }
 
     /**
-     * @param \AerialShip\SamlSPBundle\Security\Core\Token\SamlSpToken $token
+     * @param \AerialShip\SamlSPBundle\Security\Core\Authentication\Token\SamlSpToken $token
      * @return UserInterface
      */
     private function getDefaultUser(SamlSpToken $token) {

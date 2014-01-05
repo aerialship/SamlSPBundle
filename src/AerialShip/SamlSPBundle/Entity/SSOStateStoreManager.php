@@ -98,6 +98,7 @@ class SSOStateStoreManager implements SSOStateStoreInterface
             array(
                 'providerID' => $providerID,
                 'authenticationServiceName' => $authenticationServiceName,
+                'nameID' => $nameID,
                 'sessionIndex' => $sessionIndex
             )
         );
