@@ -9,6 +9,3 @@ before_script:
 
 script:
     phpunit
-
-tools:
-    php_analyzer: true
