@@ -12,6 +12,15 @@ class SpEntityDescriptorBuilderTest extends \PHPUnit_Framework_TestCase
     /**
      * @test
      */
+    public function shouldImplementEntityDescriptorProviderInterface()
+    {
+        $rc = new \ReflectionClass('AerialShip\SamlSPBundle\Config\SpEntityDescriptorBuilder');
+        $this->assertTrue($rc->implementsInterface('AerialShip\SamlSPBundle\Config\EntityDescriptorProviderInterface'));
+    }
+
+    /**
+     * @test
+     */
     public function shouldBeConstructedWithRequiredArguments()
     {
         new SpEntityDescriptorBuilder(
