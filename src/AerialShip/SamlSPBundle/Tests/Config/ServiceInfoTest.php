@@ -129,7 +129,7 @@ class ServiceInfoTest extends \PHPUnit_Framework_TestCase
     }
 
 
-    
+
     /**
      * @return \PHPUnit_Framework_MockObject_MockObject|EntityDescriptorProviderInterface
      */

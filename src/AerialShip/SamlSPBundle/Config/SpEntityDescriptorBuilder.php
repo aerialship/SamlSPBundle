@@ -49,8 +49,19 @@ class SpEntityDescriptorBuilder implements EntityDescriptorProviderInterface
             array $config,
             $checkPath,
             $logoutPath,
-            HttpUtils $httpUtils
+            HttpUtils $httpUtils = null
     ) {
+        if (!isset($config['base_url']) && !$httpUtils) {
+            throw new \RuntimeException('If config base_url is not set, then httpUtils are required');
+        }
+        if (!isset($config['entity_id'])) {
+            throw new \RuntimeException('Missing required config entity_id');
+        }
+
+        if (!isset($config['want_assertions_signed'])) {
+            $config['want_assertions_signed'] = false;
+        }
+
         $this->authenticationServiceID = $authenticationServiceID;
         $this->signingProvider = $signingProvider;
         $this->config = $config;
@@ -60,6 +71,19 @@ class SpEntityDescriptorBuilder implements EntityDescriptorProviderInterface
     }
 
 
+
+    /**
+     * @return string
+     */
+    public function getAuthenticationServiceID()
+    {
+        return $this->authenticationServiceID;
+    }
+
+
+    /**
+     * @param Request $request
+     */
     public function setRequest(Request $request)
     {
         $this->request = $request;
@@ -95,6 +119,11 @@ class SpEntityDescriptorBuilder implements EntityDescriptorProviderInterface
         $slo->setBinding(Bindings::SAML2_HTTP_REDIRECT);
         $slo->setLocation($this->buildPath($this->logoutPath));
 
+        $slo = new SingleLogoutService();
+        $sp->addService($slo);
+        $slo->setBinding(Bindings::SAML2_HTTP_POST);
+        $slo->setLocation($this->buildPath($this->logoutPath));
+
         $sp->addService(
             new AssertionConsumerService(
                 Bindings::SAML2_HTTP_POST,
@@ -119,7 +148,7 @@ class SpEntityDescriptorBuilder implements EntityDescriptorProviderInterface
      */
     protected function buildPath($path)
     {
-        if ($this->config['base_url']) {
+        if (isset($this->config['base_url']) && $this->config['base_url']) {
             return $this->config['base_url'] . $path;
         } else {
             if (!$this->request) {

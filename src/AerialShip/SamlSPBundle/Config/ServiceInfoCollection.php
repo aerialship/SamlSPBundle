@@ -10,11 +10,11 @@ class ServiceInfoCollection
 
 
     /**
-     * @param ServiceInfo $provider
+     * @param ServiceInfo $serviceInfo
      */
-    public function add(ServiceInfo $provider)
+    public function add(ServiceInfo $serviceInfo)
     {
-        $this->data[$provider->getAuthenticationService()] = $provider;
+        $this->data[$serviceInfo->getAuthenticationService()] = $serviceInfo;
     }
 
 
@@ -58,7 +58,7 @@ class ServiceInfoCollection
 
 
     /**
-     * @param string $as
+     * @param string|null $as
      * @return ServiceInfo|null
      */
     public function findByAS($as) {
