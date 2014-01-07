@@ -4,4 +4,14 @@ imports:
 tools:
     php_cpd: true
     php_pdepend: true
+    php_mess_detector:
+        enabled: true
+        filter:
+            paths: {  }
+            excluded_paths:
+                - '*/Tests/*'
+        config:
+            design_rules:
+                coupling_between_objects:  false
     php_analyzer: true
+    sensiolabs_security_checker: true
