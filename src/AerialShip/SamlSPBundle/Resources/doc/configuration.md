@@ -1,4 +1,3 @@
-
 security.xml
 ------------
 
@@ -20,6 +19,7 @@ security.xml
                     # should implement UserManagerInterface
                     # if UserProviderInterface then it's wrapped by service aerial_ship_saml_sp.user_provider_adapter.class
                     provider: in_memory
+                    create_user_if_not_exists: false
                     services:
                         somename:
                             idp:
