@@ -58,7 +58,7 @@ class FederationMetadata implements RelyingPartyInterface
         $context = new SerializationContext();
         $ed->getXml($context->getDocument(), $context);
         $result = new Response($context->getDocument()->saveXML());
-        $result->headers->set('Content-Type', 'application/xml');
+        $result->headers->set('Content-Type', 'application/samlmetadata+xml');
         return $result;
     }
 
