@@ -25,7 +25,7 @@ abstract class SSOStateEntity extends SSOState
 
     /**
      * @var string
-     * @ORM\Column(type="string", length=64, name="session_index")
+     * @ORM\Column(type="string", length=64, name="session_index", nullable=true)
      */
     protected $sessionIndex;
 
