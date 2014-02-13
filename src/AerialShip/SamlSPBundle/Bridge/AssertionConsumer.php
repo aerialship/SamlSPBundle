@@ -140,14 +140,16 @@ class AssertionConsumer implements RelyingPartyInterface
     }
 
     protected function validateState(Response $response) {
-        $requestState = $this->requestStore->get($response->getInResponseTo());
-        if (!$requestState) {
-            throw new \RuntimeException('Got response to a request that was not made');
+        if ($response->getInResponseTo()) {
+            $requestState = $this->requestStore->get($response->getInResponseTo());
+            if (!$requestState) {
+                throw new \RuntimeException('Got response to a request that was not made');
+            }
+            if ($requestState->getDestination() != $response->getIssuer()) {
+                throw new \RuntimeException('Got response from different issuer');
+            }
+            $this->requestStore->remove($requestState);
         }
-        if ($requestState->getDestination() != $response->getIssuer()) {
-            throw new \RuntimeException('Got response from different issuer');
-        }
-        $this->requestStore->remove($requestState);
     }
 
     protected function validateStatus(Response $response) {
