@@ -49,6 +49,7 @@ class SamlSpFactory extends AbstractFactory
                         ->arrayNode('idp')->isRequired()
                             ->children()
                                 ->scalarNode('file')->end()
+                                ->scalarNode('entity_id')->end()
                                 ->scalarNode('id')->end()
                             ->end()
                         ->end()
@@ -203,6 +204,9 @@ class SamlSpFactory extends AbstractFactory
             $container->setDefinition($serviceID, $service);
             if (isset($config['file'])) {
                 $service->addMethodCall('setFilename', array($config['file']));
+                if (isset($config['entity_id'])) {
+                    $service->addMethodCall('setEntityId', array($config['entity_id']));
+                }
             }
         }
     }

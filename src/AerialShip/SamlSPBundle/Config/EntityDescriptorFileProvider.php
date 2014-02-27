@@ -2,6 +2,7 @@
 
 namespace AerialShip\SamlSPBundle\Config;
 
+use AerialShip\LightSaml\Model\Metadata\EntitiesDescriptor;
 use AerialShip\LightSaml\Model\Metadata\EntityDescriptor;
 use Symfony\Component\HttpKernel\KernelInterface;
 
@@ -13,6 +14,9 @@ class EntityDescriptorFileProvider implements EntityDescriptorProviderInterface
 
     /** @var  string */
     protected $filename;
+
+    /** @var  string|null */
+    protected $entityId;
 
     /** @var  EntityDescriptor|null */
     private $entityDescriptor;
@@ -45,6 +49,22 @@ class EntityDescriptorFileProvider implements EntityDescriptorProviderInterface
         return $this->filename;
     }
 
+    /**
+     * @param null|string $entityId
+     */
+    public function setEntityId($entityId)
+    {
+        $this->entityId = $entityId;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getEntityId()
+    {
+        return $this->entityId;
+    }
+
 
 
 
@@ -62,8 +82,14 @@ class EntityDescriptorFileProvider implements EntityDescriptorProviderInterface
     protected function load() {
         $doc = new \DOMDocument();
         $doc->load($this->filename);
-        $this->entityDescriptor = new EntityDescriptor();
-        $this->entityDescriptor->loadFromXml($doc->firstChild);
+        if ($this->entityId) {
+            $entitiesDescriptor = new EntitiesDescriptor();
+            $entitiesDescriptor->loadFromXml($doc->firstChild);
+            $this->entityDescriptor = $entitiesDescriptor->getByEntityId($this->entityId);
+        } else {
+            $this->entityDescriptor = new EntityDescriptor();
+            $this->entityDescriptor->loadFromXml($doc->firstChild);
+        }
     }
 
 } 
