@@ -135,20 +135,24 @@ class LogoutReceiveRequest extends LogoutBase implements RelyingPartyInterface
     protected function validateLogoutRequest(ServiceInfo $serviceInfo, LogoutRequest $logoutRequest)
     {
         $idp = $serviceInfo->getIdpProvider()->getEntityDescriptor();
-        $keyDescriptors = $idp->getFirstIdpSsoDescriptor()->findKeyDescriptors('signing');
+        $keyDescriptors = $idp->getFirstIdpSsoDescriptor()->getKeyDescriptors();
         if (empty($keyDescriptors)) {
             throw new \RuntimeException('IDP must support signing for logout requests');
         }
-        /** @var  $kd KeyDescriptor */
-        $kd = array_pop($keyDescriptors);
 
         /** @var  $signature SignatureValidatorInterface */
         $signature = $logoutRequest->getSignature();
         if (!$signature) {
             throw new \RuntimeException('Logout request must be signed');
         }
-        $key = KeyHelper::createPublicKey($kd->getCertificate());
-        $signature->validate($key);
+
+        $keys = array();
+        foreach ($keyDescriptors as $keyDescriptor) {
+            $key = KeyHelper::createPublicKey($keyDescriptor->getCertificate());
+            $keys[] = $key;
+        }
+
+        $signature->validateMulti($keys);
     }
 
 
