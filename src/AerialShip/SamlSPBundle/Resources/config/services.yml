@@ -104,6 +104,7 @@ services:
             - @aerial_ship_saml_sp.service_info_collection
             - @aerial_ship_saml_sp.state.store.request
             - @security.http_utils
+            - @aerial_ship_saml_sp.bridge.binding_manager
         public: false
         abstract: true
 
