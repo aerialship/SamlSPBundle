@@ -28,6 +28,8 @@ security.xml
 
                                 # or use builtin EntityDescriptorFileProvider with specific file
                                 file: "@AerialShipSamlTestBundle/Resources/azure-FederationMetadata.xml"
+                                # in case of EntitiesDescriptor entity_id of the EntityDescriptor to use
+                                entity_id: https://some.com/entity_id
                             sp:
                                 config:
                                     # required
