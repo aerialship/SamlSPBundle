@@ -172,7 +172,7 @@ class SamlSpFactory extends AbstractFactory
     {
         $serviceID = "aerial_ship_saml_sp.sp_signing.{$id}.{$name}";
         if (isset($config['id'])) {
-            $container->setAlias($serviceID, $config['sp']['signing']['sp']);
+            $container->setAlias($serviceID, $config['id']);
         } else if (isset($config['cert_file']) &&
                 isset($config['key_file']) &&
                 isset($config['key_pass'])
