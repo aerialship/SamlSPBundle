@@ -24,6 +24,9 @@ class SpMetaConfigProvider implements SpMetaProviderInterface
         if (!isset($config['binding']['authn_request'])) {
             $config['binding']['authn_request'] = Bindings::SAML2_HTTP_POST;
         }
+        if (!isset($config['binding']['response'])) {
+            $config['binding']['response'] = Bindings::SAML2_HTTP_POST;
+        }
         if (!isset($config['binding']['logout_request'])) {
             $config['binding']['logout_request'] = Bindings::SAML2_HTTP_POST;
         }
