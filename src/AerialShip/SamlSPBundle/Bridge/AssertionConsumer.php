@@ -185,6 +185,8 @@ class AssertionConsumer implements RelyingPartyInterface
         if ($signature = $assertion->getSignature()) {
             $keys = $this->getAllKeys($serviceInfo);
             $signature->validateMulti($keys);
+        } else {
+            throw new AuthenticationException('Assertion must be signed');
         }
     }
 
