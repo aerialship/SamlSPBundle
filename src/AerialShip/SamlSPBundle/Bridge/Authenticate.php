@@ -88,7 +88,7 @@ class Authenticate implements RelyingPartyInterface
 
         $bindingResponse = $binding->send($message);
         if ($bindingResponse instanceof \AerialShip\LightSaml\Binding\RedirectResponse) {
-            $result = new RedirectResponse($bindingResponse->getUrl());
+            $result = new RedirectResponse($bindingResponse->getDestination());
         } else if ($bindingResponse instanceof \AerialShip\LightSaml\Binding\PostResponse) {
             $result = new Response($bindingResponse->render());
         } else {

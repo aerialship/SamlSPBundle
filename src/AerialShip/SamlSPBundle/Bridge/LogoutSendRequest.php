@@ -88,7 +88,7 @@ class LogoutSendRequest implements RelyingPartyInterface
         if ($bindingResponse instanceof \AerialShip\LightSaml\Binding\PostResponse) {
             return new Response($bindingResponse->render());
         } else if ($bindingResponse instanceof \AerialShip\LightSaml\Binding\RedirectResponse) {
-            return new RedirectResponse($bindingResponse->getUrl());
+            return new RedirectResponse($bindingResponse->getDestination());
         }
 
         throw new \RuntimeException('Unknown binding response '.get_class($bindingResponse));

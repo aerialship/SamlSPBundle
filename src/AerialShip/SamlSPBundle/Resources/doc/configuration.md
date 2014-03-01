@@ -53,8 +53,9 @@ security.xml
                                     name_id_format: persistent
                                     binding:
                                         # any saml binding or shortcuts: post or redirect
-                                        authn_request: post
-                                        logout_request: post
+                                        authn_request: redirect
+                                        response: post
+                                        logout_request: redirect
                 # required for saml logout, set the same path to local_logout_path
                 logout:
                     path: /logout

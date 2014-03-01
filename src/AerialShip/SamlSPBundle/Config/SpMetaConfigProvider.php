@@ -31,6 +31,7 @@ class SpMetaConfigProvider implements SpMetaProviderInterface
         $this->spMeta = new SpMeta();
         $this->spMeta->setNameIdFormat($this->resolveNameIDFormat($config['name_id_format']));
         $this->spMeta->setAuthnRequestBinding($this->resolveBinding($config['binding']['authn_request']));
+        $this->spMeta->setResponseBinding($this->resolveBinding($config['binding']['response']));
         $this->spMeta->setLogoutRequestBinding($this->resolveBinding($config['binding']['logout_request']));
     }
 
