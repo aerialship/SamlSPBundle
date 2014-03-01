@@ -2,6 +2,7 @@
 
 namespace AerialShip\SamlSPBundle\Bridge;
 
+use AerialShip\LightSaml\Bindings;
 use AerialShip\LightSaml\Model\Assertion\Assertion;
 use AerialShip\LightSaml\Model\Protocol\Response;
 use AerialShip\LightSaml\Model\XmlDSig\SignatureXmlValidator;
@@ -87,8 +88,12 @@ class AssertionConsumer implements RelyingPartyInterface
 
     protected function getSamlResponse(Request $request)
     {
+        $bindingType = null;
         /** @var Response $response */
-        $response = $this->bindingManager->receive($request);
+        $response = $this->bindingManager->receive($request, $bindingType);
+        if ($bindingType == Bindings::SAML2_HTTP_REDIRECT) {
+            throw new \RuntimeException('SAML protocol response cannot be sent via binding HTTP REDIRECT');
+        }
         if (!$response instanceof Response) {
             throw new \RuntimeException('Expected Protocol/Response type but got '.($response ? get_class($response) : 'nothing'));
         }

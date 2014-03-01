@@ -22,9 +22,10 @@ class BindingManager extends BindingDetector
 
     /**
      * @param Request $request
+     * @param $bindingType
      * @return \AerialShip\LightSaml\Model\Protocol\Message|null
      */
-    public function receive(Request $request)
+    public function receive(Request $request, &$bindingType = null)
     {
         $result = null;
         $bindingRequest = $this->getBindingRequest($request);
