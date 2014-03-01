@@ -163,10 +163,10 @@ class AssertionConsumer implements RelyingPartyInterface
         }
     }
 
-    protected function validateResponseSignature(ServiceInfo $metaProvider, Response $response) {
+    protected function validateResponseSignature(ServiceInfo $serviceInfo, Response $response) {
         /** @var  $signature SignatureXmlValidator */
         if ($signature = $response->getSignature()) {
-            $keys = $this->getAllKeys($metaProvider);
+            $keys = $this->getAllKeys($serviceInfo);
             $signature->validateMulti($keys);
         }
     }
@@ -176,6 +176,7 @@ class AssertionConsumer implements RelyingPartyInterface
         $this->validateAssertionSignature($assertion, $serviceInfo);
         $this->validateAssertionTime($assertion);
         $this->validateAssertionSubjectTime($assertion);
+        $this->validateSubjectConfirmationRecipient($assertion, $serviceInfo);
     }
 
     protected function validateAssertionSignature(Assertion $assertion, ServiceInfo $serviceInfo)
@@ -223,6 +224,30 @@ class AssertionConsumer implements RelyingPartyInterface
         }
     }
 
+
+    protected function validateSubjectConfirmationRecipient(Assertion $assertion, ServiceInfo $serviceInfo)
+    {
+        $arrACS = $serviceInfo->getSpProvider()
+                ->getEntityDescriptor()
+                ->getFirstSpSsoDescriptor()
+                ->findAssertionConsumerServices();
+        foreach ($assertion->getSubject()->getSubjectConfirmations() as $subjectConfirmation) {
+            $ok = false;
+            foreach ($arrACS as $acs) {
+                if ($acs->getLocation() == $subjectConfirmation->getData()->getRecipient()) {
+                    $ok = true;
+                    break;
+                }
+            }
+            if (!$ok) {
+                throw new AuthenticationException(
+                    sprintf('Invalid Assertion SubjectConfirmation Recipient %s',
+                        $subjectConfirmation->getData()->getRecipient()
+                    )
+                );
+            }
+        }
+    }
 
     /**
      * @param ServiceInfo $metaProvider
