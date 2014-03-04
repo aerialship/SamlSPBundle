@@ -4,7 +4,7 @@ namespace AerialShip\SamlSPBundle\Bridge;
 
 use AerialShip\SamlSPBundle\Config\ServiceInfoCollection;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
-use Symfony\Bridge\Twig\TwigEngine;
+use Symfony\Bundle\FrameworkBundle\Templating\DelegatingEngine;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,8 +16,8 @@ class Discovery implements RelyingPartyInterface
     /** @var  ServiceInfoCollection */
     protected $metaProviders;
 
-    /** @var \Symfony\Bridge\Twig\TwigEngine  */
-    protected $twig;
+    /** @var \Symfony\Bundle\FrameworkBundle\Templating\DelegatingEngine  */
+    protected $templateEngine;
 
     /** @var \Symfony\Component\Security\Http\HttpUtils  */
     protected $httpUtils;
@@ -26,12 +26,12 @@ class Discovery implements RelyingPartyInterface
     /**
      * @param string $providerID
      * @param ServiceInfoCollection $metaProviders
-     * @param TwigEngine $twig
+     * @param DelegatingEngine $templateEngine
      * @param HttpUtils $httpUtils
      */
-    function __construct($providerID, ServiceInfoCollection $metaProviders, TwigEngine $twig, HttpUtils $httpUtils) {
+    function __construct($providerID, ServiceInfoCollection $metaProviders, DelegatingEngine $templateEngine, HttpUtils $httpUtils) {
         $this->metaProviders = $metaProviders;
-        $this->twig = $twig;
+        $this->templateEngine = $templateEngine;
         $this->httpUtils = $httpUtils;
     }
 
@@ -72,7 +72,7 @@ class Discovery implements RelyingPartyInterface
         } else {
             //$this->metaProviders->get('')->getIdpProvider()->getEntityDescriptor()->getEntityID()
             // present user to choose which idp he wants to authenticate with
-            return new Response($this->twig->render(
+            return new Response($this->templateEngine->render(
                 '@AerialShipSamlSP/discovery.html.twig',
                 array(
                     'providers' => $this->metaProviders->all(),
