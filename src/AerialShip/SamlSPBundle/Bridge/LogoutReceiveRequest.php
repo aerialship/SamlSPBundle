@@ -91,7 +91,7 @@ class LogoutReceiveRequest extends LogoutBase implements RelyingPartyInterface
         $logoutResponse->getXml($context->getDocument(), $context);
         $xml = $context->getDocument()->saveXML();
 
-        return new Response($xml, 200, array('Content-Type', 'application/xml'));
+        return new Response($xml, 200, array('Content-Type' => 'application/xml'));
     }
 
 
