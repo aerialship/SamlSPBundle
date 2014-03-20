@@ -78,6 +78,7 @@ class SamlSpFactory extends AbstractFactory
                                             ->cannotBeEmpty()
                                             ->defaultValue('persistent')
                                         ->end()
+                                        ->booleanNode('suppress_name_id_policy')->defaultFalse()->end()
                                         ->arrayNode('binding')->addDefaultsIfNotSet()
                                             ->children()
                                                 ->enumNode('authn_request')

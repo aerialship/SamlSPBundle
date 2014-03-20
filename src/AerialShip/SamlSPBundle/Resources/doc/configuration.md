@@ -53,6 +53,8 @@ security.xml
                                     # or use builtin SpMetaConfigProvider
                                     # any valid saml name id format or shortcuts: persistent or transient
                                     name_id_format: persistent
+                                    # some IdPs don't like NameIDPolicy
+                                    suppress_name_id_policy: false
                                     binding:
                                         # any saml binding or shortcuts: post or redirect
                                         authn_request: redirect
