@@ -15,13 +15,13 @@ class SpMetaConfigProvider implements SpMetaProviderInterface
 
     public function __construct(array $config)
     {
-	    if (!isset($config['name_id_format'])) {
-		    $config['name_id_format'] = NameIDPolicy::PERSISTENT;
-	    }
-	    if (!isset($config['suppress_name_id_policy'])) {
-		    $config['suppress_name_id_policy'] = false;
-	    }
-	    if (!array_key_exists('binding', $config)) {
+        if (!isset($config['name_id_format'])) {
+            $config['name_id_format'] = NameIDPolicy::PERSISTENT;
+        }
+        if (!isset($config['suppress_name_id_policy'])) {
+            $config['suppress_name_id_policy'] = false;
+        }
+        if (!array_key_exists('binding', $config)) {
             $config['binding'] = array();
         }
         if (!isset($config['binding']['authn_request'])) {
@@ -35,9 +35,9 @@ class SpMetaConfigProvider implements SpMetaProviderInterface
         }
 
         $this->spMeta = new SpMeta();
-	    $this->spMeta->setNameIdFormat($this->resolveNameIDFormat($config['name_id_format']));
-	    $this->spMeta->setSuppressNameIdPolicy($this->resolveNameIDFormat($config['suppress_name_id_policy']));
-	    $this->spMeta->setAuthnRequestBinding($this->resolveBinding($config['binding']['authn_request']));
+        $this->spMeta->setNameIdFormat($this->resolveNameIDFormat($config['name_id_format']));
+        $this->spMeta->setSuppressNameIdPolicy($this->resolveNameIDFormat($config['suppress_name_id_policy']));
+        $this->spMeta->setAuthnRequestBinding($this->resolveBinding($config['binding']['authn_request']));
         $this->spMeta->setResponseBinding($this->resolveBinding($config['binding']['response']));
         $this->spMeta->setLogoutRequestBinding($this->resolveBinding($config['binding']['logout_request']));
     }
