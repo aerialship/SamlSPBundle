@@ -4,7 +4,9 @@ namespace AerialShip\SamlSPBundle\Bridge;
 
 use AerialShip\LightSaml\Binding\HttpRedirect;
 use AerialShip\LightSaml\Meta\AuthnRequestBuilder;
+use AerialShip\LightSaml\Model\XmlDSig\SignatureCreator;
 use AerialShip\SamlSPBundle\Config\ServiceInfoCollection;
+use AerialShip\SamlSPBundle\Config\SPSigningProviderNull;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use AerialShip\SamlSPBundle\State\Request\RequestState;
 use AerialShip\SamlSPBundle\State\Request\RequestStateStoreInterface;
@@ -80,9 +82,16 @@ class Authenticate implements RelyingPartyInterface
 
         $idpED = $serviceInfo->getIdpProvider()->getEntityDescriptor();
         $spMeta = $serviceInfo->getSpMetaProvider()->getSpMeta();
-        $signingProvider = $serviceInfo->getSpSigningProvider();
 
-        $builder = new AuthnRequestBuilder($spED, $idpED, $spMeta, $signingProvider);
+        $signingProvider = $serviceInfo->getSpSigningProvider();
+        $signature = null;
+        if ($signingProvider != null && !($signingProvider instanceof SPSigningProviderNull)) {
+            $signature = new SignatureCreator();
+            $signature->setCertificate($signingProvider->getCertificate());
+            $signature->setXmlSecurityKey($signingProvider->getPrivateKey());
+        }
+
+        $builder = new AuthnRequestBuilder($spED, $idpED, $spMeta, $signature);
         $message = $builder->build();
 
         $binding = $this->bindingManager->instantiate($spMeta->getAuthnRequestBinding());
