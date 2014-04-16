@@ -80,8 +80,9 @@ class Authenticate implements RelyingPartyInterface
 
         $idpED = $serviceInfo->getIdpProvider()->getEntityDescriptor();
         $spMeta = $serviceInfo->getSpMetaProvider()->getSpMeta();
+        $signingProvider = $serviceInfo->getSpSigningProvider();
 
-        $builder = new AuthnRequestBuilder($spED, $idpED, $spMeta);
+        $builder = new AuthnRequestBuilder($spED, $idpED, $spMeta, $signingProvider);
         $message = $builder->build();
 
         $binding = $this->bindingManager->instantiate($spMeta->getAuthnRequestBinding());
