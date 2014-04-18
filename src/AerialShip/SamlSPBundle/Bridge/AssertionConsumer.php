@@ -72,8 +72,7 @@ class AssertionConsumer implements RelyingPartyInterface
         $response = $this->getSamlResponse($request);
         $serviceInfo = $this->serviceInfoCollection->findByIDPEntityID($response->getIssuer());
 
-        $serviceInfo->getSpProvider()->setRequest($request);
-        $this->validateResponse($serviceInfo, $response);
+        $this->validateResponse($serviceInfo, $response, $request);
 
         $assertion = $this->getSingleAssertion($response);
 
