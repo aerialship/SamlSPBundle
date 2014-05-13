@@ -2,6 +2,7 @@
 
 namespace AerialShip\SamlSPBundle\Bridge;
 
+use AerialShip\LightSaml\Helper;
 use AerialShip\LightSaml\Meta\SerializationContext;
 use AerialShip\LightSaml\Model\Metadata\KeyDescriptor;
 use AerialShip\LightSaml\Model\Metadata\Service\SingleLogoutService;
@@ -14,6 +15,11 @@ use AerialShip\SamlSPBundle\Config\ServiceInfo;
 use AerialShip\SamlSPBundle\Config\ServiceInfoCollection;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
 use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
+use AerialShip\LightSaml\Binding\BindingDetector;
+use AerialShip\LightSaml\Binding\HttpRedirect;
+use AerialShip\LightSaml\Binding\PostResponse;
+use AerialShip\LightSaml\Binding\RedirectResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse as HttpFoundationRedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\HttpUtils;
@@ -27,17 +33,20 @@ class LogoutReceiveRequest extends LogoutBase implements RelyingPartyInterface
     /** @var ServiceInfoCollection  */
     protected $serviceInfoCollection;
 
-
+    /** @var \Symfony\Component\Security\Core\SecurityContextInterface  */
+    protected $securityContext;
 
     public function __construct(
             BindingManager $bindingManager,
             SSOStateStoreInterface $ssoStore,
             ServiceInfoCollection $serviceInfoCollection,
-            HttpUtils $httpUtils
+            HttpUtils $httpUtils,
+            SecurityContextInterface $securityContext
     ) {
         parent::__construct($ssoStore, $httpUtils);
         $this->bindingManager = $bindingManager;
         $this->serviceInfoCollection = $serviceInfoCollection;
+        $this->securityContext = $securityContext;
     }
 
 
@@ -75,8 +84,10 @@ class LogoutReceiveRequest extends LogoutBase implements RelyingPartyInterface
         $this->deleteSSOState($arrStates);
 
         $logoutResponse = new LogoutResponse();
+        $logoutResponse->setID(Helper::generateID());
         $logoutResponse->setIssuer($serviceInfo->getSpProvider()->getEntityDescriptor()->getEntityID());
         $logoutResponse->setInResponseTo($logoutRequest->getID());
+        $logoutResponse->setRelayState($logoutRequest->getRelayState());
 
         $arrSLO = $serviceInfo->getIdpProvider()->getEntityDescriptor()->getFirstIdpSsoDescriptor()->findSingleLogoutServices();
         /** @var  $slo SingleLogoutService */
@@ -89,8 +100,28 @@ class LogoutReceiveRequest extends LogoutBase implements RelyingPartyInterface
 
         $context = new SerializationContext();
         $logoutResponse->getXml($context->getDocument(), $context);
+        
+        // Log the user out
+        $request->getSession()->invalidate();
+        $this->securityContext->setToken(null);
+        
+        // Return the response to SLO Service
+        $bindingType = $serviceInfo->getSpMetaProvider()->getSpMeta()->getResponseBinding();
+        if ($bindingType) {
+            $detector = new BindingDetector();
+            $binding = $detector->instantiate($bindingType);
+        } else {
+            $binding = new HttpRedirect();
+        }
+        $bindingResponse = $binding->send($logoutResponse);
+        
+        if ($bindingResponse instanceof PostResponse) {
+            return new Response($bindingResponse->render());
+        } else if ($bindingResponse instanceof RedirectResponse) {
+            return new HttpFoundationRedirectResponse($bindingResponse->getDestination());
+        }
+        
         $xml = $context->getDocument()->saveXML();
-
         return new Response($xml, 200, array('Content-Type' => 'application/xml'));
     }
 
