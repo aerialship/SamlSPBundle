@@ -19,6 +19,7 @@ use AerialShip\LightSaml\Binding\BindingDetector;
 use AerialShip\LightSaml\Binding\HttpRedirect;
 use AerialShip\LightSaml\Binding\PostResponse;
 use AerialShip\LightSaml\Binding\RedirectResponse;
+use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse as HttpFoundationRedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
