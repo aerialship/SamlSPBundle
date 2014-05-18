@@ -28,7 +28,7 @@ Documentation
 
 CONTRIBUTING
 ------------
-SamlSpBundle is an open source project and is open for contributions.
+SamlSpBundle is an open source project and is open for contributions. Please follow guidelines from [Contributing and collaboration](https://github.com/aerialship/SamlSPBundle/wiki/Contributing-and-collaboration) wiki page.
 
 
 Credits
