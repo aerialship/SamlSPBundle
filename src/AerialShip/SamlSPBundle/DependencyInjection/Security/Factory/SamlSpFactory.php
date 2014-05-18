@@ -44,6 +44,7 @@ class SamlSpFactory extends AbstractFactory
             ->arrayNode('services')
                 ->isRequired()
                 ->requiresAtLeastOneElement()
+                ->useAttributeAsKey('name')
                 ->prototype('array')
                     ->children()
                         ->arrayNode('idp')->isRequired()
