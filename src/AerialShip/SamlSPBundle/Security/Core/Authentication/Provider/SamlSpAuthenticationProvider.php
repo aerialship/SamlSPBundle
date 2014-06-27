@@ -64,6 +64,8 @@ class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
 
             $user = $this->getUser($token);
 
+            $this->userChecker->checkPreAuth($user);
+
             /** @var $token SamlSpToken */
             return $this->createAuthenticatedToken(
                 $token->getSamlSpInfo(),
