@@ -8,7 +8,7 @@
     },
     "require": {
         "php": ">=5.4.1",
-        "aerialship/lightsaml": "dev-master",
+        "aerialship/lightsaml": "~1.0",
         "symfony/symfony": "~2.2"
     },
     "suggest": {
