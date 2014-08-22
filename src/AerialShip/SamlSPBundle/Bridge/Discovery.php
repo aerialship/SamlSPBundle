@@ -4,7 +4,7 @@ namespace AerialShip\SamlSPBundle\Bridge;
 
 use AerialShip\SamlSPBundle\Config\ServiceInfoCollection;
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface;
-use Symfony\Bridge\Twig\TwigEngine;
+use Symfony\Component\Templating\EngineInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +16,7 @@ class Discovery implements RelyingPartyInterface
     /** @var  ServiceInfoCollection */
     protected $metaProviders;
 
-    /** @var \Symfony\Bridge\Twig\TwigEngine  */
+    /** @var \Symfony\Component\Templating\EngineInterface  */
     protected $twig;
 
     /** @var \Symfony\Component\Security\Http\HttpUtils  */
@@ -26,10 +26,10 @@ class Discovery implements RelyingPartyInterface
     /**
      * @param string $providerID
      * @param ServiceInfoCollection $metaProviders
-     * @param TwigEngine $twig
+     * @param EngineInterface $twig
      * @param HttpUtils $httpUtils
      */
-    function __construct($providerID, ServiceInfoCollection $metaProviders, TwigEngine $twig, HttpUtils $httpUtils) {
+    function __construct($providerID, ServiceInfoCollection $metaProviders, EngineInterface  $twig, HttpUtils $httpUtils) {
         $this->metaProviders = $metaProviders;
         $this->twig = $twig;
         $this->httpUtils = $httpUtils;
