@@ -84,7 +84,9 @@ class Authenticate implements RelyingPartyInterface
         $builder = new AuthnRequestBuilder($spED, $idpED, $spMeta);
         $message = $builder->build();
 
-        $message->sign($serviceInfo->getSpSigningProvider()->getCertificate(), $serviceInfo->getSpSigningProvider()->getPrivateKey());
+        if ($serviceInfo->getSpSigningProvider()->isEnabled()) {
+            $message->sign($serviceInfo->getSpSigningProvider()->getCertificate(), $serviceInfo->getSpSigningProvider()->getPrivateKey());
+        }
 
         $binding = $this->bindingManager->instantiate($spMeta->getAuthnRequestBinding());
 
