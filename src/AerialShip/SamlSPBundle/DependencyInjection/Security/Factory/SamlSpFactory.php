@@ -174,13 +174,12 @@ class SamlSpFactory extends AbstractFactory
         if (isset($config['id'])) {
             $container->setAlias($serviceID, $config['id']);
         } else if (isset($config['cert_file']) &&
-                isset($config['key_file']) &&
-                isset($config['key_pass'])
+                isset($config['key_file'])
         ) {
             $service = new DefinitionDecorator('aerial_ship_saml_sp.sp_signing.file');
             $service->replaceArgument(1, $config['cert_file']);
             $service->replaceArgument(2, $config['key_file']);
-            $service->replaceArgument(3, $config['key_pass']);
+            $service->replaceArgument(3, array_key_exists('key_pass', $config) ? $config['key_pass'] : null);
             $container->setDefinition($serviceID, $service);
         } else {
             $service = new DefinitionDecorator('aerial_ship_saml_sp.sp_signing.null');
