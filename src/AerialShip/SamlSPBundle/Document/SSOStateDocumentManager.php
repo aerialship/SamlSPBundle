@@ -29,7 +29,7 @@ class SSOStateDocumentManager implements SSOStateStoreInterface
     function create() {
         $class = $this->documentClass;
         $result = new $class();
-        if (!$result instanceof SSOStateEntity) {
+        if (!$result instanceof SSOStateDocument) {
             throw new \RuntimeException("Specified document class $this->documentClass is not child of SSOState");
         }
         $result->setCreatedOn(new \DateTime());
