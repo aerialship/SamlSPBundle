@@ -19,7 +19,7 @@ class Configuration implements ConfigurationInterface
 
         $root->children()
             ->enumNode('driver')
-                ->values(array('orm', ''))
+                ->values(array('orm', 'mongodb'))
                 ->cannotBeEmpty()
                 ->defaultValue('orm')
                 ->end()
