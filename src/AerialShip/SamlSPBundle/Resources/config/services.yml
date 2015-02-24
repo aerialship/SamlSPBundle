@@ -142,6 +142,7 @@ services:
             - @aerial_ship_saml_sp.state.store.sso
             - @aerial_ship_saml_sp.service_info_collection
             - @security.http_utils
+            - @security.context
         public: false
         abstract: true
 
