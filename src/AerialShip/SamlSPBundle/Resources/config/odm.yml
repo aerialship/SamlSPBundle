@@ -1,0 +1,9 @@
+
+parameters:
+    aerial_ship_saml_sp.state.store.sso.class: AerialShip\SamlSPBundle\Entity\SSOStateStoreManager
+
+services:
+    aerial_ship_saml_sp.state.store.sso:
+        class: %aerial_ship_saml_sp.state.store.sso.class%
+        arguments: [@doctrine.odm.mongodb.document_manager, %aerial_ship_saml_sp.state.store.sso.entity_class%]
+        public: false
