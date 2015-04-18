@@ -4,20 +4,20 @@ namespace AerialShip\SamlSPBundle\Entity;
 
 use AerialShip\SamlSPBundle\State\SSO\SSOState;
 use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
-use Doctrine\ORM\EntityManager;
-
+use Doctrine\Common\Persistence\ObjectManager;
 
 class SSOStateStoreManager implements SSOStateStoreInterface
 {
-    /** @var EntityManager  */
-    protected $entityManager;
+    /** @var ObjectManager  */
+    protected $objectManager;
 
     /** @var  string */
     protected $entityClass;
 
 
-    function __construct(EntityManager $entityManager, $entityClass) {
-        $this->entityManager = $entityManager;
+    function __construct(ObjectManager $objectManager, $entityClass)
+    {
+        $this->objectManager = $objectManager;
         $this->entityClass = $entityClass;
     }
 
@@ -26,7 +26,8 @@ class SSOStateStoreManager implements SSOStateStoreInterface
      * @throws \RuntimeException
      * @return SSOState
      */
-    function create() {
+    function create()
+    {
         $class = $this->entityClass;
         $result = new $class();
         if (!$result instanceof SSOStateEntity) {
@@ -43,8 +44,8 @@ class SSOStateStoreManager implements SSOStateStoreInterface
      */
     public function set(SSOState $state)
     {
-        $this->entityManager->persist($state);
-        $this->entityManager->flush();
+        $this->objectManager->persist($state);
+        $this->objectManager->flush();
     }
 
 
@@ -110,16 +111,16 @@ class SSOStateStoreManager implements SSOStateStoreInterface
      */
     public function remove(SSOState $state)
     {
-        $this->entityManager->remove($state);
-        $this->entityManager->flush();
+        $this->objectManager->remove($state);
+        $this->objectManager->flush();
     }
 
 
     /**
-     * @return \Doctrine\ORM\EntityRepository
+     * @return \Doctrine\Common\Persistence\ObjectRepository
      */
     protected function getRepository()
     {
-        return $this->entityManager->getRepository($this->entityClass);
+        return $this->objectManager->getRepository($this->entityClass);
     }
 }
