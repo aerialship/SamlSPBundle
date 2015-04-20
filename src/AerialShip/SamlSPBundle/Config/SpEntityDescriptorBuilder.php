@@ -11,7 +11,6 @@ use AerialShip\LightSaml\Model\Metadata\SpSsoDescriptor;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\HttpUtils;
 
-
 class SpEntityDescriptorBuilder implements EntityDescriptorProviderInterface
 {
     /** @var  string */
@@ -44,12 +43,12 @@ class SpEntityDescriptorBuilder implements EntityDescriptorProviderInterface
 
 
     public function __construct(
-            $authenticationServiceID,
-            SPSigningProviderInterface $signingProvider,
-            array $config,
-            $checkPath,
-            $logoutPath,
-            HttpUtils $httpUtils = null
+        $authenticationServiceID,
+        SPSigningProviderInterface $signingProvider,
+        array $config,
+        $checkPath,
+        $logoutPath,
+        HttpUtils $httpUtils = null
     ) {
         if (!isset($config['base_url']) && !$httpUtils) {
             throw new \RuntimeException('If config base_url is not set, then httpUtils are required');
@@ -158,5 +157,4 @@ class SpEntityDescriptorBuilder implements EntityDescriptorProviderInterface
             return $this->httpUtils->generateUri($this->request, $path);
         }
     }
-
 }

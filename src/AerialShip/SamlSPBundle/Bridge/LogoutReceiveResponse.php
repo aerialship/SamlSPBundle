@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Http\HttpUtils;
 
-
 class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
 {
     /** @var BindingManager */
@@ -37,12 +36,12 @@ class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
      * @param \Symfony\Component\Security\Http\HttpUtils $httpUtils
      */
     public function __construct(
-            BindingManager $bindingManager,
-            RequestStateStoreInterface $requestStore,
-            ServiceInfoCollection $serviceInfoCollection,
-            SSOStateStoreInterface $ssoStore,
-            SecurityContextInterface $securityContext,
-            HttpUtils $httpUtils
+        BindingManager $bindingManager,
+        RequestStateStoreInterface $requestStore,
+        ServiceInfoCollection $serviceInfoCollection,
+        SSOStateStoreInterface $ssoStore,
+        SecurityContextInterface $securityContext,
+        HttpUtils $httpUtils
     ) {
         parent::__construct($ssoStore, $httpUtils);
         $this->bindingManager = $bindingManager;
@@ -56,7 +55,8 @@ class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return bool
      */
-    public function supports(Request $request) {
+    public function supports(Request $request)
+    {
         if ($request->attributes->get('logout_path') != $request->getPathInfo()) {
             return false;
         }
@@ -72,7 +72,8 @@ class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
      * @throws \InvalidArgumentException if cannot manage the Request
      * @return \Symfony\Component\HttpFoundation\Response|SamlSpInfo|null
      */
-    public function manage(Request $request) {
+    public function manage(Request $request)
+    {
         if (!$this->supports($request)) {
             throw new \InvalidArgumentException('Unsupported request');
         }
@@ -131,5 +132,4 @@ class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
             }
         }
     }
-
-} 
+}

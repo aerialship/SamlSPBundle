@@ -6,7 +6,6 @@ use AerialShip\LightSaml\Model\Assertion\Attribute;
 use AerialShip\LightSaml\Model\Assertion\AuthnStatement;
 use AerialShip\LightSaml\Model\Assertion\NameID;
 
-
 class SamlSpInfo implements \Serializable
 {
     /** @var  string */
@@ -58,42 +57,48 @@ class SamlSpInfo implements \Serializable
     /**
      * @param \AerialShip\LightSaml\Model\Assertion\NameID $nameID
      */
-    public function setNameID($nameID) {
+    public function setNameID($nameID)
+    {
         $this->nameID = $nameID;
     }
 
     /**
      * @return \AerialShip\LightSaml\Model\Assertion\NameID
      */
-    public function getNameID() {
+    public function getNameID()
+    {
         return $this->nameID;
     }
 
     /**
      * @param \AerialShip\LightSaml\Model\Assertion\AuthnStatement $authnStatement
      */
-    public function setAuthnStatement($authnStatement) {
+    public function setAuthnStatement($authnStatement)
+    {
         $this->authnStatement = $authnStatement;
     }
 
     /**
      * @return \AerialShip\LightSaml\Model\Assertion\AuthnStatement
      */
-    public function getAuthnStatement() {
+    public function getAuthnStatement()
+    {
         return $this->authnStatement;
     }
 
     /**
      * @param string $authenticationServiceID
      */
-    public function setAuthenticationServiceID($authenticationServiceID) {
+    public function setAuthenticationServiceID($authenticationServiceID)
+    {
         $this->authenticationServiceID = $authenticationServiceID;
     }
 
     /**
      * @return string
      */
-    public function getAuthenticationServiceID() {
+    public function getAuthenticationServiceID()
+    {
         return $this->authenticationServiceID;
     }
 

@@ -2,7 +2,6 @@
 
 namespace AerialShip\SamlSPBundle\State\SSO;
 
-
 class SSOState implements \Serializable
 {
     /** @var string */
@@ -27,70 +26,80 @@ class SSOState implements \Serializable
     /**
      * @param string $providerID
      */
-    public function setProviderID($providerID) {
+    public function setProviderID($providerID)
+    {
         $this->providerID = $providerID;
     }
 
     /**
      * @return string
      */
-    public function getProviderID() {
+    public function getProviderID()
+    {
         return $this->providerID;
     }
 
     /**
      * @param string $authenticationServiceName
      */
-    public function setAuthenticationServiceName($authenticationServiceName) {
+    public function setAuthenticationServiceName($authenticationServiceName)
+    {
         $this->authenticationServiceName = $authenticationServiceName;
     }
 
     /**
      * @return string
      */
-    public function getAuthenticationServiceName() {
+    public function getAuthenticationServiceName()
+    {
         return $this->authenticationServiceName;
     }
 
     /**
      * @param string $nameID
      */
-    public function setNameID($nameID) {
+    public function setNameID($nameID)
+    {
         $this->nameID = $nameID;
     }
 
     /**
      * @return string
      */
-    public function getNameID() {
+    public function getNameID()
+    {
         return $this->nameID;
     }
 
     /**
      * @param string $nameIDFormat
      */
-    public function setNameIDFormat($nameIDFormat) {
+    public function setNameIDFormat($nameIDFormat)
+    {
         $this->nameIDFormat = $nameIDFormat;
     }
 
     /**
      * @return string
      */
-    public function getNameIDFormat() {
+    public function getNameIDFormat()
+    {
         return $this->nameIDFormat;
     }
 
     /**
      * @param mixed $sessionIndex
      */
-    public function setSessionIndex($sessionIndex) {
+    public function setSessionIndex($sessionIndex)
+    {
         $this->sessionIndex = $sessionIndex;
     }
 
     /**
      * @return mixed
      */
-    public function getSessionIndex() {
+    public function getSessionIndex()
+    {
         return $this->sessionIndex;
     }
 
@@ -136,6 +145,4 @@ class SSOState implements \Serializable
             $this->nameIDFormat
         ) = unserialize($serialized);
     }
-
-
 }

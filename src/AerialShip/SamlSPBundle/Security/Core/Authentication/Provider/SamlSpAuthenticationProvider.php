@@ -14,7 +14,6 @@ use Symfony\Component\Security\Core\User\User;
 use Symfony\Component\Security\Core\User\UserCheckerInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
-
 class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
 {
     /** @var string */
@@ -31,10 +30,11 @@ class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
 
 
 
-    public function __construct($providerKey,
-            UserManagerInterface $userProvider = null,
-            UserCheckerInterface $userChecker = null,
-            $createIfNotExists = false
+    public function __construct(
+        $providerKey,
+        UserManagerInterface $userProvider = null,
+        UserCheckerInterface $userChecker = null,
+        $createIfNotExists = false
     ) {
         if (null !== $userProvider && null === $userChecker) {
             throw new \InvalidArgumentException('$userChecker cannot be null, if $userProvider is not null');
@@ -55,13 +55,13 @@ class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
      * @return TokenInterface An authenticated TokenInterface instance, never null
      * @throws AuthenticationException if the authentication fails
      */
-    public function authenticate(TokenInterface $token) {
+    public function authenticate(TokenInterface $token)
+    {
         if (false == $this->supports($token)) {
             return null;
         }
 
         try {
-
             $user = $this->getUser($token);
 
             /** @var $token SamlSpToken */
@@ -103,7 +103,8 @@ class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
      * @param \Symfony\Component\Security\Core\Authentication\Token\TokenInterface $token
      * @return bool   true if the implementation supports the Token, false otherwise
      */
-    public function supports(TokenInterface $token) {
+    public function supports(TokenInterface $token)
+    {
         return $token instanceof SamlSpToken && $this->providerKey === $token->getProviderKey();
     }
 
@@ -115,7 +116,8 @@ class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
      * @param mixed $user
      * @return SamlSpToken
      */
-    protected function createAuthenticatedToken(SamlSpInfo $samlInfo, array $attributes, array $roles, $user) {
+    protected function createAuthenticatedToken(SamlSpInfo $samlInfo, array $attributes, array $roles, $user)
+    {
         if ($user instanceof UserInterface && $this->userChecker) {
             $this->userChecker->checkPostAuth($user);
         }
@@ -137,7 +139,8 @@ class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
      * @throws \Symfony\Component\Security\Core\Exception\UsernameNotFoundException
      * @throws \RuntimeException
      */
-    private function getProviderUser(SamlSpToken $token) {
+    private function getProviderUser(SamlSpToken $token)
+    {
         if (!$token || !$token->getSamlSpInfo()) {
             throw new \RuntimeException('Token does not contain SamlSpInfo');
         }
@@ -161,10 +164,10 @@ class SamlSpAuthenticationProvider implements AuthenticationProviderInterface
      * @param \AerialShip\SamlSPBundle\Security\Core\Authentication\Token\SamlSpToken $token
      * @return UserInterface
      */
-    private function getDefaultUser(SamlSpToken $token) {
+    private function getDefaultUser(SamlSpToken $token)
+    {
         $nameID = $token && $token->getSamlSpInfo()->getNameID() && $token->getSamlSpInfo()->getNameID()->getValue() ? $token->getSamlSpInfo()->getNameID()->getValue() : 'anon.';
         $result = new User($nameID, '', array('ROLE_USER'));
         return $result;
     }
-
 }

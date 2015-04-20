@@ -2,7 +2,6 @@
 
 namespace AerialShip\SamlSPBundle\Config;
 
-
 class ServiceInfo
 {
 
@@ -34,12 +33,12 @@ class ServiceInfo
      * @param SPSigningProviderInterface $spSigningProvider
      */
     function __construct(
-            $providerID,
-            $name,
-            EntityDescriptorProviderInterface $spProvider,
-            EntityDescriptorProviderInterface $idpProvider,
-            SpMetaProviderInterface $spMetaProvider,
-            SPSigningProviderInterface $spSigningProvider
+        $providerID,
+        $name,
+        EntityDescriptorProviderInterface $spProvider,
+        EntityDescriptorProviderInterface $idpProvider,
+        SpMetaProviderInterface $spMetaProvider,
+        SPSigningProviderInterface $spSigningProvider
     ) {
         $this->providerID = $providerID;
         $this->authenticationService = $name;
@@ -53,44 +52,48 @@ class ServiceInfo
     /**
      * @return string
      */
-    public function getProviderID() {
+    public function getProviderID()
+    {
         return $this->providerID;
     }
 
     /**
      * @return string
      */
-    public function getAuthenticationService() {
+    public function getAuthenticationService()
+    {
         return $this->authenticationService;
     }
 
     /**
      * @return \AerialShip\SamlSPBundle\Config\SpEntityDescriptorBuilder
      */
-    public function getSpProvider() {
+    public function getSpProvider()
+    {
         return $this->spProvider;
     }
 
     /**
      * @return \AerialShip\SamlSPBundle\Config\EntityDescriptorProviderInterface
      */
-    public function getIdpProvider() {
+    public function getIdpProvider()
+    {
         return $this->idpProvider;
     }
 
     /**
      * @return \AerialShip\SamlSPBundle\Config\SpMetaProviderInterface
      */
-    public function getSpMetaProvider() {
+    public function getSpMetaProvider()
+    {
         return $this->spMetaProvider;
     }
 
     /**
      * @return \AerialShip\SamlSPBundle\Config\SPSigningProviderInterface
      */
-    public function getSpSigningProvider() {
+    public function getSpSigningProvider()
+    {
         return $this->spSigningProvider;
     }
-
-
 }

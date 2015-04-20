@@ -2,7 +2,6 @@
 
 namespace AerialShip\SamlSPBundle\State\Request;
 
-
 class RequestState implements \Serializable
 {
     /** @var  string */
@@ -15,28 +14,32 @@ class RequestState implements \Serializable
     /**
      * @param string $destination
      */
-    public function setDestination($destination) {
+    public function setDestination($destination)
+    {
         $this->destination = $destination;
     }
 
     /**
      * @return string
      */
-    public function getDestination() {
+    public function getDestination()
+    {
         return $this->destination;
     }
 
     /**
      * @param string $id
      */
-    public function setId($id) {
+    public function setId($id)
+    {
         $this->id = $id;
     }
 
     /**
      * @return string
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
 
@@ -47,7 +50,8 @@ class RequestState implements \Serializable
      * @link http://php.net/manual/en/serializable.serialize.php
      * @return string the string representation of the object or null
      */
-    public function serialize() {
+    public function serialize()
+    {
         return serialize(array($this->id, $this->destination));
     }
 
@@ -60,9 +64,8 @@ class RequestState implements \Serializable
      * </p>
      * @return void
      */
-    public function unserialize($serialized) {
+    public function unserialize($serialized)
+    {
         list($this->id, $this->destination) = unserialize($serialized);
     }
-
-
 }

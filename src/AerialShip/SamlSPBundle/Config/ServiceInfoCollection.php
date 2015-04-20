@@ -2,7 +2,6 @@
 
 namespace AerialShip\SamlSPBundle\Config;
 
-
 class ServiceInfoCollection
 {
     /** @var ServiceInfo[] */
@@ -61,7 +60,8 @@ class ServiceInfoCollection
      * @param string|null $as
      * @return ServiceInfo|null
      */
-    public function findByAS($as) {
+    public function findByAS($as)
+    {
         $result = null;
         if (!$as && count($this->data)==1) {
             $arr = $this->data;
@@ -71,5 +71,4 @@ class ServiceInfoCollection
         }
         return $result;
     }
-
-} 
+}

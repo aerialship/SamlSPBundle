@@ -4,13 +4,13 @@ namespace AerialShip\SamlSPBundle\Config;
 
 use AerialShip\LightSaml\Security\X509Certificate;
 
-
 class SPSigningProviderNull implements SPSigningProviderInterface
 {
     /**
      * @return bool
      */
-    public function isEnabled() {
+    public function isEnabled()
+    {
         return false;
     }
 
@@ -18,7 +18,8 @@ class SPSigningProviderNull implements SPSigningProviderInterface
      * @throws \RuntimeException
      * @return X509Certificate
      */
-    public function getCertificate() {
+    public function getCertificate()
+    {
         throw new \RuntimeException('Signing not enabled');
     }
 
@@ -26,8 +27,8 @@ class SPSigningProviderNull implements SPSigningProviderInterface
      * @throws \RuntimeException
      * @return \XMLSecurityKey
      */
-    public function getPrivateKey() {
+    public function getPrivateKey()
+    {
         throw new \RuntimeException('Signing not enabled');
     }
-
-} 
+}

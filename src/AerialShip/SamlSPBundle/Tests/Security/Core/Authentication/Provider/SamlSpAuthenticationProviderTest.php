@@ -2,7 +2,6 @@
 
 namespace AerialShip\SamlSPBundle\Tests\Security\Core\Authentication\Provider;
 
-
 use AerialShip\SamlSPBundle\Security\Core\Authentication\Provider\SamlSpAuthenticationProvider;
 use AerialShip\SamlSPBundle\Security\Core\Authentication\Token\SamlSpToken;
 use AerialShip\SamlSPBundle\Tests\Bridge\SamlSpInfoHelper;
@@ -541,5 +540,4 @@ class SamlSpAuthenticationProviderTest extends \PHPUnit_Framework_TestCase
     {
         return $this->getMock('Symfony\Component\Security\Core\User\UserInterface');
     }
-
 }

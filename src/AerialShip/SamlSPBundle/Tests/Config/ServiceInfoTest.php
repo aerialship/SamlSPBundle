@@ -7,7 +7,6 @@ use AerialShip\SamlSPBundle\Config\ServiceInfo;
 use AerialShip\SamlSPBundle\Config\SpMetaProviderInterface;
 use AerialShip\SamlSPBundle\Config\SPSigningProviderInterface;
 
-
 class ServiceInfoTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -153,4 +152,4 @@ class ServiceInfoTest extends \PHPUnit_Framework_TestCase
     {
         return $this->getMock('AerialShip\SamlSPBundle\Config\SPSigningProviderInterface');
     }
-} 
+}
