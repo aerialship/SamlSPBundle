@@ -4,7 +4,6 @@ namespace AerialShip\SamlSPBundle\State\Request;
 
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 
-
 class SessionStore implements RequestStateStoreInterface
 {
     /** @var \Symfony\Component\HttpFoundation\Session\SessionInterface  */
@@ -18,7 +17,8 @@ class SessionStore implements RequestStateStoreInterface
      * @param SessionInterface $session
      * @param string $providerID
      */
-    function __construct(SessionInterface $session, $providerID) {
+    public function __construct(SessionInterface $session, $providerID)
+    {
         $this->session = $session;
         $this->providerID = $providerID;
     }
@@ -29,7 +29,8 @@ class SessionStore implements RequestStateStoreInterface
      * @throws \InvalidArgumentException
      * @return void
      */
-    function set(RequestState $state) {
+    public function set(RequestState $state)
+    {
         $key = "saml_state_{$this->providerID}";
         $arr = $this->session->get($key, array());
         $arr[$state->getId()] = $state;
@@ -40,7 +41,8 @@ class SessionStore implements RequestStateStoreInterface
      * @param string $id
      * @return RequestState|null
      */
-    function get($id) {
+    public function get($id)
+    {
         $result = null;
         $key = "saml_state_{$this->providerID}";
         $arr = $this->session->get($key);
@@ -74,10 +76,9 @@ class SessionStore implements RequestStateStoreInterface
     /**
      * @return void
      */
-    public function clear() {
+    public function clear()
+    {
         $key = "saml_state_{$this->providerID}";
         $this->session->set($key, array());
     }
-
-
-} 
+}
