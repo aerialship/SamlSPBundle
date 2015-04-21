@@ -2,6 +2,7 @@ imports:
     - php
 
 tools:
+    external_code_coverage: true
     php_cpd: true
     php_pdepend: true
     php_mess_detector:
