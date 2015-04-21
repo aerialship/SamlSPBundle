@@ -2,19 +2,18 @@
 
 namespace AerialShip\SamlSPBundle\State\SSO;
 
-
 interface SSOStateStoreInterface
 {
     /**
      * @return SSOState
      */
-    function create();
+    public function create();
 
     /**
      * @param SSOState $state
      * @return void
      */
-    function set(SSOState $state);
+    public function set(SSOState $state);
 
 
     /**
@@ -23,7 +22,7 @@ interface SSOStateStoreInterface
      * @param string $nameID
      * @return SSOState[]
      */
-    function getAllByNameID($providerID, $authenticationServiceName, $nameID);
+    public function getAllByNameID($providerID, $authenticationServiceName, $nameID);
 
     /**
      * @param string $providerID
@@ -32,12 +31,11 @@ interface SSOStateStoreInterface
      * @param string $sessionIndex
      * @return SSOState
      */
-    function getOneByNameIDSessionIndex($providerID, $authenticationServiceName, $nameID, $sessionIndex);
+    public function getOneByNameIDSessionIndex($providerID, $authenticationServiceName, $nameID, $sessionIndex);
 
     /**
      * @param SSOState $state
      * @return bool
      */
-    function remove(SSOState $state);
-
+    public function remove(SSOState $state);
 } 
