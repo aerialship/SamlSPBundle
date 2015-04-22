@@ -7,10 +7,10 @@ use Doctrine\Common\Persistence\ObjectManager;
 /**
  * This will manage the SSOState implementations.
  *
- * Class SSOStateStoreManager
+ * Class DoctrineStateStore
  * @package AerialShip\SamlSPBundle\State\SSO
  */
-class SSOStateStoreManager implements SSOStateStoreInterface
+class DoctrineStateStore implements SSOStateStoreInterface
 {
     /** @var ObjectManager  */
     protected $objectManager;

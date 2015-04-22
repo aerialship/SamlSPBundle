@@ -2,18 +2,18 @@
 
 namespace AerialShip\SamlSPBundle\Entity;
 
-use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreManager as SSOStateManager;
+use AerialShip\SamlSPBundle\State\SSO\DoctrineStateStore;
 
 /**
- * You should extend AerialShip\SamlSPBundle\State\SSO\SSOStateStoreManager because this class will be removed.
+ * You should extend AerialShip\SamlSPBundle\State\SSO\DoctrineStateStore because this class will be removed.
  * Its here just for backward compatibility.
  *
  * Class SSOStateStoreManager
  * @package AerialShip\SamlSPBundle\Entity
  *
- * @deprecated this class was moved to AerialShip\SamlSPBundle\State\SSO\SSOStateStoreManager
+ * @deprecated this class was moved to AerialShip\SamlSPBundle\State\SSO\DoctrineStateStore
  */
-class SSOStateStoreManager extends SSOStateManager
+class SSOStateStoreManager extends DoctrineStateStore
 {
 
 }
