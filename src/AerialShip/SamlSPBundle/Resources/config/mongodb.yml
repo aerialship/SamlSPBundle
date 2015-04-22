@@ -1,6 +1,6 @@
 
 parameters:
-    aerial_ship_saml_sp.state.store.sso.class: AerialShip\SamlSPBundle\Entity\SSOStateStoreManager
+    aerial_ship_saml_sp.state.store.sso.class: AerialShip\SamlSPBundle\State\SSO\SSOStateStoreManager
 
 services:
     aerial_ship_saml_sp.state.store.sso:
