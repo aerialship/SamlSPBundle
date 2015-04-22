@@ -23,20 +23,10 @@ Installation is quick 4 steps:
 Step 1: Download SamlSpBundle with composer
 -------------------------------------------
 
-Add SamlSpBundle to your composer.json requirements:
-
-```js
-{
-    "require": {
-        "aerialship/saml-sp-bundle": "dev-master"
-    }
-}
-```
-
-And run composer to download the bundle with the command
+Install the bundle with the command
 
 ``` bash
-    $ php composer.phar update aerialship/saml-sp-bundle
+$ composer require aerialship/saml-sp-bundle
 ```
 
 Composer will install the bundle the the `vendor/aerialship/saml-sp-bundle` directory of your project
