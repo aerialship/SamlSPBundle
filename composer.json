@@ -12,7 +12,8 @@
         "symfony/symfony": "~2.2"
     },
     "suggest": {
-        "doctrine/orm": "If you want store sso state to database"
+        "doctrine/orm": "If you want store sso state to database.",
+        "doctrine/mongodb-odm": "If you want store sso state to database using mongodb."
     },
     "config": {
         "bin-dir": "bin"

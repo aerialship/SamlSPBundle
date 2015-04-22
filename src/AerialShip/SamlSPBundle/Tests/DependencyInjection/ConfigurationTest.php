@@ -2,7 +2,6 @@
 
 namespace AerialShip\SamlSPBundle\Tests\DependencyInjection;
 
-
 use AerialShip\SamlSPBundle\DependencyInjection\Configuration;
 use Symfony\Component\Config\Definition\Processor;
 
@@ -57,6 +56,18 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
     /**
      * @test
+     */
+    public function shouldAllowMongoDbDriver()
+    {
+        $configs = array('aerial_ship_saml_sp' => array(
+            'driver' => 'mongodb',
+            'sso_state_entity_class' => 'Some\Class'
+        ));
+        $this->processConfiguration($configs);
+    }
+
+    /**
+     * @test
      * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
      */
     public function throwIfUnknownDbDriver()
@@ -93,4 +104,4 @@ class ConfigurationTest extends \PHPUnit_Framework_TestCase
 
         return $processor->processConfiguration($configuration, $configs);
     }
-} 
+}

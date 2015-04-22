@@ -55,11 +55,17 @@ Step 3: Create your SSO State Entity class
 ------------------------------------------
 
 Bundle has to persist SSO State of the user authenticated against IDP so when IDP calls for logout in another session
-it is possible to delete that session, so it can logout the user from your app once he comes back. At this version
-of the bundle only doctrine orm driver is supported. You need to create entity class for it in your project by
+it is possible to delete that session, so it can logout the user from your app once he comes back. 
+Doctrine *ORM* and *MongoDB* drivers are supported.
+
+
+### ORM
+
+
+You need to create entity class for it in your project by
 extending `AerialShip\SamlSPBundle\Entity\SSOStateEntity` class.
 
-For example:
+Example to be created on your project using **ORM**:
 
 ``` php
 <?php
@@ -100,11 +106,50 @@ class SSOState extends \AerialShip\SamlSPBundle\Entity\SSOStateEntity
 }
 ```
 
+
+
 After the entity class is created you should update your database schema by running
 
 ``` bash
 $ php app/console doctrine:schema:update --force
 ```
+
+### MongoDB
+
+You need to create entity class for it in your project by
+extending `\AerialShip\SamlSPBundle\Document\SSOStateDocument` class.
+
+Example to be created on your project using **MongoDB**:
+
+
+``` php
+<?php
+
+namespace Acme\SamlBundle\Document;
+
+use Doctrine\ODM\MongoDB\Mapping\Annotations as ODM;
+
+/**
+ * @ODM\Document
+ */
+class SSOState extends \AerialShip\SamlSPBundle\Document\SSOStateDocument
+{
+
+    /**
+     * @ODM\Id(strategy="auto")
+     */
+    protected $id;
+
+
+    /**
+     * @return int
+     */
+    public function getId() {
+        return $this->id;
+    }
+}
+```
+
 
 
 Step 4: Configure SamlSpBundle
@@ -112,11 +157,25 @@ Step 4: Configure SamlSpBundle
 
 Now you have to tell to the Bundle what's your entity class
 
+### ORM
+
 ``` yaml
 # app/config/config.yml
 aerial_ship_saml_sp:
+    # drivers supported: orm - for relational database, mongodb - for MongoDB non relation database.
     driver: orm
-    sso_state_entity_class: Acme\SamlBundle\Entity\SSOState
+    sso_state_entity_class: Acme\SamlBundle\Entity\SSOStateEntity
+
+```
+
+### MongoDB
+
+``` yaml
+# app/config/config.yml
+aerial_ship_saml_sp:
+    # drivers supported: orm - for relational database, mongodb - for MongoDB non relation database.
+    driver: mongodb
+    sso_state_entity_class: Acme\SamlBundle\Document\SSOStateDocument
 
 ```
 
