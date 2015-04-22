@@ -10,7 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\HttpUtils;
 
-
 class Discovery implements RelyingPartyInterface
 {
     /** @var  ServiceInfoCollection */
@@ -29,7 +28,8 @@ class Discovery implements RelyingPartyInterface
      * @param EngineInterface $twig
      * @param HttpUtils $httpUtils
      */
-    function __construct($providerID, ServiceInfoCollection $metaProviders, EngineInterface  $twig, HttpUtils $httpUtils) {
+    function __construct($providerID, ServiceInfoCollection $metaProviders, EngineInterface  $twig, HttpUtils $httpUtils)
+    {
         $this->metaProviders = $metaProviders;
         $this->twig = $twig;
         $this->httpUtils = $httpUtils;
@@ -88,9 +88,11 @@ class Discovery implements RelyingPartyInterface
         $type = $request->query->get('type');
         switch ($type) {
             case 'metadata':
-                $path = $request->attributes->get('metadata_path'); break;
+                $path = $request->attributes->get('metadata_path');
+                break;
             case 'logout':
-                $path = $request->attributes->get('logout_path'); break;
+                $path = $request->attributes->get('logout_path');
+                break;
             default:
                 $path = $request->attributes->get('login_path');
         }

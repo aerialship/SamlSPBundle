@@ -7,7 +7,6 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Processor;
 
-
 class SamlSpFactoryConfiguration implements ConfigurationInterface
 {
     /** @var \AerialShip\SamlSPBundle\DependencyInjection\Security\Factory\SamlSpFactory  */
@@ -42,20 +41,24 @@ class SamlSpFactoryConfiguration implements ConfigurationInterface
      * @param array $config
      * @return array
      */
-    public function processConfiguration(array $config) {
+    public function processConfiguration(array $config)
+    {
         $processor = new Processor();
-        $result = $processor->processConfiguration($this,
+        $result = $processor->processConfiguration(
+            $this,
             array($this->name => $config)
         );
         return $result;
     }
 
 
-    public function processCommonConfiguration() {
+    public function processCommonConfiguration()
+    {
         return $this->processConfiguration($this->getCommonConfiguration());
     }
 
-    public function getCommonConfiguration() {
+    public function getCommonConfiguration()
+    {
         return array(
             'services' => array(
                 'aaa' => array(
@@ -72,4 +75,4 @@ class SamlSpFactoryConfiguration implements ConfigurationInterface
         );
 
     }
-} 
+}

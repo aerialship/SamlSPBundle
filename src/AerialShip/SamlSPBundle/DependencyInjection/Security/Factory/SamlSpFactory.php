@@ -8,7 +8,6 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Reference;
 
-
 class SamlSpFactory extends AbstractFactory
 {
 
@@ -427,6 +426,4 @@ class SamlSpFactory extends AbstractFactory
 
         return $entryPointId;
     }
-
-
-} 
+}

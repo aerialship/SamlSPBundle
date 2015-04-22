@@ -7,7 +7,6 @@ use AerialShip\LightSaml\Model\Assertion\AuthnStatement;
 use AerialShip\LightSaml\Model\Assertion\NameID;
 use AerialShip\SamlSPBundle\Bridge\SamlSpInfo;
 
-
 class SamlSpInfoHelper
 {
 
@@ -19,8 +18,7 @@ class SamlSpInfoHelper
     public function getNameID(
         $nameIDValue = 'nameID',
         $nameIDFormat = 'nameIDFormat'
-    )
-    {
+    ) {
         $nameID = new NameID();
         $nameID->setValue($nameIDValue);
         $nameID->setFormat($nameIDFormat);
@@ -36,7 +34,7 @@ class SamlSpInfoHelper
     public function getAttributes(array $attributes = array('a'=>1, 'b'=>array(2,3)))
     {
         $arrAttributes = array();
-        foreach ($attributes as $name=>$value) {
+        foreach ($attributes as $name => $value) {
             $a = new Attribute();
             $a->setName($name);
             if (!is_array($value)) {
@@ -85,5 +83,4 @@ class SamlSpInfoHelper
         $result = new SamlSpInfo('authServiceID', $nameID, $arrAttributes, $authnStatement);
         return $result;
     }
-
-} 
+}

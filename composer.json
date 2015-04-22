@@ -14,9 +14,19 @@
     "suggest": {
         "doctrine/orm": "If you want store sso state to database"
     },
+    "scripts": {
+        "post-install-cmd": [
+            "bash contrib/setup.sh"
+        ],
+        "post-update-cmd": [
+        ]
+    },
     "config": {
         "bin-dir": "bin"
     },
     "prefer-stable": true,
-    "minimum-stability": "dev"
+    "minimum-stability": "dev",
+    "require-dev": {
+        "squizlabs/php_codesniffer": "~2.0@dev"
+    }
 }

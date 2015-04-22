@@ -19,7 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\HttpUtils;
 
-
 class LogoutReceiveRequest extends LogoutBase implements RelyingPartyInterface
 {
     /** @var BindingManager */
@@ -31,10 +30,10 @@ class LogoutReceiveRequest extends LogoutBase implements RelyingPartyInterface
 
 
     public function __construct(
-            BindingManager $bindingManager,
-            SSOStateStoreInterface $ssoStore,
-            ServiceInfoCollection $serviceInfoCollection,
-            HttpUtils $httpUtils
+        BindingManager $bindingManager,
+        SSOStateStoreInterface $ssoStore,
+        ServiceInfoCollection $serviceInfoCollection,
+        HttpUtils $httpUtils
     ) {
         parent::__construct($ssoStore, $httpUtils);
         $this->bindingManager = $bindingManager;
@@ -156,7 +155,4 @@ class LogoutReceiveRequest extends LogoutBase implements RelyingPartyInterface
 
         $signature->validateMulti($keys);
     }
-
-
-
-} 
+}

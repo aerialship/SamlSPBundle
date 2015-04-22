@@ -20,5 +20,4 @@ interface SPSigningProviderInterface
      * @return \XMLSecurityKey
      */
     public function getPrivateKey();
-
-} 
+}

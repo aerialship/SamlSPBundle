@@ -6,7 +6,6 @@ use AerialShip\SamlSPBundle\State\SSO\SSOState;
 use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
 use Doctrine\ORM\EntityManager;
 
-
 class SSOStateStoreManager implements SSOStateStoreInterface
 {
     /** @var EntityManager  */
@@ -16,7 +15,8 @@ class SSOStateStoreManager implements SSOStateStoreInterface
     protected $entityClass;
 
 
-    function __construct(EntityManager $entityManager, $entityClass) {
+    function __construct(EntityManager $entityManager, $entityClass)
+    {
         $this->entityManager = $entityManager;
         $this->entityClass = $entityClass;
     }
@@ -26,7 +26,8 @@ class SSOStateStoreManager implements SSOStateStoreInterface
      * @throws \RuntimeException
      * @return SSOState
      */
-    function create() {
+    function create()
+    {
         $class = $this->entityClass;
         $result = new $class();
         if (!$result instanceof SSOStateEntity) {

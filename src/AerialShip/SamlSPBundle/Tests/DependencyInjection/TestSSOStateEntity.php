@@ -7,4 +7,4 @@ use AerialShip\SamlSPBundle\Entity\SSOStateEntity;
 class TestSSOStateEntity extends SSOStateEntity
 {
 
-} 
+}
