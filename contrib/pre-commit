@@ -23,7 +23,7 @@ then
     # PHP CS Fixer.
     for i in "${filenames[@]}"
     do
-        if [[ $i =~ \.php$ ]];
+        if [[ $i == *.php ]];
         then
             ./bin/phpcbf --standard=PSR2 -p -n $i --diff
 
