@@ -2,11 +2,13 @@
 
 namespace AerialShip\SamlSPBundle\Entity;
 
-use AerialShip\SamlSPBundle\State\SSO\SSOState;
+use AerialShip\SamlSPBundle\Model\SSOState;
 use Doctrine\ORM\Mapping as ORM;
 
 
 /**
+ * @deprecated Use \AerialShip\SamlSPBundle\Model\SSOState
+ *
  * @ORM\HasLifecycleCallbacks
  */
 abstract class SSOStateEntity extends SSOState
@@ -46,29 +48,5 @@ abstract class SSOStateEntity extends SSOState
      * @ORM\Column(type="datetime", name="created_on")
      */
     protected $createdOn;
-
-
-
-
-
-
-    /**
-     * @param \DateTime $createdOn
-     */
-    public function setCreatedOn($createdOn) {
-        $this->createdOn = $createdOn;
-    }
-
-    /**
-     * @return \DateTime
-     */
-    public function getCreatedOn() {
-        return $this->createdOn;
-    }
-
-
-
-
-
 
 }

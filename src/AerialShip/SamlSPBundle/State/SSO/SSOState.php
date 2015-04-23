@@ -20,83 +20,128 @@ class SSOState implements \Serializable
     /** @var string */
     protected $nameIDFormat;
 
-
-
-
+    /** @var \DateTime */
+    protected $createdOn;
 
     /**
      * @param string $providerID
+     *
+     * @return SSOState
      */
-    public function setProviderID($providerID) {
+    public function setProviderID($providerID)
+    {
         $this->providerID = $providerID;
+
+        return $this;
     }
 
     /**
      * @return string
      */
-    public function getProviderID() {
+    public function getProviderID()
+    {
         return $this->providerID;
     }
 
     /**
      * @param string $authenticationServiceName
+     *
+     * @return SSOState
      */
-    public function setAuthenticationServiceName($authenticationServiceName) {
+    public function setAuthenticationServiceName($authenticationServiceName)
+    {
         $this->authenticationServiceName = $authenticationServiceName;
+
+        return $this;
     }
 
     /**
      * @return string
      */
-    public function getAuthenticationServiceName() {
+    public function getAuthenticationServiceName()
+    {
         return $this->authenticationServiceName;
     }
 
     /**
      * @param string $nameID
+     *
+     * @return SSOState
      */
-    public function setNameID($nameID) {
+    public function setNameID($nameID)
+    {
         $this->nameID = $nameID;
+
+        return $this;
     }
 
     /**
      * @return string
      */
-    public function getNameID() {
+    public function getNameID()
+    {
         return $this->nameID;
     }
 
     /**
      * @param string $nameIDFormat
+     *
+     * @return SSOState
      */
-    public function setNameIDFormat($nameIDFormat) {
+    public function setNameIDFormat($nameIDFormat)
+    {
         $this->nameIDFormat = $nameIDFormat;
+
+        return $this;
     }
 
     /**
      * @return string
      */
-    public function getNameIDFormat() {
+    public function getNameIDFormat()
+    {
         return $this->nameIDFormat;
     }
 
     /**
-     * @param mixed $sessionIndex
+     * @param string $sessionIndex
+     *
+     * @return SSOState
      */
-    public function setSessionIndex($sessionIndex) {
+    public function setSessionIndex($sessionIndex)
+    {
         $this->sessionIndex = $sessionIndex;
+
+        return $this;
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getSessionIndex() {
+    public function getSessionIndex()
+    {
         return $this->sessionIndex;
     }
 
+    /**
+     * @return \DateTime
+     */
+    public function getCreatedOn()
+    {
+        return $this->createdOn;
+    }
 
+    /**
+     * @param \DateTime $createdOn
+     *
+     * @return SSOState
+     */
+    public function setCreatedOn(\DateTime $createdOn)
+    {
+        $this->createdOn = $createdOn;
 
-
+        return $this;
+    }
 
     /**
      * (PHP 5 &gt;= 5.1.0)<br/>
@@ -108,11 +153,12 @@ class SSOState implements \Serializable
     {
         return serialize(
             array(
-                 $this->providerID,
-                 $this->authenticationServiceName,
-                 $this->sessionIndex,
-                 $this->nameID,
-                 $this->nameIDFormat
+                $this->providerID,
+                $this->authenticationServiceName,
+                $this->sessionIndex,
+                $this->nameID,
+                $this->nameIDFormat,
+                $this->createdOn,
             )
         );
     }
@@ -128,14 +174,19 @@ class SSOState implements \Serializable
      */
     public function unserialize($serialized)
     {
+        $data = unserialize($serialized);
+
+        // add a few extra elements in the array to ensure that we have enough keys when unserializing
+        // older data which does not include all properties.
+        $data = array_merge($data, array_fill(0, 4, null));
+
         list(
             $this->providerID,
             $this->authenticationServiceName,
             $this->sessionIndex,
             $this->nameID,
-            $this->nameIDFormat
-        ) = unserialize($serialized);
+            $this->nameIDFormat,
+            $this->createdOn
+        ) = $data;
     }
-
-
 }

@@ -2,9 +2,9 @@
 
 namespace AerialShip\SamlSPBundle\Tests\DependencyInjection;
 
-use AerialShip\SamlSPBundle\Entity\SSOStateEntity;
+use AerialShip\SamlSPBundle\Model\SSOState;
 
-class TestSSOStateEntity extends SSOStateEntity
+class TestSSOStateEntity extends SSOState
 {
 
-} 
+}
