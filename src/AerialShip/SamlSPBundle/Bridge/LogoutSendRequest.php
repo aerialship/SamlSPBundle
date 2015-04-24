@@ -15,7 +15,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\SecurityContextInterface;
 
-
 class LogoutSendRequest implements RelyingPartyInterface
 {
     /** @var \Symfony\Component\Security\Core\SecurityContextInterface  */
@@ -50,7 +49,8 @@ class LogoutSendRequest implements RelyingPartyInterface
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return bool
      */
-    function supports(Request $request) {
+    function supports(Request $request)
+    {
         if ($request->attributes->get('logout_path') != $request->getPathInfo()) {
             return false;
         }
@@ -71,7 +71,8 @@ class LogoutSendRequest implements RelyingPartyInterface
      * @throws \InvalidArgumentException if cannot manage the Request
      * @return \Symfony\Component\HttpFoundation\Response|SamlSpInfo
      */
-    function manage(Request $request) {
+    function manage(Request $request)
+    {
         if (!$this->supports($request)) {
             throw new \InvalidArgumentException('Unsupported request');
         }
@@ -174,5 +175,4 @@ class LogoutSendRequest implements RelyingPartyInterface
 
         return $state;
     }
-
-} 
+}

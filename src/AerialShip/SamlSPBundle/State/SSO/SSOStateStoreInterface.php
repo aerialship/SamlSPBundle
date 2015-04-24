@@ -47,4 +47,4 @@ interface SSOStateStoreInterface
      * @return void
      */
     public function remove(SSOState $state);
-} 
+}

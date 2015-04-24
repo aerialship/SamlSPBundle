@@ -4,7 +4,6 @@ namespace AerialShip\SamlSPBundle\RelyingParty;
 
 use Symfony\Component\HttpFoundation\Request;
 
-
 class RelyingPartyCollection implements RelyingPartyInterface
 {
     /** @var RelyingPartyInterface[] */
@@ -13,28 +12,32 @@ class RelyingPartyCollection implements RelyingPartyInterface
     /**
      * @param RelyingPartyInterface $relyingParty
      */
-    public function append(RelyingPartyInterface $relyingParty) {
+    public function append(RelyingPartyInterface $relyingParty)
+    {
         array_push($this->relyingParties, $relyingParty);
     }
 
     /**
      * @param RelyingPartyInterface $relyingParty
      */
-    public function prepend(RelyingPartyInterface $relyingParty) {
+    public function prepend(RelyingPartyInterface $relyingParty)
+    {
         array_unshift($this->relyingParties, $relyingParty);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function supports(Request $request) {
+    public function supports(Request $request)
+    {
         return (bool) $this->findRelyingPartySupportedRequest($request);
     }
 
     /**
      * {@inheritdoc}
      */
-    public function manage(Request $request) {
+    public function manage(Request $request)
+    {
         if (false == $relyingParty = $this->findRelyingPartySupportedRequest($request)) {
             throw new \InvalidArgumentException('The relying party does not support the request');
         }
@@ -45,7 +48,8 @@ class RelyingPartyCollection implements RelyingPartyInterface
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return RelyingPartyInterface|null
      */
-    protected function findRelyingPartySupportedRequest(Request $request) {
+    protected function findRelyingPartySupportedRequest(Request $request)
+    {
         foreach ($this->relyingParties as $relyingParty) {
             if ($relyingParty->supports($request)) {
                 return $relyingParty;

@@ -47,5 +47,4 @@ abstract class SSOStateEntity extends SSOState
      * @ORM\Column(type="datetime", name="created_on")
      */
     protected $createdOn;
-
 }

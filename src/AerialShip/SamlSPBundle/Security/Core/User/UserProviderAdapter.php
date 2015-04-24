@@ -15,7 +15,8 @@ class UserProviderAdapter implements UserManagerInterface
 
 
 
-    function __construct(UserProviderInterface $userProvider) {
+    function __construct(UserProviderInterface $userProvider)
+    {
         $this->userProvider = $userProvider;
     }
 
@@ -25,7 +26,8 @@ class UserProviderAdapter implements UserManagerInterface
      * @return UserInterface
      * @throws UsernameNotFoundException if the user is not found
      */
-    public function loadUserBySamlInfo(SamlSpInfo $samlInfo) {
+    public function loadUserBySamlInfo(SamlSpInfo $samlInfo)
+    {
         if ($this->userProvider instanceof UserManagerInterface) {
             return $this->userProvider->loadUserBySamlInfo($samlInfo);
         } else {
@@ -38,7 +40,8 @@ class UserProviderAdapter implements UserManagerInterface
      * @throws \Symfony\Component\Security\Core\Exception\UsernameNotFoundException if the user could not created
      * @return \Symfony\Component\Security\Core\User\UserInterface
      */
-    public function createUserFromSamlInfo(SamlSpInfo $samlInfo) {
+    public function createUserFromSamlInfo(SamlSpInfo $samlInfo)
+    {
         if ($this->userProvider instanceof UserManagerInterface) {
             return $this->userProvider->createUserFromSamlInfo($samlInfo);
         } else {
@@ -61,7 +64,8 @@ class UserProviderAdapter implements UserManagerInterface
      * @throws UsernameNotFoundException if the user is not found
      *
      */
-    public function loadUserByUsername($username) {
+    public function loadUserByUsername($username)
+    {
         return $this->userProvider->loadUserByUsername($username);
     }
 
@@ -78,7 +82,8 @@ class UserProviderAdapter implements UserManagerInterface
      *
      * @throws UnsupportedUserException if the account is not supported
      */
-    public function refreshUser(UserInterface $user) {
+    public function refreshUser(UserInterface $user)
+    {
         return $this->userProvider->refreshUser($user);
     }
 
@@ -89,8 +94,8 @@ class UserProviderAdapter implements UserManagerInterface
      *
      * @return Boolean
      */
-    public function supportsClass($class) {
+    public function supportsClass($class)
+    {
         return $this->userProvider->supportsClass($class);
     }
-
 }

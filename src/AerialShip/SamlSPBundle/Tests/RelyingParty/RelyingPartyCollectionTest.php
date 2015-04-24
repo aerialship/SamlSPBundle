@@ -4,7 +4,6 @@ namespace AerialShip\SamlSPBundle\Tests\RelyingParty;
 
 use AerialShip\SamlSPBundle\RelyingParty\RelyingPartyCollection;
 
-
 class RelyingPartyCollectionTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -248,5 +247,4 @@ class RelyingPartyCollectionTest extends \PHPUnit_Framework_TestCase
     {
         return $this->getMock('AerialShip\SamlSPBundle\RelyingParty\RelyingPartyInterface');
     }
-
 }

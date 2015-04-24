@@ -9,7 +9,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\HttpUtils;
 
-
 class FederationMetadata implements RelyingPartyInterface
 {
     /** @var \AerialShip\SamlSPBundle\Config\ServiceInfoCollection */
@@ -35,7 +34,8 @@ class FederationMetadata implements RelyingPartyInterface
      * @param \Symfony\Component\HttpFoundation\Request $request
      * @return bool
      */
-    function supports(Request $request) {
+    function supports(Request $request)
+    {
         $result = $request->attributes->get('metadata_path') == $request->getPathInfo();
         return $result;
     }
@@ -46,7 +46,8 @@ class FederationMetadata implements RelyingPartyInterface
      * @throws \Symfony\Component\Process\Exception\RuntimeException
      * @return \Symfony\Component\HttpFoundation\Response|SamlSpInfo
      */
-    function manage(Request $request) {
+    function manage(Request $request)
+    {
         $serviceInfo = $this->serviceInfoCollection->findByAS($request->query->get('as'));
         if (!$serviceInfo) {
             return $this->httpUtils->createRedirectResponse($request, $request->attributes->get('discovery_path').'?type=metadata');
@@ -61,5 +62,4 @@ class FederationMetadata implements RelyingPartyInterface
         $result->headers->set('Content-Type', 'application/samlmetadata+xml');
         return $result;
     }
-
 }
