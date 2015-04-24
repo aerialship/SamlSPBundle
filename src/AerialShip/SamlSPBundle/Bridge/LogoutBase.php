@@ -8,7 +8,6 @@ use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Http\HttpUtils;
 
-
 class LogoutBase
 {
     /** @var SSOStateStoreInterface  */
@@ -71,5 +70,4 @@ class LogoutBase
             $this->ssoStore->remove($state);
         }
     }
-
 } 

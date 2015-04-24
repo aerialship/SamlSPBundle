@@ -22,7 +22,6 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerI
 use Symfony\Component\Security\Http\HttpUtils;
 use Symfony\Component\Security\Http\Session\SessionAuthenticationStrategyInterface;
 
-
 class SamlSpAuthenticationListenerTest extends \PHPUnit_Framework_TestCase
 {
 
@@ -212,7 +211,7 @@ class SamlSpAuthenticationListenerTest extends \PHPUnit_Framework_TestCase
                 ->expects($this->once())
                 ->method('authenticate')
                 ->with($this->isInstanceOf('AerialShip\SamlSPBundle\Security\Core\Authentication\Token\SamlSpToken'))
-                ->will($this->returnCallback(function(SamlSpToken $actualToken) use ($testCase, $manageReturnSamlSpInfo) {
+                ->will($this->returnCallback(function (SamlSpToken $actualToken) use ($testCase, $manageReturnSamlSpInfo) {
                     $samlInfo = $actualToken->getSamlSpInfo();
                     $testCase->assertNotNull($samlInfo);
                     $testCase->assertNotNull($samlInfo->getNameID());
@@ -433,5 +432,4 @@ class SamlSpAuthenticationListenerTest extends \PHPUnit_Framework_TestCase
     {
         return $this->getMock('Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface');
     }
-
-} 
+}

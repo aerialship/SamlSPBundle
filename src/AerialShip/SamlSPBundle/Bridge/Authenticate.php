@@ -13,7 +13,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Http\HttpUtils;
 
-
 class Authenticate implements RelyingPartyInterface
 {
     /** @var  ServiceInfoCollection */
@@ -106,5 +105,4 @@ class Authenticate implements RelyingPartyInterface
 
         return $result;
     }
-
 }

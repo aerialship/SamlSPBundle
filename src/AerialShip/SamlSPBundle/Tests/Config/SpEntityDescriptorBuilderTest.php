@@ -6,7 +6,6 @@ use AerialShip\LightSaml\Bindings;
 use AerialShip\SamlSPBundle\Config\SpEntityDescriptorBuilder;
 use AerialShip\SamlSPBundle\Config\SPSigningProviderInterface;
 
-
 class SpEntityDescriptorBuilderTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -357,5 +356,4 @@ class SpEntityDescriptorBuilderTest extends \PHPUnit_Framework_TestCase
     {
         return $this->getMock('Symfony\Component\HttpFoundation\Request', array(), array(), '', false, false);
     }
-
 } 

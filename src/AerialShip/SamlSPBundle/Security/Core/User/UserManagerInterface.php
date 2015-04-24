@@ -22,5 +22,4 @@ interface UserManagerInterface extends UserProviderInterface
      * @return \Symfony\Component\Security\Core\User\UserInterface
      */
     public function createUserFromSamlInfo(SamlSpInfo $samlInfo);
-
 }

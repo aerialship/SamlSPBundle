@@ -5,7 +5,6 @@ namespace AerialShip\SamlSPBundle\Tests\Security\Core\Authentication\Token;
 use AerialShip\SamlSPBundle\Security\Core\Authentication\Token\SamlSpToken;
 use AerialShip\SamlSPBundle\Tests\Bridge\SamlSpInfoHelper;
 
-
 class SamlSpTokenTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -142,11 +141,4 @@ class SamlSpTokenTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($token->hasAttribute('b'));
         $this->assertEquals(array(2,3), $token->getAttribute('b'));
     }
-
-
-
-
-
-
-
 } 

@@ -7,7 +7,6 @@ use AerialShip\SamlSPBundle\Config\EntityDescriptorProviderInterface;
 use AerialShip\SamlSPBundle\Config\ServiceInfo;
 use AerialShip\SamlSPBundle\Config\ServiceInfoCollection;
 
-
 class ServiceInfoCollectionTest extends \PHPUnit_Framework_TestCase
 {
     /**
@@ -37,12 +36,18 @@ class ServiceInfoCollectionTest extends \PHPUnit_Framework_TestCase
         $expectedServiceInfo_1 = $this->createServiceInfoStub(
             $expectedProviderID_1 = 'main',
             $expectedIdpID_1 = 'idp1',
-            null, null, null, null
+            null,
+            null,
+            null,
+            null
         );
         $expectedServiceInfo_2 = $this->createServiceInfoStub(
             $expectedProviderID_2 = 'main',
             $expectedIdpID_2 = 'idp2',
-            null, null, null, null
+            null,
+            null,
+            null,
+            null
         );
 
         $col->add($expectedServiceInfo_1);
@@ -62,12 +67,18 @@ class ServiceInfoCollectionTest extends \PHPUnit_Framework_TestCase
         $expectedServiceInfo_1 = $this->createServiceInfoStub(
             $expectedProviderID_1 = 'main',
             $expectedIdpID_1 = 'idp1',
-            null, null, null, null
+            null,
+            null,
+            null,
+            null
         );
         $expectedServiceInfo_2 = $this->createServiceInfoStub(
             $expectedProviderID_2 = 'main',
             $expectedIdpID_2 = 'idp2',
-            null, null, null, null
+            null,
+            null,
+            null,
+            null
         );
 
         $col->add($expectedServiceInfo_1);
@@ -105,7 +116,10 @@ class ServiceInfoCollectionTest extends \PHPUnit_Framework_TestCase
         $expectedServiceInfo = $this->createServiceInfoStub(
             $expectedProviderID = 'main',
             $expectedIdpID = 'idp',
-            null, null, null, null
+            null,
+            null,
+            null,
+            null
         );
 
         $col->add($expectedServiceInfo);
@@ -124,12 +138,18 @@ class ServiceInfoCollectionTest extends \PHPUnit_Framework_TestCase
         $expectedServiceInfo_1 = $this->createServiceInfoStub(
             $expectedProviderID_1 = 'main',
             $expectedIdpID_1 = 'idp1',
-            null, null, null, null
+            null,
+            null,
+            null,
+            null
         );
         $expectedServiceInfo_2 = $this->createServiceInfoStub(
             $expectedProviderID_2 = 'main',
             $expectedIdpID_2 = 'idp2',
-            null, null, null, null
+            null,
+            null,
+            null,
+            null
         );
 
         $col->add($expectedServiceInfo_1);
@@ -148,12 +168,18 @@ class ServiceInfoCollectionTest extends \PHPUnit_Framework_TestCase
         $expectedServiceInfo_1 = $this->createServiceInfoStub(
             $expectedProviderID_1 = 'main',
             $expectedIdpID_1 = 'idp1',
-            null, null, null, null
+            null,
+            null,
+            null,
+            null
         );
         $expectedServiceInfo_2 = $this->createServiceInfoStub(
             $expectedProviderID_2 = 'main',
             $expectedIdpID_2 = 'idp2',
-            null, null, null, null
+            null,
+            null,
+            null,
+            null
         );
 
         $col->add($expectedServiceInfo_1);
@@ -180,7 +206,8 @@ class ServiceInfoCollectionTest extends \PHPUnit_Framework_TestCase
             $expectedIdpID_1 = 'idp_1',
             $expectedSpProvider = null,
             $expectedIdpProvider_1,
-            null, null
+            null,
+            null
         );
 
         $ed_2 = $this->createEntityDescriptorStub($expectedEntityID_2 = 'entity_2');
@@ -190,7 +217,8 @@ class ServiceInfoCollectionTest extends \PHPUnit_Framework_TestCase
             $expectedIdpID_2 = 'idp_2',
             $expectedSpProvider = null,
             $expectedIdpProvider_2,
-            null, null
+            null,
+            null
         );
 
         $col->add($expectedServiceInfo_1);
@@ -284,6 +312,4 @@ class ServiceInfoCollectionTest extends \PHPUnit_Framework_TestCase
         $result->expects($this->any())->method('getEntityID')->will($this->returnValue($entityID));
         return $result;
     }
-
-
 }
