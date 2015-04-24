@@ -5,7 +5,6 @@ namespace AerialShip\SamlSPBundle\Entity;
 use AerialShip\SamlSPBundle\Model\SSOState;
 use Doctrine\ORM\Mapping as ORM;
 
-
 /**
  * @deprecated Use \AerialShip\SamlSPBundle\Model\SSOState
  *

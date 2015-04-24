@@ -8,7 +8,7 @@ services:
     aerial_ship_saml_sp.document_manager:
         class: Doctrine\ODM\MongoDB\DocumentManager
         arguments:
-            - %aerial_ship_saml_sp.model_manager_name% # not realy used since factory is set in extension
+            - %aerial_ship_saml_sp.model_manager_name% # used by factory that is set in extension
         public: false
 
     aerial_ship_saml_sp.state.store.sso:

@@ -2,6 +2,8 @@
 
 namespace AerialShip\SamlSPBundle\State\SSO;
 
+use AerialShip\SamlSPBundle\Model\SSOState;
+
 abstract class AbstractSSOStateStore implements SSOStateStoreInterface
 {
     /** @var  string */

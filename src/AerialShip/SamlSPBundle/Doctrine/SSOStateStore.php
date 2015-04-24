@@ -2,8 +2,9 @@
 
 namespace AerialShip\SamlSPBundle\Doctrine;
 
+use AerialShip\SamlSPBundle\Model\SSOState;
 use AerialShip\SamlSPBundle\State\SSO\AbstractSSOStateStore;
-use AerialShip\SamlSPBundle\State\SSO\SSOState;
+use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 
 /**
@@ -35,7 +36,6 @@ class SSOStateStore extends AbstractSSOStateStore
         $this->objectManager->persist($state);
         $this->objectManager->flush();
     }
-
 
     /**
      * @param string $providerID
