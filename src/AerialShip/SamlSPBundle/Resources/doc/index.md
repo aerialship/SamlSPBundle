@@ -18,6 +18,7 @@ Installation is quick 4 steps:
 4. Configure SamlSpBundle
 5. Configure application's security.yml
 6. Import SamlSpBundle routing
+7. Exchange metadata
 
 
 Step 1: Download SamlSpBundle with composer
@@ -55,16 +56,15 @@ Step 3: Create your SSO State Entity class
 ------------------------------------------
 
 Bundle has to persist SSO State of the user authenticated against IDP so when IDP calls for logout in another session
-it is possible to delete that session, so it can logout the user from your app once he comes back. At this version
-of the bundle only doctrine orm driver is supported. You need to create entity class for it in your project by
-extending `AerialShip\SamlSPBundle\Entity\SSOStateEntity` class.
+it is possible to delete that session, so it can logout the user from your app once he comes back.
+You need to create entity class for it in your project by extending ``AerialShip\SamlSPBundle\Model\SSOState`` class.
 
 For example:
 
 ``` php
 <?php
 
-namespace Acme\SamlBundle\Entity;
+namespace AppBundle\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -72,7 +72,7 @@ use Doctrine\ORM\Mapping as ORM;
  * @ORM\Entity
  * @ORM\Table(name="saml_sso_state")
  */
-class SSOState extends \AerialShip\SamlSPBundle\Entity\SSOStateEntity
+class SSOState extends \AerialShip\SamlSPBundle\Model\SSOState
 {
     /**
      * @var int
@@ -83,27 +83,13 @@ class SSOState extends \AerialShip\SamlSPBundle\Entity\SSOStateEntity
     protected $id;
 
     /**
-     * @param int $id
-     */
-    public function setId($id) {
-        $this->id = $id;
-    }
-
-    /**
      * @return int
      */
-    public function getId() {
+    public function getId()
+    {
         return $this->id;
     }
-
-
 }
-```
-
-After the entity class is created you should update your database schema by running
-
-``` bash
-$ php app/console doctrine:schema:update --force
 ```
 
 
@@ -116,8 +102,25 @@ Now you have to tell to the Bundle what's your entity class
 # app/config/config.yml
 aerial_ship_saml_sp:
     driver: orm
-    sso_state_entity_class: Acme\SamlBundle\Entity\SSOState
+    sso_state_entity_class: AppBundle\Entity\SSOState
+```
 
+If you are using a manager other then default one, you can set it's name with ``model_manager_name`` config
+
+``` yaml
+# app/config/config.yml
+aerial_ship_saml_sp:
+    model_manager_name: my_manager
+```
+
+Now you can create a db migration
+``` bash
+$ php app/console doctrine:migrations:diff
+```
+
+or if you really don't use migrations, just update your database schema by running
+``` bash
+$ php app/console doctrine:schema:update --force
 ```
 
 
@@ -193,7 +196,9 @@ aerialship_saml_sp_bundle:
 Step 7: Exchange metadata
 -------------------------
 
-Download your SP metadata by visiting the (configurable) URL `/saml/sp/FederationMetadata.xml` and send the file to the IdP. Save the IdP metadata in your bundle at the configured location (e.g. `@AcmeSamlBundle/Resources/idp-FederationMetadata.xml`).
+Download your SP metadata by visiting the (configurable) URL `/saml/sp/FederationMetadata.xml` and send the file to
+the IDP. Save the IDP metadata in your bundle at the configured location
+(e.g. `@AcmeSamlBundle/Resources/idp-FederationMetadata.xml`).
 
 
 Next Steps

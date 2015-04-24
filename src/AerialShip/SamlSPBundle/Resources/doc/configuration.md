@@ -1,3 +1,14 @@
+config.yml
+----------
+
+```
+aerial_ship_saml_sp:
+    driver: orm     # orm or mongodb
+    sso_state_entity_class: AppBundle\Entity\SSOState  # class that will be used as SSOState
+    model_manager_name: ~    # name of doctrine manager to use
+```
+
+
 security.xml
 ------------
 

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<doctrine-mongo-mapping xmlns="http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping"
+                        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                        xsi:schemaLocation="http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping
+                        http://doctrine-project.org/schemas/odm/doctrine-mongo-mapping.xsd">
+
+    <mapped-superclass name="AerialShip\SamlSPBundle\Model\SSOState" collection="aerialship_sp_sso_state">
+
+        <field name="providerID" fieldName="provider_id" type="string" />
+
+        <field name="authenticationServiceName" fieldName="auth_svc_name" type="string" />
+
+        <field name="sessionIndex" fieldName="session_index" type="string" />
+
+        <field name="nameID" fieldName="name_id" type="string" />
+
+        <field name="nameIDFormat" fieldName="name_id_format" type="string" />
+
+        <field name="createdOn" fieldName="created_on" type="date" />
+
+    </mapped-superclass>
+
+</doctrine-mongo-mapping>

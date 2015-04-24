@@ -19,13 +19,16 @@ class Configuration implements ConfigurationInterface
 
         $root->children()
             ->enumNode('driver')
-                ->values(array('orm', ''))
+                ->values(array('orm', 'mongodb'))
                 ->cannotBeEmpty()
                 ->defaultValue('orm')
                 ->end()
             ->scalarNode('sso_state_entity_class')
                 ->isRequired()
                 ->cannotBeEmpty()
+            ->end()
+            ->scalarNode('model_manager_name')
+                ->defaultNull()
             ->end()
         ->end();
 

@@ -1,17 +1,17 @@
 
 parameters:
     aerial_ship_saml_sp.state.store.sso.class: AerialShip\SamlSPBundle\Doctrine\SSOStateStore
-    aerial_ship_saml_sp.backend_type_orm: 1
+    aerial_ship_saml_sp.backend_type_mongodb: 1
 
 services:
     # factory will be set in bundle extension, listed here to be used as a reference in other services
-    aerial_ship_saml_sp.entity_manager:
-        class: Doctrine\ORM\EntityManager
+    aerial_ship_saml_sp.document_manager:
+        class: Doctrine\ODM\MongoDB\DocumentManager
         arguments:
             - %aerial_ship_saml_sp.model_manager_name% # used by factory that is set in extension
         public: false
 
     aerial_ship_saml_sp.state.store.sso:
         class: %aerial_ship_saml_sp.state.store.sso.class%
-        arguments: [@aerial_ship_saml_sp.entity_manager, %aerial_ship_saml_sp.state.store.sso.entity_class%]
+        arguments: [%aerial_ship_saml_sp.state.store.sso.entity_class%, @aerial_ship_saml_sp.document_manager]
         public: false
