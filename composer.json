@@ -28,6 +28,6 @@
     "prefer-stable": true,
     "minimum-stability": "dev",
     "require-dev": {
-        "squizlabs/php_codesniffer": "~2.0@dev"
+        "squizlabs/php_codesniffer": "~2.0"
     }
 }
