@@ -36,5 +36,4 @@ SamlSpBundle is an open source project and is open for contributions. Please fol
 Credits
 ------
 
-Thanks to fos/user-bundle and fp/openid-bundle open source projects that helped understand better how symfony2
-security works and learn how custom security extensions should be built.
+Thanks to [FriendsOfSymfony/FOSUserBundle](https://github.com/FriendsOfSymfony/FOSUserBundle) and [formapro/FpOpenIdBundle](https://github.com/formapro/FpOpenIdBundle) open source projects that helped understand better how Symfony2 security works and learn how custom security extensions should be built.
