@@ -1,6 +1,12 @@
 SamlSPBundle
 ============
 
+NEW VERSION
+-----------
+
+**New version of this library is in own organization: [lightsaml/sp-bundle](https://github.com/lightSAML/SpBundle)**
+
+
 [![Build Status](https://travis-ci.org/aerialship/SamlSPBundle.png)](https://travis-ci.org/aerialship/SamlSPBundle)
 [![Scrutinizer Quality Score](https://scrutinizer-ci.com/g/aerialship/SamlSPBundle/badges/quality-score.png?s=ea75a9e869bb19543fb0ab9530f63010d8a8da95)](https://scrutinizer-ci.com/g/aerialship/SamlSPBundle/)
 [![Code Coverage](https://scrutinizer-ci.com/g/aerialship/SamlSPBundle/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/aerialship/SamlSPBundle/?branch=master)
