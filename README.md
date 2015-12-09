@@ -4,7 +4,7 @@ SamlSPBundle
 NEW VERSION
 -----------
 
-**New version of this library is in own organization: [lightsaml/sp-bundle](https://github.com/lightSAML/SpBundle)**
+**New version of this library is in own organization: [lightsaml/sp-bundle](https://github.com/lightSAML/SpBundle)**. More details on [LightSAML website](http://www.lightsaml.com/SP-Bundle/).
 
 
 [![Build Status](https://travis-ci.org/aerialship/SamlSPBundle.png)](https://travis-ci.org/aerialship/SamlSPBundle)
