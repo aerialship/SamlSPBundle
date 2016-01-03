@@ -10,7 +10,7 @@
 
         <field name="authenticationServiceName" column="auth_svc_name" type="string" length="32" />
 
-        <field name="sessionIndex" column="session_index" type="string" length="255" nullable="true" />
+        <field name="sessionIndex" column="session_index" type="string" length="512" nullable="true" />
 
         <field name="nameID" column="name_id" type="string" length="64" />
 
