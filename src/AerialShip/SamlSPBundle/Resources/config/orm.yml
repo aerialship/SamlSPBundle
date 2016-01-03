@@ -13,5 +13,5 @@ services:
 
     aerial_ship_saml_sp.state.store.sso:
         class: %aerial_ship_saml_sp.state.store.sso.class%
-        arguments: [@aerial_ship_saml_sp.entity_manager, %aerial_ship_saml_sp.state.store.sso.entity_class%]
+        arguments: ["@aerial_ship_saml_sp.entity_manager", %aerial_ship_saml_sp.state.store.sso.entity_class%]
         public: false

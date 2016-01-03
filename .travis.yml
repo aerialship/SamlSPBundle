@@ -6,6 +6,8 @@ php:
     - 5.6
     - hhvm
 
+env:
+    - SYMFONY_DEPRECATIONS_HELPER=weak
 
 before_script:
     - COMPOSER_ROOT_VERSION=dev-master composer --prefer-source --dev install

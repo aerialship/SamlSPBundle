@@ -9,7 +9,7 @@
     "require": {
         "php": ">=5.4.1",
         "aerialship/lightsaml": "~1.0",
-        "symfony/symfony": "~2.3"
+        "symfony/symfony": ">=2.3 <2.8"
     },
     "suggest": {
         "doctrine/orm": "If you want store sso state in relational database",
@@ -28,6 +28,7 @@
     "prefer-stable": true,
     "minimum-stability": "dev",
     "require-dev": {
-        "squizlabs/php_codesniffer": "~2.0"
+        "squizlabs/php_codesniffer": "~2.0",
+        "phpunit/phpunit": "~4.8"
     }
 }
