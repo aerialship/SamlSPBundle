@@ -71,6 +71,10 @@ class AssertionConsumer implements RelyingPartyInterface
 
         $response = $this->getSamlResponse($request);
         $serviceInfo = $this->serviceInfoCollection->findByIDPEntityID($response->getIssuer());
+        
+        if (!$serviceInfo) {
+            throw new \RuntimeException('Could not find ServiceProvider with entity id: '.$response->getIssuer());
+        }
 
         $serviceInfo->getSpProvider()->setRequest($request);
         $this->validateResponse($serviceInfo, $response);
