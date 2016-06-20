@@ -6,17 +6,17 @@
 
     <mapped-superclass name="AerialShip\SamlSPBundle\Model\SSOState" collection="aerialship_sp_sso_state">
 
-        <field name="providerID" fieldName="provider_id" type="string" />
+        <field fieldName="providerID" name="provider_id" type="string" />
 
-        <field name="authenticationServiceName" fieldName="auth_svc_name" type="string" />
+        <field fieldName="authenticationServiceName" name="auth_svc_name" type="string" />
 
-        <field name="sessionIndex" fieldName="session_index" type="string" />
+        <field fieldName="sessionIndex" name="session_index" type="string" />
 
-        <field name="nameID" fieldName="name_id" type="string" />
+        <field fieldName="nameID" name="name_id" type="string" />
 
-        <field name="nameIDFormat" fieldName="name_id_format" type="string" />
+        <field fieldName="nameIDFormat" name="name_id_format" type="string" />
 
-        <field name="createdOn" fieldName="created_on" type="date" />
+        <field fieldName="createdOn" name="created_on" type="date" />
 
     </mapped-superclass>
 
