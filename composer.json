@@ -9,7 +9,7 @@
     "require": {
         "php": ">=5.4.1",
         "aerialship/lightsaml": "~1.0",
-        "symfony/symfony": ">=2.3 <2.8"
+        "symfony/symfony": ">=2.8"
     },
     "suggest": {
         "doctrine/orm": "If you want store sso state in relational database",
