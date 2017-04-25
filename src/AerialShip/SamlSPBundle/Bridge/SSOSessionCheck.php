@@ -8,7 +8,7 @@ use AerialShip\SamlSPBundle\Security\Core\Authentication\Token\SamlSpToken;
 use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Authentication\Token\AnonymousToken;
-use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Http\HttpUtils;
 
 class SSOSessionCheck implements RelyingPartyInterface
@@ -16,8 +16,8 @@ class SSOSessionCheck implements RelyingPartyInterface
     /** @var  string */
     protected $providerKey;
 
-    /** @var \Symfony\Component\Security\Core\SecurityContextInterface  */
-    protected $securityContext;
+    /** @var TokenStorage  */
+    protected $tokenStorage;
 
     /** @var \AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface  */
     protected $ssoStore;
@@ -26,10 +26,10 @@ class SSOSessionCheck implements RelyingPartyInterface
     protected $httpUtils;
 
 
-    function __construct($providerKey, SecurityContextInterface $securityContext, SSOStateStoreInterface $ssoStore, HttpUtils $httpUtils)
+    function __construct($providerKey, TokenStorage $tokenStorage, SSOStateStoreInterface $ssoStore, HttpUtils $httpUtils)
     {
         $this->providerKey = $providerKey;
-        $this->securityContext = $securityContext;
+        $this->tokenStorage = $tokenStorage;
         $this->ssoStore = $ssoStore;
         $this->httpUtils = $httpUtils;
     }
@@ -45,7 +45,7 @@ class SSOSessionCheck implements RelyingPartyInterface
         if ($this->httpUtils->checkRequestPath($request, $request->attributes->get('failure_path'))) {
             return false;
         }
-        $token = $this->securityContext->getToken();
+        $token = $this->tokenStorage->getToken();
         $result = $token != null
                 && $token->isAuthenticated()
                 && $token instanceof SamlSpToken
@@ -64,7 +64,7 @@ class SSOSessionCheck implements RelyingPartyInterface
     public function manage(Request $request)
     {
         /** @var SamlSpToken $token */
-        $token = $this->securityContext->getToken();
+        $token = $this->tokenStorage->getToken();
         $samlSpInfo = $token->getSamlSpInfo();
 
         $ssoState = $this->ssoStore->getOneByNameIDSessionIndex(
@@ -74,7 +74,7 @@ class SSOSessionCheck implements RelyingPartyInterface
             $samlSpInfo->getAuthnStatement()->getSessionIndex()
         );
         if ($ssoState == null || $ssoState->getNameID() != $samlSpInfo->getNameID()->getValue()) {
-            $this->securityContext->setToken(new AnonymousToken($this->providerKey, 'anon.'));
+            $this->tokenStorage->setToken(new AnonymousToken($this->providerKey, 'anon.'));
             $ex = new SSOSessionException('SSO session has expired');
             $ex->setToken($token);
             throw $ex;

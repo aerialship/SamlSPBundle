@@ -9,7 +9,7 @@ use AerialShip\SamlSPBundle\Security\Core\Authentication\Token\SamlSpToken;
 use AerialShip\SamlSPBundle\State\Request\RequestStateStoreInterface;
 use AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Http\HttpUtils;
 
 class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
@@ -23,8 +23,8 @@ class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
     /** @var ServiceInfoCollection  */
     protected $serviceInfoCollection;
 
-    /** @var \Symfony\Component\Security\Core\SecurityContextInterface  */
-    protected $securityContext;
+    /** @var TokenStorage  */
+    protected $tokenStorage;
 
 
     /**
@@ -32,7 +32,7 @@ class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
      * @param RequestStateStoreInterface $requestStore
      * @param \AerialShip\SamlSPBundle\Config\ServiceInfoCollection $serviceInfoCollection
      * @param \AerialShip\SamlSPBundle\State\SSO\SSOStateStoreInterface $ssoStore
-     * @param \Symfony\Component\Security\Core\SecurityContextInterface $securityContext
+     * @param TokenStorage $tokenStorage
      * @param \Symfony\Component\Security\Http\HttpUtils $httpUtils
      */
     public function __construct(
@@ -40,14 +40,14 @@ class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
         RequestStateStoreInterface $requestStore,
         ServiceInfoCollection $serviceInfoCollection,
         SSOStateStoreInterface $ssoStore,
-        SecurityContextInterface $securityContext,
+        TokenStorage $tokenStorage,
         HttpUtils $httpUtils
     ) {
         parent::__construct($ssoStore, $httpUtils);
         $this->bindingManager = $bindingManager;
         $this->requestStore = $requestStore;
         $this->serviceInfoCollection = $serviceInfoCollection;
-        $this->securityContext = $securityContext;
+        $this->tokenStorage = $tokenStorage;
     }
 
 
@@ -123,7 +123,7 @@ class LogoutReceiveResponse extends LogoutBase implements RelyingPartyInterface
     {
         $serviceInfo = $this->serviceInfoCollection->findByIDPEntityID($logoutResponse->getIssuer());
         /** @var $token SamlSpToken */
-        $token = $this->securityContext->getToken();
+        $token = $this->tokenStorage->getToken();
         if ($token && $token instanceof SamlSpToken) {
             $samlInfo = $token->getSamlSpInfo();
             if ($samlInfo) {

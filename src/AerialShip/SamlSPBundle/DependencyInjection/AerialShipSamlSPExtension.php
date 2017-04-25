@@ -45,8 +45,8 @@ class AerialShipSamlSPExtension extends Extension
             if (method_exists($definition, 'setFactory')) {
                 $definition->setFactory(array(new Reference($doctrineService), 'getManager'));
             } else {
-                $definition->setFactoryService($doctrineService);
-                $definition->setFactoryMethod('getManager');
+                $definition->setFactory($doctrineService);
+                $definition->setMethodCalls('getManager');
             }
         }
     }
