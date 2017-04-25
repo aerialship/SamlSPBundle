@@ -3,8 +3,9 @@
 namespace AerialShip\SamlSPBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
-use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Security;
 
 class SecurityController extends Controller
 {
@@ -38,10 +39,10 @@ class SecurityController extends Controller
         throw new \RuntimeException('You must configure the discovery path path to be handled by the firewall using aerial_ship_saml_sp in your security firewall configuration.');
     }
 
-    public function failureAction()
+    public function failureAction(Request $request)
     {
         /** @var $error AuthenticationException */
-        $error = $this->getRequest()->getSession()->get(SecurityContextInterface::AUTHENTICATION_ERROR);
+        $error = $request->getSession()->get(Security::AUTHENTICATION_ERROR);
         return $this->render('AerialShipSamlSPBundle::failure.html.twig', array('error'=>$error));
     }
 }

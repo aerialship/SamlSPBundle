@@ -2,6 +2,7 @@
 
 namespace AerialShip\SamlSPBundle\Bridge;
 
+use AerialShip\LightSaml\Binding\PostResponse;
 use AerialShip\LightSaml\Meta\LogoutRequestBuilder;
 use AerialShip\LightSaml\Model\Protocol\LogoutRequest;
 use AerialShip\SamlSPBundle\Config\ServiceInfo;
@@ -13,12 +14,12 @@ use AerialShip\SamlSPBundle\State\Request\RequestStateStoreInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 
 class LogoutSendRequest implements RelyingPartyInterface
 {
-    /** @var \Symfony\Component\Security\Core\SecurityContextInterface  */
-    protected $securityContext;
+    /** @var TokenStorage  */
+    protected $tokenStorage;
 
     /** @var  ServiceInfoCollection */
     protected $serviceInfoCollection;
@@ -29,16 +30,16 @@ class LogoutSendRequest implements RelyingPartyInterface
 
 
     /**
-     * @param SecurityContextInterface $securityContext
+     * @param TokenStorage $tokenStorage
      * @param ServiceInfoCollection $serviceInfoCollection
      * @param \AerialShip\SamlSPBundle\State\Request\RequestStateStoreInterface $requestStateStore
      */
     public function __construct(
-        SecurityContextInterface $securityContext,
+        TokenStorage $tokenStorage,
         ServiceInfoCollection $serviceInfoCollection,
         RequestStateStoreInterface $requestStateStore
     ) {
-        $this->securityContext = $securityContext;
+        $this->tokenStorage = $tokenStorage;
         $this->serviceInfoCollection = $serviceInfoCollection;
         $this->requestStateStore = $requestStateStore;
     }
@@ -55,7 +56,7 @@ class LogoutSendRequest implements RelyingPartyInterface
             return false;
         }
         /** @var $token SamlSpToken */
-        $token = $this->securityContext->getToken();
+        $token = $this->tokenStorage->getToken();
         if (!$token || !$token instanceof SamlSpToken) {
             return false;
         }
@@ -86,7 +87,7 @@ class LogoutSendRequest implements RelyingPartyInterface
 
         $this->createRequestState($logoutRequest, $serviceInfo);
 
-        if ($bindingResponse instanceof \AerialShip\LightSaml\Binding\PostResponse) {
+        if ($bindingResponse instanceof PostResponse) {
             return new Response($bindingResponse->render());
         } else if ($bindingResponse instanceof \AerialShip\LightSaml\Binding\RedirectResponse) {
             return new RedirectResponse($bindingResponse->getDestination());
@@ -102,7 +103,7 @@ class LogoutSendRequest implements RelyingPartyInterface
     protected function getSamlInfo()
     {
         /** @var $token SamlSpToken */
-        $token = $this->securityContext->getToken();
+        $token = $this->tokenStorage->getToken();
         $samlInfo = $token->getSamlSpInfo();
         return $samlInfo;
     }

@@ -16,7 +16,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\Security\Core\Authentication\AuthenticationManagerInterface;
-use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Http\Authentication\AuthenticationFailureHandlerInterface;
 use Symfony\Component\Security\Http\Authentication\AuthenticationSuccessHandlerInterface;
 use Symfony\Component\Security\Http\HttpUtils;
@@ -31,7 +31,7 @@ class SamlSpAuthenticationListenerTest extends \PHPUnit_Framework_TestCase
     public function shouldBeConstructedWithRequiredSetOfArguments()
     {
         new SamlSpAuthenticationListener(
-            $this->createSecurityContextMock(),
+            $this->createTokenStorageMock(),
             $this->createAuthenticationManagerMock(),
             $this->createSessionAuthenticationStrategyMock(),
             $this->createHttpUtilsMock(),
@@ -58,7 +58,7 @@ class SamlSpAuthenticationListenerTest extends \PHPUnit_Framework_TestCase
         $eventMock = $this->createGetResponseEventStub($requestMock);
 
         $listener = new SamlSpAuthenticationListener(
-            $this->createSecurityContextMock(),
+            $this->createTokenStorageMock(),
             $this->createAuthenticationManagerMock(),
             $this->createSessionAuthenticationStrategyMock(),
             $this->createHttpUtilsMock(),
@@ -101,7 +101,7 @@ class SamlSpAuthenticationListenerTest extends \PHPUnit_Framework_TestCase
         $eventMock = $this->createGetResponseEventStub($requestMock);
 
         $listener = new SamlSpAuthenticationListener(
-            $this->createSecurityContextMock(),
+            $this->createTokenStorageMock(),
             $this->createAuthenticationManagerMock(),
             $this->createSessionAuthenticationStrategyMock(),
             $this->createHttpUtilsStub($checkRequestPathReturn = true),
@@ -148,7 +148,7 @@ class SamlSpAuthenticationListenerTest extends \PHPUnit_Framework_TestCase
         $eventMock = $this->createGetResponseEventStub($requestMock);
 
         $listener = new SamlSpAuthenticationListener(
-            $this->createSecurityContextMock(),
+            $this->createTokenStorageMock(),
             $this->createAuthenticationManagerMock(),
             $this->createSessionAuthenticationStrategyMock(),
             $this->createHttpUtilsStub($checkRequestPathReturn = true),
@@ -226,7 +226,7 @@ class SamlSpAuthenticationListenerTest extends \PHPUnit_Framework_TestCase
         $eventMock = $this->createGetResponseEventStub($requestMock);
 
         $listener = new SamlSpAuthenticationListener(
-            $this->createSecurityContextMock(),
+            $this->createTokenStorageMock(),
             $authenticationManagerMock,
             $this->createSessionAuthenticationStrategyMock(),
             $httpUtilsStub,
@@ -346,11 +346,11 @@ class SamlSpAuthenticationListenerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject|SecurityContextInterface
+     * @return \PHPUnit_Framework_MockObject_MockObject|TokenStorage
      */
-    private function createSecurityContextMock()
+    private function createTokenStorageMock()
     {
-        return $this->getMock('Symfony\Component\Security\Core\SecurityContextInterface');
+        return $this->getMock('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage');
     }
 
     /**

@@ -8,10 +8,10 @@ services:
     aerial_ship_saml_sp.entity_manager:
         class: Doctrine\ORM\EntityManager
         arguments:
-            - %aerial_ship_saml_sp.model_manager_name% # used by factory that is set in extension
+            - "%aerial_ship_saml_sp.model_manager_name%" # used by factory that is set in extension
         public: false
 
     aerial_ship_saml_sp.state.store.sso:
-        class: %aerial_ship_saml_sp.state.store.sso.class%
-        arguments: ["@aerial_ship_saml_sp.entity_manager", %aerial_ship_saml_sp.state.store.sso.entity_class%]
+        class: "%aerial_ship_saml_sp.state.store.sso.class%"
+        arguments: ["@aerial_ship_saml_sp.entity_manager", "%aerial_ship_saml_sp.state.store.sso.entity_class%"]
         public: false
